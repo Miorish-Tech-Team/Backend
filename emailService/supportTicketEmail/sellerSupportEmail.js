@@ -2,10 +2,11 @@ const { transporter } = require("../../config/nodemailerConfig/emailConfigMiddle
 
 const logo = process.env.LOGO;
 const name = process.env.NAME;
+const adminEmail = process.env.ADMIN_EMAIL;
 const sendSellerTicketCreationEmail = async (email, fullName, ticketNumber, subject) => {
   try {
     const response = await transporter.sendMail({
-      from: `"${name} Seller Support" <noreply@miorish.com>`,
+      from: `"${name} Seller Support" <${adminEmail}>`,
       to: email,
       subject: `🎫 Seller Ticket Created - ${name} (#${ticketNumber})`,
       text: `Hi ${fullName},\n\nYour seller support ticket has been created successfully.\n\nTicket Number: ${ticketNumber}\nSubject: ${subject}\n\nOur team will review and respond shortly.\n\nThank you,\n${name} Seller Support`,
@@ -43,7 +44,7 @@ const sendSellerTicketCreationEmail = async (email, fullName, ticketNumber, subj
 const sendSellerTicketReplyEmail = async (email, fullName, ticketNumber, subject, adminReply, status) => {
   try {
     const response = await transporter.sendMail({
-      from: `"${name} Seller Support" <noreply@miorish.com>`,
+      from: `"${name} Seller Support" <${adminEmail}>`,
       to: email,
       subject: `🛠️ Seller Ticket #${ticketNumber} Update - ${status.toUpperCase()}`,
       html: `

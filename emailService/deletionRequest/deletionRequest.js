@@ -1,6 +1,7 @@
 const { transporter } = require("../../config/nodemailerConfig/emailConfigMiddleware");
 const logo = process.env.LOGO;
 const name = process.env.NAME;
+const adminEmail = process.env.ADMIN_EMAIL;
 
 const sendAccountDeletionStatusEmail = async (email, fullName, requestId, status) => {
   try {
@@ -11,7 +12,7 @@ const sendAccountDeletionStatusEmail = async (email, fullName, requestId, status
         : "Your request for account deletion has been rejected. If you believe this is a mistake, please contact our support team.";
 
     await transporter.sendMail({
-      from: `"${name} Support" <noreply@miorish.com>`,
+      from: `"${name} Support" <${adminEmail}>`,
       to: email,
       subject: ` ${subjectLine}`,
       html: `

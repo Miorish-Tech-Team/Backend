@@ -1,10 +1,11 @@
 const { transporter } = require("../../config/nodemailerConfig/emailConfigMiddleware");
 const logo = process.env.LOGO;
 const name = process.env.NAME;
+const adminEmail = process.env.ADMIN_EMAIL;
 const sendMembershipAssignedEmail = async (email, sellerName, planName, startDate, endDate) => {
   try {
     const response = await transporter.sendMail({
-      from: `"${name} Team" <noreply@miorish.com>`,
+      from: `"${name} Team" <${adminEmail}>`,
       to: email,
       subject: `Membership Assigned - ${name}`,
       text: `Hi ${sellerName},\n\nYou have been subscribed to a new membership plan.\n\nPlan: ${planName}\nStart Date: ${startDate}\nEnd Date: ${endDate}\n\nThank you for being a part of ${name}!\n\n- ${name} Team`,
@@ -38,9 +39,9 @@ const sendMembershipAssignedEmail = async (email, sellerName, planName, startDat
 const sendMembershipRenewalEmail = async (email, sellerName, planName, startDate, endDate) => {
   try {
     const response = await transporter.sendMail({
-      from: `"${name} Team" <noreply@miorish.com>`,
+      from: `"${name} Team" <${adminEmail}>`,
       to: email,
-      subject: `Membership Renewed - ${name}`,
+      subject: `Membership Renewal - ${name}`,
       text: `Hi ${sellerName},\n\nYour membership has been renewed.\n\nPlan: ${planName}\nStart Date: ${startDate}\nEnd Date: ${endDate}\n\nThanks for staying with us!\n\n- ${name} Team`,
       html: `
         <div style="background-color: #f3f4f6; padding: 40px 0; font-family: Arial, sans-serif;">
@@ -72,7 +73,7 @@ const sendMembershipRenewalEmail = async (email, sellerName, planName, startDate
 const sendPreExpiryEmailToSeller = async (email, planName, duration) => {
   try {
     await transporter.sendMail({
-      from: `"${name} Membership" <noreply@miorish.com>`,
+      from: `"${name} Membership" <${adminEmail}>`,
       to: email,
       subject: " Your Membership is Expiring Soon!",
       html: `
@@ -99,7 +100,7 @@ const sendPreExpiryEmailToSeller = async (email, planName, duration) => {
 const sendExpiryEmailToSeller = async (email, planName, duration) => {
   try {
     await transporter.sendMail({
-      from: `"${name} Membership" <noreply@miorish.com>`,
+      from: `"${name} Membership" <${adminEmail}>`,
       to: email,
       subject: " Your Membership Has Expired",
       html: `

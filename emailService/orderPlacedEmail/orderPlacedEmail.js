@@ -1,6 +1,7 @@
 const { transporter } = require("../../config/nodemailerConfig/emailConfigMiddleware");
 const logo = process.env.LOGO;
 const name = process.env.NAME;
+const adminEmail = process.env.ADMIN_EMAIL;
 
 
 const sendOrderEmail = async (email, customerName, orderId, productDetails) => {
@@ -22,7 +23,7 @@ const sendOrderEmail = async (email, customerName, orderId, productDetails) => {
     )).join("\n");
 
     const response = await transporter.sendMail({
-      from: `"${name} Team" <noreply@miorish.com>`,
+      from: `"${name} Team" <${adminEmail}>`,
       to: email,
       subject: `Order Confirmation - ${name}`,
       text: `Hi ${customerName},\n\nThank you for your order!\n\nOrder ID: ${orderId}\n\n${productsText}\nWe'll notify you when your order ships.\n\n- ${name} Team`,

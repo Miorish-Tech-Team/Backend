@@ -1,10 +1,11 @@
 const { transporter } = require("../../config/nodemailerConfig/emailConfigMiddleware");
 const logo = process.env.LOGO;
 const name = process.env.NAME;
+const adminEmail = process.env.ADMIN_EMAIL;
 const sendVerificationEmail = async (email, fullName, otp) => {
     try {
       const response = await transporter.sendMail({
-        from: `"${name} Team" <noreply@miorish.com>`,
+        from: `"${name} Team" <${adminEmail}>`,
         to: email,
         subject: `Email Verification Code - ${name}`,
         text: `Hi ${fullName},\n\nYour ${name} verification code is: ${otp}\n\nThis code will expire in 10 minutes.\n\nIf you did not request this code, you can safely ignore this email.\n\n- ${name} Team`,
@@ -42,7 +43,7 @@ const sendVerificationEmail = async (email, fullName, otp) => {
       const loginURL = `${process.env.FRONTEND_URL}/login`;
   
       const response = await transporter.sendMail({
-        from: `"${name} Team" <noreply@miorish.com>`,
+        from: `"${name} Team" <${adminEmail}>`,
         to: email,
         subject: " Email Verified - Approval Request Submitted",
         text: `Hi ${fullName},\n\nYour email has been successfully verified! \n\nYour request to become a seller has been sent for approval. Once your account is approved, you will be able to log in and access your seller dashboard.\n\nIf you are already approved, you can log in now:\n\nLogin: ${loginURL}\n\nThanks for choosing ${name}!\n\n- The ${name} Team`,
@@ -91,7 +92,7 @@ const sendVerificationEmail = async (email, fullName, otp) => {
   const sendSellerApprovalEmail = async (sellerEmail, sellerName) => {
     try {
       const response = await transporter.sendMail({
-        from: `"${name} Team" <noreply@miorish.com>`,
+        from: `"${name} Team" <${adminEmail}>`,
         to: process.env.ADMIN_EMAIL,
         subject: `New Seller Approval Request - ${name}`,
         text: `${sellerName} has requested to become a seller on ${name}. Please review their application and approve it from your admin panel.`,
@@ -135,7 +136,7 @@ const sendVerificationEmail = async (email, fullName, otp) => {
   const sendApprovedEmail = async (email, sellerName) => {
     try {
       const response = await transporter.sendMail({
-        from: `"${name} Team" <noreply@miorish.com>`,
+        from: `"${name} Team" <${adminEmail}>`,
         to: email,
         subject: `Seller Account Approved - ${name}`,
         text: `Hi ${sellerName},\n\nYour seller account has been approved successfully on ${name}.\n\nYou can now wait for your agreement approval, or if it has already been approved, you may log in to your seller dashboard.\n\nThank you for joining us!\n\n- ${name} Team`,
@@ -178,7 +179,7 @@ const sendVerificationEmail = async (email, fullName, otp) => {
   const sendApprovalRejectEmail = async (email, sellerName) => {
     try {
       const response = await transporter.sendMail({
-        from: `"${name} Team" <noreply@miorish.com>`,
+        from: `"${name} Team" <${adminEmail}>`,
         to: email,
         subject: `Seller Account Approval Rejected - ${name}`,
         text: `Hi ${sellerName},\n\nWe regret to inform you that your seller account request has been rejected after review.\n\nThis may be due to incomplete or invalid information provided during registration. Please feel free to reach out to our support team if you have any questions or would like to reapply.\n\n- ${name} Team`,
@@ -222,7 +223,7 @@ const sendVerificationEmail = async (email, fullName, otp) => {
     try {
       const loginURL = `${process.env.FRONTEND_URL}/profile`; 
       const response = await transporter.sendMail({
-        from: `"${name} Team" <noreply@miorish.com>`,
+        from: `"${name} Team" <${adminEmail}>`,
         to: email,
         subject: " Profile Updated Successfully",
         text: `Hi ${fullName},\n\nYour profile has been successfully updated! \n\n\n\nIf you did not make these changes, please contact support immediately.\n\nProfile: ${loginURL}\n\nThanks for being with ${name}!\n\n- The ${name} Team`,
@@ -262,7 +263,7 @@ const sendVerificationEmail = async (email, fullName, otp) => {
     try {
       const loginURL = `${process.env.FRONTEND_URL}/login`; 
       const response = await transporter.sendMail({
-        from: `"${name} Team" <noreply@miorish.com>`,
+        from: `"${name} Team" <${adminEmail}>`,
         to: email,
         subject: " Password Changed Successfully",
         text: `Hi ${fullName},\n\nYour password has been successfully changed! \n\n\n\nIf you did not request this change, please contact support immediately.\n\nLogin: ${loginURL}\n\nThanks for using ${name}!\n\n- The ${name} Team`,

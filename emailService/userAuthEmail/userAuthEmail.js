@@ -2,10 +2,11 @@ const { transporter } = require("../../config/nodemailerConfig/emailConfigMiddle
 
 const logo = process.env.LOGO;
 const name = process.env.NAME;
+const adminEmail = process.env.ADMIN_EMAIL;
 const sendVerificationEmail = async (email, fullName, otp) => {
     try {
       const response = await transporter.sendMail({
-        from: `"${name} Team" <noreply@miorish.com>`,
+        from: `"${name} Team" <${adminEmail}>`,
         to: email,
         subject: `Email Verification Code - ${name}`,
         text: `Hi ${fullName},\n\nYour ${name} verification code is: ${otp}\n\nThis code will expire in 10 minutes.\n\nIf you did not request this code, you can safely ignore this email.\n\n- ${name} Team`,
@@ -42,7 +43,7 @@ const sendVerificationEmail = async (email, fullName, otp) => {
     try {
       const loginURL = `${process.env.FRONTEND_URL}/login`; 
       const response = await transporter.sendMail({
-        from: `"${name} Team" <noreply@miorish.com>`,
+        from: `"${name} Team" <${adminEmail}>`,
         to: email,
         subject: " Email Verified",
         text: `Hi ${fullName},\n\nYour email has been successfully verified! \n\n\n\nLogin: ${loginURL}\n\nThanks for joining ${name}!\n\n- The ${name} Team`,
@@ -84,7 +85,7 @@ const sendVerificationEmail = async (email, fullName, otp) => {
   try {
     const verifyLoginURL = `${process.env.FRONTEND_URL}/verify-2fa`; 
     const response = await transporter.sendMail({
-      from: `"${name} Team" <noreply@miorish.com>`,
+      from: `"${name} Team" <${adminEmail}>`,
       to: email,
       subject: `Your 2FA Login OTP - ${name}`,
       text: `Hi ${fullName},\n\nYour OTP for login is: ${otp}\nIt is valid for 10 minutes.\n\nIf you didn't attempt to login, please ignore this message.\n\n- The ${name} Team`,
@@ -133,9 +134,9 @@ const sendTwoFactorAuthStatusEmail = async (email, fullName, isEnabled) => {
       : "You have disabled Two-Factor Authentication (2FA) for your account. If this wasn't you, please secure your account immediately.";
 
     const response = await transporter.sendMail({
-      from: `"${name} Team" <noreply@miorish.com>`,
+      from: `"${name} Team" <${adminEmail}>`,
       to: email,
-      subject: `Two-Factor Authentication ${statusText} - ${name}`,
+      subject: `Two-Factor Authentication ${status} - ${name}`,
       text: `Hi ${fullName},\n\n${actionMessage}\n\n- The ${name} Team`,
       html: `
         <div style="max-width: 600px; background-color: ${actionBgColor}; margin: 0 auto; padding: 24px; border-radius: 12px; box-shadow: 0 6px 12px rgba(0,0,0,0.1); font-family: Arial, sans-serif;">
@@ -165,7 +166,7 @@ const sendTwoFactorAuthStatusEmail = async (email, fullName, isEnabled) => {
   const sendForgetPasswordURL = async (email, URL) => {
     try {
       const response = await transporter.sendMail({
-        from: `"${name} Support" <noreply@miorish.com>`,
+        from: `"${name} Support" <${adminEmail}>`,
         to: email,
         subject: `${name} Password Reset Request`,
         text: `We received a request to reset your ${name} password. Click the link below to reset your password:\n\n${URL}\n\nIf you did not request this, please ignore this email.`,
@@ -209,7 +210,7 @@ const sendTwoFactorAuthStatusEmail = async (email, fullName, isEnabled) => {
     try {
       const loginURL = `${process.env.FRONTEND_URL}/signin`;
       const response = await transporter.sendMail({
-        from: `"${name} Team" <noreply@miorish.com>`,
+        from: `"${name} Team" <${adminEmail}>`,
         to: email,
         subject: `Your ${name} Password Has Been Reset!`,
         text: `Hi ${name}, your password has been successfully reset. You can now sign in using your new password. Login here: ${loginURL}`,
@@ -250,7 +251,7 @@ const sendTwoFactorAuthStatusEmail = async (email, fullName, isEnabled) => {
     try {
       const loginURL = `${process.env.FRONTEND_URL}/login`; 
       const response = await transporter.sendMail({
-        from: `"${name} Team" <noreply@miorish.com>`,
+        from: `"${name} Team" <${adminEmail}>`,
         to: email,
         subject: " Password Changed Successfully",
         text: `Hi ${fullName},\n\nYour password has been successfully changed! \n\n\n\nIf you did not request this change, please contact support immediately.\n\nLogin: ${loginURL}\n\nThanks for using ${name}!\n\n- The ${name} Team`,
@@ -291,7 +292,7 @@ const sendTwoFactorAuthStatusEmail = async (email, fullName, isEnabled) => {
     try {
       const loginURL = `${process.env.FRONTEND_URL}/profile`; 
       const response = await transporter.sendMail({
-        from: `"${name} Team" <noreply@miorish.com>`,
+        from: `"${name} Team" <${adminEmail}>`,
         to: email,
         subject: " Profile Updated Successfully",
         text: `Hi ${fullName},\n\nYour profile has been successfully updated! \n\n\n\nIf you did not make these changes, please contact support immediately.\n\nProfile: ${loginURL}\n\nThanks for being with ${name}!\n\n- The ${name} Team`,
