@@ -3,7 +3,7 @@ const router = express.Router();
 const checkForAuthenticationCookie = require("../../authMiddleware/authMiddleware");
 const { authorizeRoles } = require("../../authMiddleware/roleMiddleware");
 const { replyToTicketSeller, getAllTicketsSeller, getMyTicketsSeller, createSellerTicket, getTicketByIdSeller } = require("../../controllers/ticketController/sellerTicketController");
-const upload = require("../../awsS3Connection/awsUploadMiddleware");
+const upload = require('../../config/uploadComfig/upload')
 
 
 

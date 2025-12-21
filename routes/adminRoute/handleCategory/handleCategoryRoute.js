@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const upload = require("../../../awsS3Connection/awsUploadMiddleware");
+const upload = require("../../../config/uploadComfig/upload");
 const { handleAddCategory, handleUpdateCategory, handleDeleteCategory, handleDeleteAllSubcategories, handleDeleteSelectedSubcategories } = require("../../../controllers/categoryController/categoryController");
 
 

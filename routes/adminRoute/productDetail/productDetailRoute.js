@@ -6,7 +6,7 @@ const {
   getProductStats,
   getProductsByStatus,
 } = require("../../../controllers/adminController/productDetail/productDetail");
-const upload = require("../../../awsS3Connection/awsUploadMiddleware");
+const upload = require("../../../config/uploadComfig/upload");
 const {
   handleAddProduct,
   handleUpdateProduct,
@@ -22,7 +22,7 @@ router.get("/products/status/:status", getProductsByStatus);
 router.post("/add-products", upload.single("coverImageUrl"), handleAddProduct);
 router.put(
   "/update-product/:productId",
-  upload.fields([
+  upload.array([
     { name: "coverImageUrl", maxCount: 1 },
     { name: "galleryImageUrls", maxCount: 5 },
     { name: "productVideoUrl", maxCount: 1 },

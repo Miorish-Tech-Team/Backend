@@ -1,5 +1,5 @@
 const express = require("express");
-const upload = require("../../../awsS3Connection/awsUploadMiddleware");
+const upload = require("../../../config/uploadComfig/upload");
 const { createAdminNotification } = require("../../../controllers/notifications/adminsNotification");
 const router = express.Router();
 

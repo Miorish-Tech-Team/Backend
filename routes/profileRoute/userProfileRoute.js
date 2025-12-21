@@ -6,7 +6,7 @@ const {
   toggleTwoFactorAuth,
   getTwoFactorAuthStatus,
 } = require("../../controllers/profileController/userProfileController");
-const upload = require("../../awsS3Connection/awsUploadMiddleware");
+const upload = require("../../config/uploadComfig/upload");
 
 const router = express.Router();
 

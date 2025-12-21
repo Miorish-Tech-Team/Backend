@@ -9,13 +9,13 @@ const {
   resendSellerVerificationOtp,
 } = require("../../controllers/authController/sellerController");
 
-const upload = require('../../awsS3Connection/awsUploadMiddleware')
+const upload = require('../../config/uploadComfig/upload')
 
 const router = express.Router();
 
 router.post(
   "/seller-signup",
-  upload.fields([
+  upload.array([
     { name: "shopLogo", maxCount: 1 },
     { name: "businessLicenseDocument", maxCount: 1 },
     { name: "taxDocument", maxCount: 1 },

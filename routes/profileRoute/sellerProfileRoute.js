@@ -4,14 +4,14 @@ const {
   updateSellerProfile,
   handleChangePasswordOfSeller,
 } = require("../../controllers/profileController/sellerProfileController");
-const upload = require("../../awsS3Connection/awsUploadMiddleware");
+const upload = require('../../config/uploadComfig/upload')
 
 const router = express.Router();
 
 router.get("/profile", getSellerProfile);
 router.put(
   "/profile/edit",
-  upload.fields([
+  upload.array([
     { name: "shopLogo", maxCount: 1 },
     { name: "taxDocument", maxCount: 1 },
   ]),

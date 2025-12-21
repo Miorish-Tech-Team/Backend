@@ -14,7 +14,7 @@ const Product = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
-        model: "Sellers",
+        model: "sellers",
         key: "id",
       },
     },

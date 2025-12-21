@@ -18,7 +18,7 @@ const UserCoupon = require("../../models/couponModel/userCouponModel");
 const Coupon = require("../../models/couponModel/couponModel");
 
 const handleSignUp = async (req, res) => {
-  const { firstName, lastName, email, password, phone } = req.body;
+  const { fullName, email, password } = req.body;
   try {
     const existingUser = await User.findOne({ where: { email } });
 
@@ -31,21 +31,17 @@ const handleSignUp = async (req, res) => {
       }
       return res.status(400).json({ message: "Email already registered" });
     }
-    const verificationCode = Math.floor(
-      100000 + Math.random() * 900000
-    ).toString();
-    const verificationCodeExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    // const verificationCode = Math.floor(
+    //   100000 + Math.random() * 900000
+    // ).toString();
+    // const verificationCodeExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await User.create({
-      firstName,
-      lastName,
+      fullName,
       email,
-      phone,
       password: hashedPassword,
       isVerified: false,
-      verificationCode,
       isTwoFactorAuthEnable: false,
-      verificationCodeExpiresAt: verificationCodeExpiresAt,
     });
 
     const now = new Date();
@@ -79,11 +75,6 @@ const handleSignUp = async (req, res) => {
     }
 
     await updateCustomers();
-    await sendVerificationEmail(
-      newUser.email,
-      newUser.firstName,
-      verificationCode
-    );
     return res.status(201).json({
       success: true,
       message: "User created successfully",
@@ -171,8 +162,6 @@ const handleVerifyEmail = async (req, res) => {
 
     await user.save();
 
-    await sendWelcomeEmail(user.email, user.firstName);
-
     return res.status(200).json({
       success: true,
       message: "Email verified successfully",
@@ -236,12 +225,6 @@ const handleSignin = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    if (!user.isVerified) {
-      return res.status(400).json({
-        message: "Please verify your email before logging in",
-      });
-    }
-
     const isPasswordMatch = await bcrypt.compare(password, user.password);
     if (!isPasswordMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
@@ -258,7 +241,7 @@ const handleSignin = async (req, res) => {
       user.verificationCodeExpiresAt = verificationCodeExpiresAt;
       await user.save();
 
-      await sendTwoFactorOtp(user.email, user.firstName, verificationCode);
+      await sendTwoFactorOtp(user.email, user.fullName, verificationCode);
 
       return res.status(202).json({
         success: true,
@@ -268,7 +251,7 @@ const handleSignin = async (req, res) => {
     }
 
     // If no 2FA, log user in
-     const token = createToken(user);
+    const token = createToken(user);
     const middlewareToken = createMiddlewareToken(user);
 
     setTokenCookie(res, token, middlewareToken);

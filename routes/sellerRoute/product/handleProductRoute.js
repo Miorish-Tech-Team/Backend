@@ -4,7 +4,7 @@ const {
   handleUpdateProduct,
   handleDeleteProduct,
 } = require("../../../controllers/productController/productController");
-const upload = require("../../../awsS3Connection/awsUploadMiddleware");
+const upload = require("../../../config/uploadComfig/upload");
 const checkSellerMembership = require("../../../membershipMiddleware/sellerMembership");
 const router = express.Router();
 
@@ -17,7 +17,7 @@ router.post(
 router.put(
   "/update-product/:productId",
   checkSellerMembership,
-  upload.fields([
+  upload.array([
     { name: "coverImageUrl", maxCount: 1 },
     { name: "galleryImageUrls", maxCount: 5 },
     { name: "productVideoUrl", maxCount: 1 },

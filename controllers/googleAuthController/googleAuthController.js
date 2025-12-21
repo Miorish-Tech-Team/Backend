@@ -100,16 +100,7 @@ const googleCallback = async (req, res) => {
     setTokenCookie(res, token, middlewareToken);
 
 
-    const userData = JSON.stringify({
-      name: user.firstName + " " + user.lastName,
-      email: user.email,
-    });
-
-    const encrypted = encrypt(userData);
-
-    res.redirect(
-      `${FRONTEND_URL_MAIN}/?data=${encodeURIComponent(encrypted)}`
-    );
+    res.redirect(FRONTEND_URL_MAIN);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });

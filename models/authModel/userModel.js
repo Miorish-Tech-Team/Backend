@@ -14,16 +14,6 @@ const User = sequelize.define(
       allowNull: true,
       unique: true,
     },
-    facebookId: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      unique: true,
-    },
-    twitterId: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      unique: true,
-    },
     status: {
       type: DataTypes.ENUM("active", "suspended", "deleted"),
       defaultValue: "active",
@@ -31,19 +21,15 @@ const User = sequelize.define(
     canReview: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
-      defaultValue: false,
+      defaultValue: true,
     },
 
     authProvider: {
-      type: DataTypes.ENUM("local", "google", "facebook", "twitter"),
+      type: DataTypes.ENUM("local", "google"),
       defaultValue: "local",
     },
 
-    firstName: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    lastName: {
+    fullName: {
       type: DataTypes.STRING,
       allowNull: true,
     },
@@ -66,11 +52,11 @@ const User = sequelize.define(
     city: {
     type: DataTypes.STRING,
     allowNull: true,
-  },
+     },
     state: {
     type: DataTypes.STRING,
     allowNull: true,
-  },
+    },
     country: {
     type: DataTypes.STRING,
     allowNull: true,

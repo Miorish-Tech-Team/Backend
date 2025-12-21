@@ -42,7 +42,7 @@ const UserTicket = sequelize.define('UserTicket', {
 
   status: {
     type: DataTypes.ENUM("open", "in_progress", "closed","resolved"),
-    defaultValue: 'Open'
+    defaultValue: 'open'
   },
 
 

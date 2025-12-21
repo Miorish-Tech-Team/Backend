@@ -14,7 +14,7 @@ const {
 const router = express.Router();
 const checkForAuthenticationCookie = require("../../authMiddleware/authMiddleware");
 const { authorizeRoles } = require("../../authMiddleware/roleMiddleware");
-const upload = require('../../awsS3Connection/awsUploadMiddleware')
+const upload = require('../../config/uploadComfig/upload')
 
 router.post(
   "/add-homepage-banners",

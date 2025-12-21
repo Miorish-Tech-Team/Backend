@@ -11,7 +11,7 @@ const {
 } = require("../../controllers/reviewController/reviewController");
 const hasPurchasedProduct = require("../../ReviewMiddleware/hasPurchasedProduct");
 const canReviewProduct = require("../../ReviewMiddleware/canReviewProduct");
-const upload = require("../../awsS3Connection/awsUploadMiddleware");
+const upload = require('../../config/uploadComfig/upload')
 
 //check for production
 

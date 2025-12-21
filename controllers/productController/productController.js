@@ -1,11 +1,8 @@
 const Product = require("../../models/productModel/productModel");
-const elasticClient = require("../../config/elasticSearchConfig/elasticSearchClient");
+// const elasticClient = require("../../config/elasticSearchConfig/elasticSearchClient");
 const Category = require("../../models/categoryModel/categoryModel");
 const Seller = require("../../models/authModel/sellerModel");
-const { Op, fn, col, literal } = require("sequelize");
-const {
-  extractLabelsFromImageS3,
-} = require("../../awsRekognition/awsRekognition");
+const { Op } = require("sequelize");
 const Review = require("../../models/reviewModel/reviewModel");
 const User = require("../../models/authModel/userModel");
 const ReviewLike = require("../../models/reviewLikeModel/reviewLikeModel");
@@ -338,79 +335,6 @@ const getAllProducts = async (req, res) => {
   }
 };
 
-//   try {
-//     const {
-//       minPrice,
-//       maxPrice,
-//       page = 1,
-//       limit = 10,
-//       sort = "createdAt_desc",
-//     } = req.query;
-
-//     // Build the price filter conditionally
-//     const priceFilter = {};
-//     if (minPrice) priceFilter[Op.gte] = parseFloat(minPrice);
-//     if (maxPrice) priceFilter[Op.lte] = parseFloat(maxPrice);
-
-//     // Build the where clause
-//     const whereClause = {
-//       status: "approved",
-//     };
-//     if (Object.keys(priceFilter).length) {
-//       whereClause.price = priceFilter;  // Assuming your Product model has a 'price' field
-//     }
-
-//     // Pagination
-//     const offset = (parseInt(page) - 1) * parseInt(limit);
-//     const parsedLimit = parseInt(limit);
-
-//     // Sorting
-//     let order = [];
-//     switch (sort) {
-//       case "price_asc":
-//         order = [["price", "ASC"]];
-//         break;
-//       case "price_desc":
-//         order = [["price", "DESC"]];
-//         break;
-//       case "createdAt_asc":
-//         order = [["createdAt", "ASC"]];
-//         break;
-//       case "createdAt_desc":
-//       default:
-//         order = [["createdAt", "DESC"]];
-//         break;
-//     }
-
-//     const { count, rows: products } = await Product.findAndCountAll({
-//       where: whereClause,
-//       include: [
-//         {
-//           model: Category,
-//           attributes: ["categoryName"],
-//         },
-//       ],
-//       order,
-//       offset,
-//       limit: parsedLimit,
-//     });
-
-//     res.status(200).json({
-//       success: true,
-//       totalItems: count,
-//       totalPages: Math.ceil(count / parsedLimit),
-//       currentPage: parseInt(page),
-//       products,
-//     });
-//   } catch (error) {
-//     console.error("Get All Products Error:", error);
-//     res.status(500).json({
-//       success: false,
-//       message: "Server error while fetching all products",
-//       error: error.message,
-//     });
-//   }
-// };
 const getProductById = async (req, res) => {
   try {
     const { productId } = req.params;
@@ -469,61 +393,61 @@ const searchProducts = async (req, res) => {
     });
   }
 
-  try {
-    const esResult = await elasticClient.search({
-      index: "products",
-      body: {
-        size: 20,
-        query: {
-          multi_match: {
-            query,
-            fields: ["productName^3", "productBrand^2", "productTags"],
-            type: "phrase_prefix",
-          },
-        },
-      },
-    });
+  // try {
+  //   const esResult = await elasticClient.search({
+  //     index: "products",
+  //     body: {
+  //       size: 20,
+  //       query: {
+  //         multi_match: {
+  //           query,
+  //           fields: ["productName^3", "productBrand^2", "productTags"],
+  //           type: "phrase_prefix",
+  //         },
+  //       },
+  //     },
+  //   });
 
-    const productIds = esResult.body.hits.hits.map((hit) => hit._source.id);
+  //   const productIds = esResult.body.hits.hits.map((hit) => hit._source.id);
 
-    if (productIds.length === 0) {
-      return res.status(200).json({
-        success: true,
-        products: [],
-      });
-    }
+  //   if (productIds.length === 0) {
+  //     return res.status(200).json({
+  //       success: true,
+  //       products: [],
+  //     });
+  //   }
 
-    const products = await Product.findAll({
-      where: {
-        id: productIds,
-        status: "approved",
-      },
-      include: [
-        {
-          model: Category,
-          as: "category",
-          attributes: ["categoryName"],
-        },
-        {
-          model: Seller,
-          as: "seller",
-          attributes: ["id", "sellerName", "email", "shopName"],
-        },
-      ],
-    });
+  //   const products = await Product.findAll({
+  //     where: {
+  //       id: productIds,
+  //       status: "approved",
+  //     },
+  //     include: [
+  //       {
+  //         model: Category,
+  //         as: "category",
+  //         attributes: ["categoryName"],
+  //       },
+  //       {
+  //         model: Seller,
+  //         as: "seller",
+  //         attributes: ["id", "sellerName", "email", "shopName"],
+  //       },
+  //     ],
+  //   });
 
-    res.status(200).json({
-      success: true,
-      products,
-    });
-  } catch (error) {
-    console.error("Elasticsearch Search Error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Server error while searching products",
-      error: error.message,
-    });
-  }
+  //   res.status(200).json({
+  //     success: true,
+  //     products,
+  //   });
+  // } catch (error) {
+  //   console.error("Elasticsearch Search Error:", error);
+  //   res.status(500).json({
+  //     success: false,
+  //     message: "Server error while searching products",
+  //     error: error.message,
+  //   });
+  // }
 };
 
 const getProductsByCategory = async (req, res) => {
@@ -692,60 +616,60 @@ const handleGetQuerySuggestions = async (req, res) => {
     return res.status(200).json({ success: true, suggestions: [] });
   }
 
-  try {
-    const result = await elasticClient.search({
-      index: "products",
-      body: {
-        size: 10,
-        query: {
-          bool: {
-            should: [
-              {
-                match_phrase_prefix: {
-                  productName: query,
-                },
-              },
-              {
-                match_phrase_prefix: {
-                  productBrand: query,
-                },
-              },
-              {
-                match_phrase_prefix: {
-                  productTags: query,
-                },
-              },
-            ],
-          },
-        },
-        _source: ["productName", "productBrand", "productTags"],
-      },
-    });
+  // try {
+  //   const result = await elasticClient.search({
+  //     index: "products",
+  //     body: {
+  //       size: 10,
+  //       query: {
+  //         bool: {
+  //           should: [
+  //             {
+  //               match_phrase_prefix: {
+  //                 productName: query,
+  //               },
+  //             },
+  //             {
+  //               match_phrase_prefix: {
+  //                 productBrand: query,
+  //               },
+  //             },
+  //             {
+  //               match_phrase_prefix: {
+  //                 productTags: query,
+  //               },
+  //             },
+  //           ],
+  //         },
+  //       },
+  //       _source: ["productName", "productBrand", "productTags"],
+  //     },
+  //   });
 
-    const suggestionsSet = new Set();
+  //   const suggestionsSet = new Set();
 
-    result.body.hits.hits.forEach((hit) => {
-      const { productName, productBrand, productTags } = hit._source;
+  //   result.body.hits.hits.forEach((hit) => {
+  //     const { productName, productBrand, productTags } = hit._source;
 
-      if (productName) suggestionsSet.add(productName);
-      if (productBrand) suggestionsSet.add(productBrand);
-      if (productTags) {
-        const tags = productTags.split(",");
-        tags.forEach((tag) => suggestionsSet.add(tag.trim()));
-      }
-    });
+  //     if (productName) suggestionsSet.add(productName);
+  //     if (productBrand) suggestionsSet.add(productBrand);
+  //     if (productTags) {
+  //       const tags = productTags.split(",");
+  //       tags.forEach((tag) => suggestionsSet.add(tag.trim()));
+  //     }
+  //   });
 
-    const suggestions = Array.from(suggestionsSet).slice(0, 8);
+  //   const suggestions = Array.from(suggestionsSet).slice(0, 8);
 
-    res.status(200).json({ success: true, suggestions });
-  } catch (err) {
-    console.error("OpenSearch suggestion error:", err);
-    res.status(500).json({
-      success: false,
-      message: "Search failed",
-      error: err.message,
-    });
-  }
+  //   res.status(200).json({ success: true, suggestions });
+  // } catch (err) {
+  //   console.error("OpenSearch suggestion error:", err);
+  //   res.status(500).json({
+  //     success: false,
+  //     message: "Search failed",
+  //     error: err.message,
+  //   });
+  // }
 };
 
 const getSimilarProducts = async (req, res) => {

@@ -9,7 +9,7 @@ const {
   createUserTicket,
  getTicketsByTicketId,
 } = require("../../controllers/ticketController/userTicketController");
-const upload = require("../../awsS3Connection/awsUploadMiddleware");
+const upload = require('../../config/uploadComfig/upload')
 
 router.post(
   "/user/raise-ticket",

@@ -28,21 +28,23 @@ const Coupon = require('../models/couponModel/couponModel');
 const UserCoupon = require('../models/couponModel/userCouponModel')
 
 
-const initDB = (callback) => {
-  sequelize.authenticate()
-    .then(() => {
-      console.log(' Database connected');
-      require('../models/associationModel/associationModel');
-      return sequelize.sync(); // Creates tables if not exist {alter:true}
-    })
-    .then(() => {
-      console.log(' All models synced');
-      callback(); 
-    })
-    .catch((error) => {
-      console.error(' Error connecting to the database:', error);
-      process.exit(1); 
-    });
+const initDB = async (callback) => {
+  try {
+    await sequelize.authenticate();
+    console.log(' Database connected');
+    
+    // Import associations
+    require('../models/associationModel/associationModel');
+    
+    // Use default sync (creates tables if they don't exist)
+    await sequelize.sync();
+    
+    console.log(' All models synced');
+    callback();
+  } catch (error) {
+    console.error(' Error connecting to the database:', error);
+    process.exit(1);
+  }
 };
 
 module.exports = initDB;

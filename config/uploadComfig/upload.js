@@ -2,7 +2,7 @@ require("dotenv").config();
 const multer = require("multer");
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
-const supabase = require("../../supabaseConfig/supabase");
+const supabase = require("../supabaseConfig/supabase");
 
 const BUCKET_NAME = process.env.SUPABASE_BUCKET;
 

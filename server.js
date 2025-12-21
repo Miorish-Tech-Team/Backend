@@ -27,8 +27,6 @@ const userAddressRoute = require("./routes/addressRoute/userAddressRoute");
 const orderRoute = require("./routes/orderRoute/orderRoute");
 const reviewLikeRoute = require("./routes/reviewLikeRoute/reviewLikeRoute");
 const googleAuthRoute = require("./routes/googleAuthRoute/googleAuthRoute");
-const facebookAuthRoute = require("./routes/facebookAuth/facebookAuthRoute");
-const twitterAuthRoute = require("./routes/twitterAuthRoute/twitterAuthRoute");
 const BannerRoute = require("./routes/advertisementRoute/Banner");
 const userTicketRoute = require("./routes/ticketRoute/userTicketRoute");
 const sellerTicketRoute = require("./routes/ticketRoute/sellerTicketRoute");
@@ -57,7 +55,7 @@ const estimateDeliveryRoute = require('./routes/deliveryRoute/estimateDelivery')
 const warehouseAddRoute = require('./routes/deliveryRoute/adminWarehouseAdd')
 
 const app = express();
-const PORT = process.env.PORT || 8001;
+const PORT = process.env.PORT || 7845;
 
 const allowedOrigins = [process.env.FRONTEND_URL_MAIN, process.env.FRONTEND_URL_ADMIN,process.env.FRONTEND_URL_MAIN_L,process.env.FRONTEND_URL_ADMIN_L];
 

@@ -8,16 +8,11 @@ function createToken(user) {
 
     const payload = {
       id:user.id,
-      firstName: user.firstName || null,
-      lastName: user.lastName || null,
+      fullName: user.fullName || null,
       email: user.email,
       role: user.role || null,
-      sellerName: user.sellerName || null,
-      isApproved: user.isApproved || false,
-      isVerified: user.isVerified,
-      contactNumber: user.contactNumber || null,
     };
-    return JWT.sign(payload, process.env.JWT_SECRET, { expiresIn: "365d" });
+    return JWT.sign(payload, process.env.JWT_SECRET, { expiresIn: "30d" });
   } catch (error) {
     console.error("Error creating token:", error.message);
     return null;
@@ -28,7 +23,7 @@ const createMiddlewareToken = (user) => {
   return JWT.sign(
     { id: user.id }, 
     process.env.JWT_SECRET,
-    { expiresIn: "365d" }
+    { expiresIn: "30d" }
   );
 };
 

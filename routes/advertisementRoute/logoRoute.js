@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const checkForAuthenticationCookie = require("../../authMiddleware/authMiddleware");
 const { authorizeRoles } = require("../../authMiddleware/roleMiddleware");
-const upload = require('../../awsS3Connection/awsUploadMiddleware');
+const upload = require('../../config/uploadComfig/upload');
 const { handleAddLogo } = require("../../controllers/advertiseController/websiteAdvertisement/logoController");
 
 router.post(
