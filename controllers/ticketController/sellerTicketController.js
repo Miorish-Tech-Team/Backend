@@ -158,6 +158,10 @@ const replyToTicketSeller = async (req, res) => {
     const { ticketId } = req.params;
     const { adminReply, status } = req.body;
 
+    if (!adminReply || adminReply.trim() === "") {
+      return res.status(400).json({ error: "Reply message is required" });
+    }
+
     const ticket = await SellerTicket.findByPk(ticketId, {
       include: {
         model: Seller,
@@ -167,8 +171,17 @@ const replyToTicketSeller = async (req, res) => {
 
     if (!ticket) return res.status(404).json({ error: "Ticket not found" });
 
-    ticket.adminReply = adminReply || ticket.adminReply;
-    ticket.status = status || ticket.status;
+    // Check if ticket is closed
+    if (ticket.status === "closed") {
+      return res.status(403).json({ 
+        error: "Cannot reply to a closed ticket." 
+      });
+    }
+
+    ticket.adminReply = adminReply;
+    if (status) {
+      ticket.status = status;
+    }
     await ticket.save();
 
     const seller = ticket.Seller;
@@ -190,10 +203,90 @@ const replyToTicketSeller = async (req, res) => {
   }
 };
 
+// Get seller tickets by status (Admin only)
+const getSellerTicketsByStatus = async (req, res) => {
+  const { status } = req.params;
+
+  try {
+    // Validate status
+    const validStatuses = ["open", "in_progress", "closed", "resolved"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ error: "Invalid status value" });
+    }
+
+    const tickets = await SellerTicket.findAll({
+      where: { status },
+      attributes: [
+        "id",
+        "ticketNumber",
+        "subject",
+        "description",
+        "status",
+        "adminReply",
+        "imageUrl",
+        "createdAt",
+      ],
+      include: {
+        model: Seller,
+        attributes: ["id", "sellerName", "email", "contactNumber"],
+      },
+      order: [["createdAt", "DESC"]],
+    });
+    res.status(200).json({ tickets, count: tickets.length });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch tickets by status" });
+  }
+};
+
+// Change seller ticket status (Admin only)
+const changeSellerTicketStatus = async (req, res) => {
+  try {
+    const { ticketId } = req.params;
+    const { status } = req.body;
+
+    if (!status) {
+      return res.status(400).json({ error: "Status is required" });
+    }
+
+    const validStatuses = ["open", "in_progress", "closed", "resolved"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ error: "Invalid status value" });
+    }
+
+    const ticket = await SellerTicket.findByPk(ticketId, {
+      include: {
+        model: Seller,
+        attributes: ["id", "sellerName", "email"],
+      },
+    });
+
+    if (!ticket) {
+      return res.status(404).json({ error: "Ticket not found" });
+    }
+
+    const oldStatus = ticket.status;
+    ticket.status = status;
+    await ticket.save();
+
+    res.status(200).json({ 
+      message: "Ticket status updated successfully", 
+      ticket,
+      oldStatus,
+      newStatus: status
+    });
+  } catch (error) {
+    console.error("Error changing seller ticket status:", error);
+    res.status(500).json({ error: "Failed to change ticket status" });
+  }
+};
+
 module.exports = {
   createSellerTicket,
   getMyTicketsSeller,
   getAllTicketsSeller,
   replyToTicketSeller,
-   getTicketByIdSeller
+  getTicketByIdSeller,
+  getSellerTicketsByStatus,
+  changeSellerTicketStatus,
 };

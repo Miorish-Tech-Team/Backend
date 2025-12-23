@@ -5,10 +5,11 @@ const upload = require("../../../config/uploadComfig/upload");
 const { 
   handleAddCategory, 
   handleUpdateCategory, 
-  handleDeleteCategory 
+  handleDeleteCategory,
+  handleBulkDeleteCategories 
 } = require("../../../controllers/categoryController/categoryController");
 
-
+router.delete("/categories/bulk-delete", handleBulkDeleteCategories);
 router.post(
   "/categories/create-categories",
   ...upload.single("categoryImage"),

@@ -111,6 +111,20 @@ const handleDeleteSubCategory = async (req, res) => {
       return res.status(404).json({ message: "Subcategory not found" });
     }
 
+    // Check if there are products using this subcategory
+    const Product = require("../../models/productModel/productModel");
+    const productCount = await Product.count({
+      where: { productSubCategoryId: subCategoryId },
+    });
+
+    if (productCount > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot delete subcategory. ${productCount} product(s) are still using this subcategory. Please reassign or delete those products first.`,
+        productCount,
+      });
+    }
+
     await subCategory.destroy();
 
     return res.status(200).json({
@@ -182,16 +196,19 @@ const getSubCategoriesByCategory = async (req, res) => {
 
 const getAllSubCategoriesWithProductCount = async (req, res) => {
   try {
+    const { sequelize } = require("../../mysqlConnection/dbConnection");
+    const Product = require("../../models/productModel/productModel");
+
     const subCategories = await SubCategory.findAll({
       attributes: [
         "id",
         "subCategoryName",
         "subCategoryDescription",
         "subCategoryImage",
-        "subCategoryProductCount",
         "categoryId",
         "createdAt",
         "updatedAt",
+        [sequelize.literal('(SELECT COUNT(*) FROM products WHERE products.productSubCategoryId = SubCategory.id)'), 'subCategoryProductCount']
       ],
       include: [
         {

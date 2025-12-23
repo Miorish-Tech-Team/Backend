@@ -2,7 +2,15 @@ const express = require("express");
 const router = express.Router();
 const checkForAuthenticationCookie = require("../../authMiddleware/authMiddleware");
 const { authorizeRoles } = require("../../authMiddleware/roleMiddleware");
-const { replyToTicketSeller, getAllTicketsSeller, getMyTicketsSeller, createSellerTicket, getTicketByIdSeller } = require("../../controllers/ticketController/sellerTicketController");
+const { 
+  replyToTicketSeller, 
+  getAllTicketsSeller, 
+  getMyTicketsSeller, 
+  createSellerTicket, 
+  getTicketByIdSeller,
+  getSellerTicketsByStatus,
+  changeSellerTicketStatus
+} = require("../../controllers/ticketController/sellerTicketController");
 const upload = require('../../config/uploadComfig/upload')
 
 
@@ -26,6 +34,13 @@ router.get(
   getAllTicketsSeller
 );
 
+// Admin can get seller tickets by status
+router.get(
+  "/seller/admin/tickets/status/:status",
+  checkForAuthenticationCookie("token"),
+  authorizeRoles(["admin", "admin+", "superadmin"]),
+  getSellerTicketsByStatus
+);
 
 router.get(
   "/seller/admin/all-tickets/:ticketId",
@@ -34,12 +49,19 @@ router.get(
    getTicketByIdSeller
 );
 
-
 router.put(
   "/seller/admin/reply/:ticketId",
   checkForAuthenticationCookie("token"),
   authorizeRoles(["admin", "admin+", "superadmin"]),
   replyToTicketSeller
+);
+
+// Admin can change seller ticket status
+router.put(
+  "/seller/admin/change-status/:ticketId",
+  checkForAuthenticationCookie("token"),
+  authorizeRoles(["admin", "admin+", "superadmin"]),
+  changeSellerTicketStatus
 );
 
 module.exports = router;

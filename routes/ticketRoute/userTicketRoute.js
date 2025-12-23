@@ -54,6 +54,14 @@ router.get(
   getAllTicketsUser
 );
 
+// Admin can get tickets by status
+router.get(
+  "/user/admin/tickets/status/:status",
+  checkForAuthenticationCookie("token"),
+  authorizeRoles(["admin", "admin+", "superadmin"]),
+  getMyTicketsByStatus
+);
+
 router.get(
   "/user/admin/all-tickets/:ticketId",
   checkForAuthenticationCookie("token"),

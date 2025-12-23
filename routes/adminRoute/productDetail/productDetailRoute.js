@@ -11,6 +11,7 @@ const {
   handleAddProduct,
   handleUpdateProduct,
   handleDeleteProduct,
+  handleBulkDeleteProducts,
 } = require("../../../controllers/productController/productController");
 const router = express.Router();
 
@@ -26,5 +27,6 @@ router.put(
   handleUpdateProduct
 );
 router.delete("/delete-product/:productId",  handleDeleteProduct);
+router.post("/delete-products-bulk", handleBulkDeleteProducts);
 
 module.exports = router;

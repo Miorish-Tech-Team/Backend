@@ -4,6 +4,7 @@ const {
   getProductById,
   searchProducts,
   getProductsByCategory,
+  getProductsBySubCategory,
   getProductsByBrand,
   getRecentProducts,
   getProductsByCategoryMultiple,
@@ -20,6 +21,7 @@ const router = express.Router();
 
 router.get("/search/suggestions",handleGetQuerySuggestions);
 router.get("/products/category/:categoryName", getProductsByCategory);
+router.get("/products/subcategory/:subCategoryName", getProductsBySubCategory);
 // router.get("/products/category/:productId", getProductById);
 router.get("/products/by-categories",   getProductsByCategoryMultiple);
 router.get("/products/brand/:brandName", getProductsByBrand);

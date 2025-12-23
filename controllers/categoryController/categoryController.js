@@ -77,11 +77,85 @@ const handleDeleteCategory = async (req, res) => {
       return res.status(404).json({ message: "Category not found" });
     }
 
+    // Check if there are products using this category
+    const productCount = await Product.count({
+      where: { productCategoryId: categoryId },
+    });
+
+    if (productCount > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot delete category. ${productCount} product(s) are still using this category. Please reassign or delete those products first.`,
+        productCount,
+      });
+    }
+
+    // Delete all subcategories associated with this category first
+    const deletedSubcategories = await SubCategory.destroy({
+      where: { categoryId: categoryId },
+    });
+
+    // Now delete the category
     await category.destroy();
 
-    return res.status(200).json({ message: "Category deleted successfully" });
+    return res.status(200).json({ 
+      success: true,
+      message: "Category deleted successfully",
+      deletedSubcategories 
+    });
   } catch (error) {
+    console.error("Delete Category Error:", error);
     return res.status(500).json({ message: "Server error", error });
+  }
+};
+
+const handleBulkDeleteCategories = async (req, res) => {
+  try {
+    const { categoryIds } = req.body;
+
+    if (!Array.isArray(categoryIds) || categoryIds.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No category IDs provided",
+      });
+    }
+
+    // Check if any category has products
+    const productCount = await Product.count({
+      where: { productCategoryId: categoryIds },
+    });
+
+    if (productCount > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot delete categories. ${productCount} product(s) are still using these categories. Please reassign or delete those products first.`,
+        productCount,
+      });
+    }
+
+    // Delete all subcategories associated with these categories first
+    const deletedSubcategories = await SubCategory.destroy({
+      where: { categoryId: categoryIds },
+    });
+
+    // Delete the categories
+    const deletedCategories = await Category.destroy({
+      where: { id: categoryIds },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: `Successfully deleted ${deletedCategories} category(ies) and ${deletedSubcategories} subcategory(ies)`,
+      deletedCategories,
+      deletedSubcategories,
+    });
+  } catch (error) {
+    console.error("Bulk Delete Categories Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
   }
 };
 
@@ -126,13 +200,16 @@ const getSingleCategoryWithSubcategories = async (req, res) => {
 
 const getAllCategoriesWithProductCounts = async (req, res) => {
   try {
+    const { sequelize } = require("../../mysqlConnection/dbConnection");
+    const Product = require("../../models/productModel/productModel");
+
     const mainCategories = await Category.findAll({
       attributes: [
         "id",
         "categoryName",
-        "categoryProductCount",
         "createdAt",
         "updatedAt",
+        [sequelize.literal('(SELECT COUNT(*) FROM products WHERE products.productCategoryId = Category.id)'), 'categoryProductCount']
       ],
       include: [
         {
@@ -141,9 +218,9 @@ const getAllCategoriesWithProductCounts = async (req, res) => {
           attributes: [
             "id",
             "subCategoryName",
-            "subCategoryProductCount",
             "createdAt",
             "updatedAt",
+            [sequelize.literal('(SELECT COUNT(*) FROM products WHERE products.productSubCategoryId = subcategories.id)'), 'subCategoryProductCount']
           ],
         },
       ],
@@ -159,6 +236,7 @@ const getAllCategoriesWithProductCounts = async (req, res) => {
 module.exports = {
   handleGetAllCategories,
   handleDeleteCategory,
+  handleBulkDeleteCategories,
   handleUpdateCategory,
   handleAddCategory,
   getSingleCategoryWithSubcategories,

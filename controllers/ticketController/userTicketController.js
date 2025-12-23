@@ -82,6 +82,7 @@ const getMyTicketsUser = async (req, res) => {
 const getMyTicketsByStatus = async (req, res) => {
   const userId = req.user.id;
   const { status } = req.params;
+  const isAdmin = req.user.role === "admin" || req.user.role === "admin+" || req.user.role === "superadmin";
 
   try {
     // Validate status
@@ -90,8 +91,11 @@ const getMyTicketsByStatus = async (req, res) => {
       return res.status(400).json({ error: "Invalid status value" });
     }
 
+    // If admin, get all tickets with that status, otherwise filter by userId
+    const whereCondition = isAdmin ? { status } : { userId, status };
+    
     const tickets = await UserTicket.findAll({
-      where: { userId, status },
+      where: whereCondition,
       attributes: [
         "id",
         "ticketNumber",
@@ -103,6 +107,10 @@ const getMyTicketsByStatus = async (req, res) => {
         "image",
         "createdAt",
       ],
+      include: isAdmin ? {
+        model: User,
+        attributes: ["id", "fullName", "email"],
+      } : undefined,
       order: [["createdAt", "DESC"]],
     });
     res.status(200).json({ tickets, count: tickets.length });

@@ -93,6 +93,10 @@ const handleAddProduct = async (req, res) => {
       await category.increment("categoryProductCount");
     }
 
+    if (subCategory) {
+      await subCategory.increment("subCategoryProductCount");
+    }
+
     const product = await Product.create({
       productName,
       productDescription,
@@ -219,14 +223,47 @@ const handleUpdateProduct = async (req, res) => {
       updateFields.coverImageUrl = req.fileUrl;
     }
 
-    if (req.fileUrls && req.fileUrls.length > 0) {
-      updateFields.galleryImageUrls = req.fileUrls;
+    // Handle gallery images: merge existing URLs with new uploads
+    if (req.body.existingGalleryUrls || (req.fileUrls && req.fileUrls.length > 0)) {
+      const existingUrls = req.body.existingGalleryUrls 
+        ? JSON.parse(req.body.existingGalleryUrls) 
+        : [];
+      const newUrls = req.fileUrls || [];
+      
+      // Combine existing and new, limit to 5 total
+      const combinedUrls = [...existingUrls, ...newUrls].slice(0, 5);
+      updateFields.galleryImageUrls = combinedUrls.length > 0 ? combinedUrls : null;
     }
 
-    if (req.body.productSubCategoryId) {
-      const subCategory = await SubCategory.findByPk(req.body.productSubCategoryId);
-      if (subCategory) {
-        updateFields.productCategoryId = subCategory.categoryId;
+    // Handle category/subcategory changes and update counts
+    if (req.body.productSubCategoryId && req.body.productSubCategoryId !== product.productSubCategoryId) {
+      const newSubCategory = await SubCategory.findByPk(req.body.productSubCategoryId);
+      if (newSubCategory) {
+        // Decrement old subcategory count
+        const oldSubCategory = await SubCategory.findByPk(product.productSubCategoryId);
+        if (oldSubCategory) {
+          await oldSubCategory.decrement("subCategoryProductCount");
+        }
+
+        // Increment new subcategory count
+        await newSubCategory.increment("subCategoryProductCount");
+
+        // Check if category also changed
+        if (newSubCategory.categoryId !== product.productCategoryId) {
+          // Decrement old category count
+          const oldCategory = await Category.findByPk(product.productCategoryId);
+          if (oldCategory) {
+            await oldCategory.decrement("categoryProductCount");
+          }
+
+          // Increment new category count
+          const newCategory = await Category.findByPk(newSubCategory.categoryId);
+          if (newCategory) {
+            await newCategory.increment("categoryProductCount");
+          }
+
+          updateFields.productCategoryId = newSubCategory.categoryId;
+        }
       }
     }
 
@@ -257,6 +294,17 @@ const handleDeleteProduct = async (req, res) => {
         success: false,
         message: "Product not found.",
       });
+    }
+
+    // Decrement counts before deleting
+    const category = await Category.findByPk(product.productCategoryId);
+    if (category) {
+      await category.decrement("categoryProductCount");
+    }
+
+    const subCategory = await SubCategory.findByPk(product.productSubCategoryId);
+    if (subCategory) {
+      await subCategory.decrement("subCategoryProductCount");
     }
 
     await product.destroy();
@@ -534,6 +582,45 @@ const getProductsByCategory = async (req, res) => {
   }
 };
 
+const getProductsBySubCategory = async (req, res) => {
+  const { subCategoryName } = req.params;
+  try {
+    const products = await Product.findAll({
+      where: { status: "approved" },
+      include: [
+        {
+          model: Category,
+          as: "category",
+          attributes: ["id", "categoryName"],
+        },
+        {
+          model: SubCategory,
+          as: "subcategory",
+          where: { subCategoryName },
+          attributes: ["id", "subCategoryName"],
+        },
+        {
+          model: Seller,
+          as: "seller",
+          attributes: ["id", "sellerName", "email", "shopName"],
+        },
+      ],
+    });
+
+    res.status(200).json({
+      success: true,
+      products,
+    });
+  } catch (error) {
+    console.error("Get Products by SubCategory Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while fetching products by subcategory",
+      error: error.message,
+    });
+  }
+};
+
 const getProductsByBrand = async (req, res) => {
   const { brandName } = req.params;
 
@@ -804,14 +891,94 @@ const getSimilarProducts = async (req, res) => {
   }
 };
 
+const handleBulkDeleteProducts = async (req, res) => {
+  try {
+    const { productIds } = req.body;
+
+    if (!productIds || !Array.isArray(productIds) || productIds.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide an array of product IDs to delete.",
+      });
+    }
+
+    // Find all products to be deleted
+    const products = await Product.findAll({
+      where: {
+        id: productIds,
+      },
+    });
+
+    if (products.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No products found with the provided IDs.",
+      });
+    }
+
+    // Track category and subcategory counts to decrement
+    const categoryUpdates = {};
+    const subCategoryUpdates = {};
+
+    products.forEach((product) => {
+      if (product.productCategoryId) {
+        categoryUpdates[product.productCategoryId] = 
+          (categoryUpdates[product.productCategoryId] || 0) + 1;
+      }
+      if (product.productSubCategoryId) {
+        subCategoryUpdates[product.productSubCategoryId] = 
+          (subCategoryUpdates[product.productSubCategoryId] || 0) + 1;
+      }
+    });
+
+    // Decrement category counts
+    for (const [categoryId, count] of Object.entries(categoryUpdates)) {
+      const category = await Category.findByPk(categoryId);
+      if (category) {
+        await category.decrement("categoryProductCount", { by: count });
+      }
+    }
+
+    // Decrement subcategory counts
+    for (const [subCategoryId, count] of Object.entries(subCategoryUpdates)) {
+      const subCategory = await SubCategory.findByPk(subCategoryId);
+      if (subCategory) {
+        await subCategory.decrement("subCategoryProductCount", { by: count });
+      }
+    }
+
+    // Delete all products
+    await Product.destroy({
+      where: {
+        id: productIds,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: `Successfully deleted ${products.length} product(s).`,
+      deletedCount: products.length,
+    });
+  } catch (error) {
+    console.error("Bulk Delete Products Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while deleting products.",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   handleAddProduct,
   handleUpdateProduct,
   handleDeleteProduct,
+  handleBulkDeleteProducts,
   getAllProducts,
   getProductById,
   searchProducts,
   getProductsByCategory,
+  getProductsBySubCategory,
   getProductsByBrand,
   getRecentProducts,
   getProductsByCategoryMultiple,
