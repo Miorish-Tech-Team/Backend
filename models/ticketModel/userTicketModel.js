@@ -45,10 +45,17 @@ const UserTicket = sequelize.define('UserTicket', {
     defaultValue: 'open'
   },
 
-
   adminReply: {
     type: DataTypes.TEXT,
     allowNull: true
+  },
+
+  // Conversation thread: array of messages
+  messages: {
+    type: DataTypes.JSON,
+    allowNull: true,
+    defaultValue: []
+    // Structure: [{ sender: 'user'|'admin', message: 'text', timestamp: 'ISO date', isCrossQuestion: boolean }]
   }
 
 }, {
