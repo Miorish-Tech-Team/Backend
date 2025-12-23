@@ -35,6 +35,7 @@ const handleSignUp = async (req, res) => {
     //   100000 + Math.random() * 900000
     // ).toString();
     // const verificationCodeExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await User.create({
       fullName,
@@ -87,6 +88,7 @@ const handleSignUp = async (req, res) => {
   }
 };
 
+
 const resendUserVerificationOtp = async (req, res) => {
   try {
     const { email } = req.body;
@@ -113,6 +115,7 @@ const resendUserVerificationOtp = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 const handleResetPasswordOtp = async (req, res) => {
   try {
     const { email } = req.body;

@@ -4,12 +4,11 @@ const Notification = require("../../models/notifications/userNotification");
 const createAdminNotification = async (req, res) => {
   try {
     const { title, message, type } = req.body;
-    const coverImageFile = req.file;
 
     if (!title || !message) {
       return res.status(400).json({ success: false, message: "Title and message are required." });
     }
-    const coverImageUrl = coverImageFile ? coverImageFile.location : null;
+    const coverImageUrl = req.fileUrl || null;
 
     const notification = await Notification.create({
       title,

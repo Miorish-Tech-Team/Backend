@@ -21,13 +21,13 @@ router.post(
   "/review/add",
   hasPurchasedProduct,
  canReviewProduct,
-  upload.single("reviewPhoto"),
+  ...upload.single("reviewPhoto"),
   handleAddReview
 );
 
 router.put(
   "/review/:reviewId",
-   upload.single("reviewPhoto"),
+   ...upload.single("reviewPhoto"),
   handleUpdateReview
 );
 
@@ -44,7 +44,7 @@ router.delete(
 // );
 
 router.get("/my-reviews", handleGetUserReviewsWithProducts);
-router.get("/review/:productId/review-count", getReviewCountForProduct);
+// router.get("/review/:productId/review-count", getReviewCountForProduct);
 
 
 module.exports = router;

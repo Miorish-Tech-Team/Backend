@@ -1,6 +1,7 @@
 const { DataTypes } = require("sequelize");
 const { sequelize } = require("../../mysqlConnection/dbConnection");
 const Category = require("../categoryModel/categoryModel");
+const SubCategory = require("../categoryModel/subCategoryModel");
 
 const Product = sequelize.define(
   "Product",
@@ -52,14 +53,25 @@ const Product = sequelize.define(
       allowNull: false,
     },
 
-    productCategoryId: {
+    productSubCategoryId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: Category, 
+        model: SubCategory,
         key: "id",
       },
     },
+
+     productCategoryId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: Category,
+        key: "id",
+      },
+    },
+
+
 
     stockKeepingUnit: {
       type: DataTypes.STRING,
@@ -86,6 +98,39 @@ const Product = sequelize.define(
     productDiscountPrice: {
       type: DataTypes.FLOAT,
     },
+    distributorPurchasePrice: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+    },
+    distributorSellingPrice: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+    },
+    retailerSellingPrice: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+    },
+    mrpB2B: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+    },
+    // productMetadata: {
+    //   type: DataTypes.JSON,
+    //   allowNull: true,
+    //   comment:
+    //     "Stores specific specs like { waxType: 'Soy', burnTime: '40hrs' }",
+    // },
+
+    // --- SPECIFIC ATTRIBUTES (FROM IMAGE) ---
+    waxType: {
+      type: DataTypes.STRING, // e.g., Soy, Paraffin
+      allowNull: true,
+    },
+    singleOrCombo: {
+      type: DataTypes.ENUM("Single", "Combo"),
+      defaultValue: "Single",
+    },
+    
 
     saleDayleft: {
       type: DataTypes.STRING,
@@ -109,7 +154,7 @@ const Product = sequelize.define(
     },
 
     inventoryStatus: {
-      type: DataTypes.ENUM("InStock","onSale", "OutOfStock", "BackOrder"),
+      type: DataTypes.ENUM("InStock", "onSale", "OutOfStock", "BackOrder"),
       defaultValue: "InStock",
     },
 
@@ -127,10 +172,10 @@ const Product = sequelize.define(
       type: DataTypes.STRING,
     },
 
-galleryImageUrls: {
-  type: DataTypes.JSON,
-  allowNull: true,
-},
+    galleryImageUrls: {
+      type: DataTypes.JSON,
+      allowNull: true,
+    },
 
     // Ratings & Reviews
     averageCustomerRating: {

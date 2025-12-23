@@ -2,13 +2,12 @@ const Logo = require("../../../models/advertisementModel/websiteAdvertisement/lo
 
 const handleAddLogo = async (req, res) => {
   try {
-    const imageFile = req.file;
-    if (!imageFile) {
+    const imageURL = req.fileUrl;
+    if (!imageURL) {
       return res
         .status(400)
         .json({ success: false, message: "Please upload an image" });
     }
-    const imageURL = imageFile.location;
     const logo = await Logo.create({
       image: imageURL,
     });

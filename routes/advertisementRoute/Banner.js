@@ -20,35 +20,35 @@ router.post(
   "/add-homepage-banners",
   checkForAuthenticationCookie("token"),
   authorizeRoles(["admin", "admin+", "superadmin"]),
-  upload.single('image'),
+  ...upload.single('image'),
   handleAddHomepageBanner
 );
 router.post(
   "/add-weekly-banners",
   checkForAuthenticationCookie("token"),
   authorizeRoles(["admin", "admin+", "superadmin"]),
-  upload.single('image'),
+  ...upload.single('image'),
   handleAddWeeklyPromotionBanner
 );
 router.post(
   "/add-popular-banners",
   checkForAuthenticationCookie("token"),
   authorizeRoles(["admin", "admin+", "superadmin"]),
-  upload.single('image'),
+  ...upload.single('image'),
  handleAddThePopularBanner
 );
 router.post(
   "/add-brand-banners",
   checkForAuthenticationCookie("token"),
   authorizeRoles(["admin", "admin+", "superadmin"]),
-  upload.single('image'),
+  ...upload.single('image'),
  handleAddBrandAdsPosterBanner
 );
 router.post(
   "/add-product-banners",
   checkForAuthenticationCookie("token"),
   authorizeRoles(["admin", "admin+", "superadmin"]),
-  upload.single('image'),
+  ...upload.single('image'),
   handleAddProductPosterAdsBanner
 );
 router.get("/homepage-banners", getHomepageBanners);

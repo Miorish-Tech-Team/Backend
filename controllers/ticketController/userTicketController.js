@@ -23,8 +23,7 @@ const createUserTicket = async (req, res) => {
   try {
     const { subject, description } = req.body;
     const userId = req.user.id;
-    const image = req.file;
-    const imageUrl = image?.location || null;
+    const imageUrl = req.fileUrl || null;
     const ticketNumber = await generateTicketNumber();
 
     const ticket = await UserTicket.create({

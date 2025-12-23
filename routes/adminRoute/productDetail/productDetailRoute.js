@@ -19,14 +19,10 @@ router.get("/products/:id", getProductById);
 router.get("/products-count", getProductCount);
 router.get("/products-stats", getProductStats);
 router.get("/products/status/:status", getProductsByStatus);
-router.post("/add-products", upload.single("coverImageUrl"), handleAddProduct);
+router.post("/add-products", ...upload.single("coverImageUrl"), handleAddProduct);
 router.put(
   "/update-product/:productId",
-  upload.array([
-    { name: "coverImageUrl", maxCount: 1 },
-    { name: "galleryImageUrls", maxCount: 5 },
-    { name: "productVideoUrl", maxCount: 1 },
-  ]),
+  ...upload.array("galleryImageUrls", 5),
   handleUpdateProduct
 );
 router.delete("/delete-product/:productId",  handleDeleteProduct);

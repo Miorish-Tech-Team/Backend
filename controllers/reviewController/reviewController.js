@@ -6,10 +6,9 @@ const ReviewLike = require('../../models/reviewLikeModel/reviewLikeModel')
 const handleAddReview = async (req, res) => {
   const userId = req.user.id;
   const { productId, rating, reviewText } = req.body;
-  const reviewPhoto = req.file;
 
   try {
-    const reviewPhotoUrl = reviewPhoto?.location || null;
+    const reviewPhotoUrl = req.fileUrl || null;
     const review = await Review.create({
       userId,
       productId,
@@ -60,7 +59,6 @@ const handleAddReview = async (req, res) => {
 const handleUpdateReview = async (req, res) => {
   const userId = req.user?.id;
   const { rating, reviewText } = req.body;
-  const reviewPhoto = req.file;
   const { reviewId } = req.params;
 
   console.log("Received reviewId:", reviewId);
@@ -81,7 +79,7 @@ const handleUpdateReview = async (req, res) => {
 
     console.log("Review found:", review.id);
 
-    const reviewPhotoUrl = reviewPhoto?.location || reviewPhoto?.path || review.reviewPhoto;
+    const reviewPhotoUrl = req.fileUrl || review.reviewPhoto;
     console.log("Review photo URL:", reviewPhotoUrl);
 
     review.rating = rating ?? review.rating;

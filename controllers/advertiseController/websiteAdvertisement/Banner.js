@@ -7,13 +7,12 @@ const WeeklyPromotion = require("../../../models/advertisementModel/websiteAdver
 const handleAddHomepageBanner = async (req, res) => {
   try {
     const { title } = req.body;
-    const imageFile = req.file;
-    if (!imageFile) {
+    const imageURL = req.fileUrl;
+    if (!imageURL) {
       return res
         .status(400)
         .json({ success: false, message: "Please upload an image" });
     }
-    const imageURL = imageFile.location;
 
     const banner = await HomepageBanner.create({
       title,
@@ -37,13 +36,12 @@ const handleAddHomepageBanner = async (req, res) => {
 const handleAddWeeklyPromotionBanner = async (req, res) => {
   try {
     const { title } = req.body;
-    const imageFile = req.file;
-    if (!imageFile) {
+    const imageURL = req.fileUrl;
+    if (!imageURL) {
       return res
         .status(400)
         .json({ success: false, message: "Please upload an image" });
     }
-    const imageURL = imageFile.location;
 
     const banner = await WeeklyPromotion.create({
       title,
@@ -67,13 +65,12 @@ const handleAddWeeklyPromotionBanner = async (req, res) => {
 const handleAddThePopularBanner = async (req, res) => {
   try {
     const { title } = req.body;
-    const imageFile = req.file;
-    if (!imageFile) {
+    const imageURL = req.fileUrl;
+    if (!imageURL) {
       return res
         .status(400)
         .json({ success: false, message: "Please upload an image" });
     }
-    const imageURL = imageFile.location;
 
     const banner = await ThePopular.create({
       title,
@@ -96,13 +93,12 @@ const handleAddThePopularBanner = async (req, res) => {
 const handleAddBrandAdsPosterBanner = async (req, res) => {
   try {
     const { title } = req.body;
-    const imageFile = req.file;
-    if (!imageFile) {
+    const imageURL = req.fileUrl;
+    if (!imageURL) {
       return res
         .status(400)
         .json({ success: false, message: "Please upload an image" });
     }
-    const imageURL = imageFile.location;
 
     const banner = await BrandPoster.create({
       title,
@@ -126,13 +122,12 @@ const handleAddBrandAdsPosterBanner = async (req, res) => {
 const handleAddProductPosterAdsBanner = async (req, res) => {
   try {
     const { title } = req.body;
-    const imageFile = req.file;
-    if (!imageFile) {
+    const imageURL = req.fileUrl;
+    if (!imageURL) {
       return res
         .status(400)
         .json({ success: false, message: "Please upload an image" });
     }
-    const imageURL = imageFile.location;
 
     const banner = await ProductPosterAds.create({
       title,

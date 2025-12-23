@@ -13,7 +13,7 @@ const router = express.Router();
 router.get("/", getUserProfile);
 router.put(
   "/edit/profile/:userId",
-  upload.single("profilePhoto"),
+  ...upload.single("profilePhoto"),
   handleUpdateUserProfile
 );
 router.put("/edit/change-password", handleChangePassword);

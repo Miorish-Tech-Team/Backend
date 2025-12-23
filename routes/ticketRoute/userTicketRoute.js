@@ -15,7 +15,7 @@ router.post(
   "/user/raise-ticket",
   checkForAuthenticationCookie("token"),
   authorizeRoles(["user"]),
-  upload.single("image"),
+  ...upload.single("image"),
   createUserTicket
 );
 

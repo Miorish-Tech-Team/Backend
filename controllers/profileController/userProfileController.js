@@ -9,28 +9,26 @@ const {
 
 const handleUpdateUserProfile = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const { firstName, lastName, phone, email, state, city, country, zipCode } =
+    const userId = req.params.userId || req.user.id;
+    const { fullName, phone, state, city, country, zipCode } =
       req.body;
-    const profilePhoto = req.file;
-    const profilePhotoUrl = profilePhoto?.location || null;
+    const profilePhotoUrl = req.fileUrl || null;
     const user = await User.findByPk(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    user.firstName = firstName || user.firstName;
-    user.lastName = lastName || user.lastName;
-    user.phone = phone || user.phone;
-    user.email = email || user.email;
-    user.profilePhoto = profilePhotoUrl || user.profilePhoto;
-    user.state = state || user.state;
-    user.city = city || user.city;
-    user.country = country || user.country;
-    user.zipCode = zipCode || user.zipCode;
+    user.fullName = fullName ?? user.fullName;
+    user.phone = phone ?? user.phone;
+    // user.email = email ?? user.email;
+    user.profilePhoto = profilePhotoUrl ?? user.profilePhoto;
+    user.state = state ?? user.state;
+    user.city = city ?? user.city;
+    user.country = country ?? user.country;
+    user.zipCode = zipCode ?? user.zipCode;
 
     await user.save();
-    await sendUpdateProfileEmail(user.email, user.firstName);
+    await sendUpdateProfileEmail(user.email, user.fullName);
     return res.status(200).json({
       success: true,
       message: "Profile updated successfully",

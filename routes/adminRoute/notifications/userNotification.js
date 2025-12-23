@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.post(
   "/add-notifications",
-  upload.single("coverImage"),
+  ...upload.single("coverImage"),
   createAdminNotification
 );
 module.exports = router;

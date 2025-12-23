@@ -36,6 +36,7 @@ const orderManageRoute = require("./routes/orderRoute/orderManagementRoute");
 const productDetailRoute = require("./routes/adminRoute/productDetail/productDetailRoute");
 const logoRoute = require("./routes/advertisementRoute/logoRoute");
 const handleCategoryRoute = require("./routes/adminRoute/handleCategory/handleCategoryRoute");
+const handleSubCategoryRoute = require("./routes/adminRoute/handleCategory/handleSubCategoryRoute");
 const productRoute = require("./routes/productRoute/productRoute");
 const handleReviewPermission = require("./routes/adminRoute/handleReviewPermission/reviewPermission");
 const sellerFeedbackRoute = require("./routes/feedbackRoute/sellerFeedbackRoute");
@@ -53,6 +54,7 @@ const optionalAuthentication = require("./authMiddleware/optionalMiddleware");
 const stripeCheckoutRoute = require('./routes/orderRoute/stripeRoute');
 const estimateDeliveryRoute = require('./routes/deliveryRoute/estimateDelivery');
 const warehouseAddRoute = require('./routes/deliveryRoute/adminWarehouseAdd')
+const subCategoryRoute = require("./routes/subcategoryRoutes/subcategoryRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 7845;
@@ -100,7 +102,7 @@ app.use(
   stripeCheckoutRoute,
   estimateDeliveryRoute
 );
-app.use("/api/general", categoryRoute, productRoute,generalNotificationsRoute);
+app.use("/api/general", categoryRoute,subCategoryRoute, productRoute,generalNotificationsRoute);
 app.use("/api/recommendation",  optionalAuthentication("token"), recommendationRoute);
 app.use("/api/common-seller-admin", orderManageRoute);
 app.use(
@@ -111,6 +113,7 @@ app.use(
   sellerApprovalRoute,
   membershipRoute,
   handleCategoryRoute,
+  handleSubCategoryRoute,
   userDetailRoute,
   sellerDetailRoute,
   productDetailRoute,

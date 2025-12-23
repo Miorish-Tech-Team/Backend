@@ -9,7 +9,7 @@ router.post(
   "/add-logo",
   checkForAuthenticationCookie("token"),
   authorizeRoles(["admin", "admin+", "superadmin"]),
-  upload.single('image'),
+  ...upload.single('image'),
   handleAddLogo
 );
 module.exports = router;

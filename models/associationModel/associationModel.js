@@ -128,6 +128,10 @@ Product.belongsTo(Category, { foreignKey: "productCategoryId",as:"category", onD
 Category.hasMany(SubCategory, { foreignKey: "categoryId", as: "subcategories", onDelete: "CASCADE" });
 SubCategory.belongsTo(Category, { foreignKey: "categoryId", as: "category", onDelete: "CASCADE" });
 
+// Product ↔ SubCategory
+SubCategory.hasMany(Product, { foreignKey: "productSubCategoryId", as: "products", onDelete: "CASCADE" });
+Product.belongsTo(SubCategory, { foreignKey: "productSubCategoryId", as: "subcategory", onDelete: "CASCADE" });
+
 User.hasMany(Review, { foreignKey: "userId", onDelete: "CASCADE", as: "reviews" });
 Review.belongsTo(User, { foreignKey: "userId", onDelete: "CASCADE", as: "user" }); 
 
