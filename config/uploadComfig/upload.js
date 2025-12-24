@@ -59,4 +59,27 @@ const multipleUpload = (fieldName, maxCount = 5) => [
   },
 ];
 
-module.exports = { single: singleUpload, array: multipleUpload };
+const fieldsUpload = (fields) => [
+  upload.fields(fields),
+  async (req, res, next) => {
+    try {
+      if (req.files) {
+        // req.files is an object: { fieldName: [file1, file2], ... }
+        for (const fieldName in req.files) {
+          const filesArray = req.files[fieldName];
+          req.files[fieldName] = await Promise.all(
+            filesArray.map(async (file) => ({
+              ...file,
+              location: await uploadToSupabase(file)
+            }))
+          );
+        }
+      }
+      next();
+    } catch (err) {
+      next(err);
+    }
+  },
+];
+
+module.exports = { single: singleUpload, array: multipleUpload, fields: fieldsUpload };

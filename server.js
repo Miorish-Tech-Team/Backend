@@ -34,6 +34,7 @@ const userDetailRoute = require("./routes/adminRoute/userDetail/userDetailRoute"
 const sellerDetailRoute = require("./routes/adminRoute/sellerDetail/sellerDetailRoute");
 const orderManageRoute = require("./routes/orderRoute/orderManagementRoute");
 const productDetailRoute = require("./routes/adminRoute/productDetail/productDetailRoute");
+const dashboardStatsRoute = require("./routes/adminRoute/dashboardStats/dashboardStatsRoute");
 const logoRoute = require("./routes/advertisementRoute/logoRoute");
 const handleCategoryRoute = require("./routes/adminRoute/handleCategory/handleCategoryRoute");
 const handleSubCategoryRoute = require("./routes/adminRoute/handleCategory/handleSubCategoryRoute");
@@ -55,6 +56,7 @@ const stripeCheckoutRoute = require('./routes/orderRoute/stripeRoute');
 const estimateDeliveryRoute = require('./routes/deliveryRoute/estimateDelivery');
 const warehouseAddRoute = require('./routes/deliveryRoute/adminWarehouseAdd')
 const subCategoryRoute = require("./routes/subcategoryRoutes/subcategoryRoutes");
+const publicMembershipRoute = require("./routes/membershipRoute/publicMembershipRoute");
 
 const app = express();
 const PORT = process.env.PORT || 7845;
@@ -102,7 +104,7 @@ app.use(
   stripeCheckoutRoute,
   estimateDeliveryRoute
 );
-app.use("/api/general", categoryRoute,subCategoryRoute, productRoute,generalNotificationsRoute);
+app.use("/api/general", categoryRoute,subCategoryRoute, productRoute,generalNotificationsRoute, publicMembershipRoute);
 app.use("/api/recommendation",  optionalAuthentication("token"), recommendationRoute);
 app.use("/api/common-seller-admin", orderManageRoute);
 app.use(
@@ -117,6 +119,7 @@ app.use(
   userDetailRoute,
   sellerDetailRoute,
   productDetailRoute,
+  dashboardStatsRoute,
   handleReviewPermission,
   adminStatsRoute,
   recentAdminStats,

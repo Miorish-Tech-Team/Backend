@@ -35,7 +35,7 @@ const sendUserTicketCreationEmail = async (email, fullName, ticketNumber, subjec
       `
     });
 
-    console.log("Ticket creation email sent successfully:", response);
+    // console.log("Ticket creation email sent successfully:", response);
   } catch (error) {
     console.error("Error sending ticket creation email:", error);
   }
@@ -66,7 +66,7 @@ const sendUserTicketReplyEmail = async (email, fullName, ticketNumber, subject, 
       `
     });
 
-    console.log("Ticket reply email sent:", response);
+    // console.log("Ticket reply email sent:", response);
   } catch (err) {
     console.error("Error sending ticket reply email:", err);
   }

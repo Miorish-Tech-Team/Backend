@@ -15,9 +15,8 @@ const {
 } = require("../../emailService/userAuthEmail/userAuthEmail");
 const { createToken } = require("../../authService/authService");
 
-
 const sellerSignup = async (req, res) => {
-  const t = await sequelize.transaction();  
+  const t = await sequelize.transaction();
   try {
     const {
       sellerName,
@@ -49,7 +48,8 @@ const sellerSignup = async (req, res) => {
     }
 
     const shopLogoUrl = files.shopLogo[0].location;
-    const businessLicenseDocumentUrl = files.businessLicenseDocument[0].location;
+    const businessLicenseDocumentUrl =
+      files.businessLicenseDocument[0].location;
     const taxDocumentUrl = files.taxDocument[0].location;
 
     if (
@@ -68,59 +68,77 @@ const sellerSignup = async (req, res) => {
       !zipCode ||
       !password
     ) {
-      return res.status(400).json({ message: "All required fields must be filled" });
+      return res
+        .status(400)
+        .json({ message: "All required fields must be filled" });
     }
 
-    const existingSeller = await Seller.findOne({ where: { email }, transaction: t });
+    const existingSeller = await Seller.findOne({
+      where: { email },
+      transaction: t,
+    });
     if (existingSeller) {
       await t.rollback();
-      return res.status(409).json({ message: "Seller with this email already exists" });
+      return res
+        .status(409)
+        .json({ message: "Seller with this email already exists" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-   
-    const newUser = await User.create({
-      email,
-      password: hashedPassword,
-      role: 'seller',
-      firstName: sellerName,
-      isVerified: true,
-      isTwoFactorAuthEnable:false,
-    }, { transaction: t });
+    const newUser = await User.create(
+      {
+        email,
+        password: hashedPassword,
+        role: "seller",
+        fullName: sellerName,
+        isVerified: true,
+        isTwoFactorAuthEnable: false,
+      },
+      { transaction: t }
+    );
 
-    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const verificationCode = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
     const verificationCodeExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    console.log("Generated verification code:", verificationCode);
 
-
-    const newSeller = await Seller.create({
-      sellerName,
-      shopName,
-      businessRegistrationNumber,
-      taxIdentificationNumber,
-      businessType,
-      businessAddress,
-      contactNumber,
-      email,
-      shopDescription,
-      countryName,
-      state,
-      city,
-      isApproved: false,
-      isVerified: false,
-      userId: newUser.id,
-      zipCode,
-      shopLogo: shopLogoUrl,
-      businessLicenseDocument: businessLicenseDocumentUrl,
-      taxDocument: taxDocumentUrl,
-      password: hashedPassword,
-      verificationCode,
-      verificationCodeExpiresAt,
-    }, { transaction: t });
+    const newSeller = await Seller.create(
+      {
+        sellerName,
+        shopName,
+        businessRegistrationNumber,
+        taxIdentificationNumber,
+        businessType,
+        businessAddress,
+        contactNumber,
+        email,
+        shopDescription,
+        countryName,
+        state,
+        city,
+        isApproved: false,
+        isVerified: false,
+        userId: newUser.id,
+        zipCode,
+        shopLogo: shopLogoUrl,
+        businessLicenseDocument: businessLicenseDocumentUrl,
+        taxDocument: taxDocumentUrl,
+        password: hashedPassword,
+        verificationCode,
+        verificationCodeExpiresAt,
+      },
+      { transaction: t }
+    );
 
     await t.commit();
 
-    await sendVerificationEmail(newSeller.email, newSeller.sellerName, verificationCode);
+    await sendVerificationEmail(
+      newSeller.email,
+      newSeller.sellerName,
+      verificationCode
+    );
 
     return res.status(201).json({
       message: "Seller registered successfully. Pending approval.",
@@ -130,7 +148,9 @@ const sellerSignup = async (req, res) => {
   } catch (error) {
     await t.rollback();
     console.error("Seller Signup Error:", error);
-    return res.status(500).json({ message: "Server error during seller signup" });
+    return res
+      .status(500)
+      .json({ message: "Server error during seller signup" });
   }
 };
 
@@ -148,7 +168,7 @@ const resendSellerVerificationOtp = async (req, res) => {
     seller.verificationCode = verificationCode;
     seller.verificationCodeExpiresAt = verificationCodeExpiresAt;
     await seller.save();
-
+    console.log("Resent verification code:", verificationCode);
     await sendVerificationEmail(
       seller.email,
       seller.sellerName,
@@ -212,9 +232,11 @@ const sellerSignin = async (req, res) => {
     if (!seller) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
-    
+
     if (!seller.isVerified) {
-      return res.status(400).json({ message: "Please verify your email before logging in" });
+      return res
+        .status(400)
+        .json({ message: "Please verify your email before logging in" });
     }
     if (!seller.isApproved) {
       return res.status(400).json({
@@ -227,28 +249,26 @@ const sellerSignin = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    
     const user = await User.findByPk(seller.userId);
     if (!user) {
       return res.status(404).json({ message: "Associated user not found" });
     }
 
-
     const token = createToken(user);
-    setTokenCookie(res, token); 
+    setTokenCookie(res, token);
 
     return res.status(200).json({
       success: true,
       message: "Login successful",
       token,
     });
-
   } catch (error) {
     console.error("Seller Signin Error:", error);
-    return res.status(500).json({ message: "Login failed", error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Login failed", error: error.message });
   }
 };
-
 
 const handleSellerLogout = async (req, res) => {
   res.clearCookie("token");
@@ -284,7 +304,7 @@ const handleSellerForgotPasswordURL = async (req, res) => {
 const handleSellerResetPassword = async (req, res) => {
   try {
     const { resetToken } = req.params;
-    const { newPassword} = req.body;
+    const { newPassword } = req.body;
 
     const decoded = JWT.verify(resetToken, process.env.JWT_SECRET);
     const seller = await Seller.findByPk(decoded.sellerId);

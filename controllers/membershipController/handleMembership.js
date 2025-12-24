@@ -102,5 +102,4 @@ module.exports = {
     handleUpdateMembership,
     handleCreateMembership,
     handleDeleteSellerMembership
-
 };

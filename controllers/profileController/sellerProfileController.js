@@ -27,8 +27,9 @@ const updateSellerProfile = async (req, res) => {
     }
 
     const files = req.files;
-    const shopLogoUrl = files.shopLogo[0].location;
-    const taxDocumentUrl = files.taxDocument[0].location;
+    const shopLogoUrl = files?.shopLogo?.[0]?.location;
+    const taxDocumentUrl = files?.taxDocument?.[0]?.location;
+    const identityProofUrl = files?.identityProof?.[0]?.location;
 
     seller.shopName = shopName || seller.shopName;
     seller.taxIdentificationNumber =
@@ -40,8 +41,9 @@ const updateSellerProfile = async (req, res) => {
     seller.shopDescription = shopDescription || seller.shopDescription;
     seller.city = city || seller.city;
     seller.zipCode = zipCode || seller.zipCode;
-    seller.shopLogo = shopLogoUrl || seller.shopLogo;
-    seller.taxDocument = taxDocumentUrl || seller.taxDocument;
+    if (shopLogoUrl) seller.shopLogo = shopLogoUrl;
+    if (taxDocumentUrl) seller.taxDocument = taxDocumentUrl;
+    if (identityProofUrl) seller.identityProof = identityProofUrl;
 
     await seller.save();
 

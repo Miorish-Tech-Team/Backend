@@ -164,8 +164,10 @@ const getSellerMembershipStatus = async (req, res) => {
     }
 
     res.status(200).json({
-      sellerDetails: seller,
+      Membership: seller.Membership,
       membershipStatus,
+      daysLeft,
+      currentMembershipId: seller.membershipId,
     });
   } catch (error) {
     console.error("Error getting membership status:", error);

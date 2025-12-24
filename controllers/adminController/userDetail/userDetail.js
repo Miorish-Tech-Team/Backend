@@ -8,10 +8,7 @@ const Address = require('../../../models/orderModel/orderAddressModel');
 const handleGetAllUsers = async (req, res) => {
   try {
     const { id, email, name, status } = req.query;
-
-    const whereClause = {
-      isVerified: true, 
-    };
+    const whereClause = {};
 
     if (id) {
       whereClause.id = id;
@@ -22,10 +19,8 @@ const handleGetAllUsers = async (req, res) => {
     }
 
     if (name) {
-      whereClause[Op.or] = [
-        { firstName: { [Op.like]: `%${name}%` } },
-        { lastName: { [Op.like]: `%${name}%` } },
-      ];
+      // Logic: Search by full name
+      whereClause.fullName = { [Op.like]: `%${name}%` };
     }
 
     if (status) {
@@ -36,8 +31,8 @@ const handleGetAllUsers = async (req, res) => {
       where: whereClause,
       attributes: [
         "id",
-        "firstName",
-        "lastName",
+        "fullName",
+        "role",
         "email",
         "canReview",
         "authProvider",
@@ -45,10 +40,12 @@ const handleGetAllUsers = async (req, res) => {
         "isVerified",
         "createdAt",
       ],
+      // Tip: Adding an order makes the UI list more predictable
+      order: [["createdAt", "DESC"]],
     });
 
     res.status(200).json({
-      message: "Verified users retrieved successfully",
+      message: "Users retrieved successfully",
       count: users.length,
       users,
     });
@@ -57,13 +54,12 @@ const handleGetAllUsers = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
 const handleGetUserDetails = async (req, res) => {
   try {
     const { userId } = req.params;
 
     const user = await User.findByPk(userId, {
-      attributes: ['id', 'firstName', 'lastName', 'email', 'authProvider', 'status', 'createdAt'],
+      attributes: ['id', 'fullName',  'email', 'authProvider', 'status', 'createdAt'],
       include: [
         { model: Order, as: 'orders' },      // include user's orders
         { model: Review, as: 'reviews' },    // include user's reviews
@@ -159,7 +155,7 @@ const handleGetUserByOrderId = async (req, res) => {
       include: {
         model: User,
         as: 'user',
-        attributes: ['id', 'firstName', 'lastName', 'email', 'phone', 'authProvider', 'status'],
+        attributes: ['id', 'fullName', 'email', 'phone', 'authProvider', 'status'],
         include: [
           { model: Order, as: 'orders' },
           { model: Review, as: 'reviews' },
@@ -193,7 +189,7 @@ const handleGetUserByPhone = async (req, res) => {
 
     const user = await User.findOne({
       where: { phone },
-      attributes: ['id', 'firstName', 'lastName', 'email', 'phone', 'authProvider', 'status'],
+      attributes: ['id', 'fullName', 'email', 'phone', 'authProvider', 'status'],
       include: [
         { model: Order, as: 'orders' },
         { model: Review, as: 'reviews' },
@@ -220,7 +216,7 @@ const handleGetUserByEmail = async (req, res) => {
 
     const user = await User.findOne({
       where: { email },
-      attributes: ['id', 'firstName', 'lastName', 'email', 'phone', 'authProvider', 'status'],
+      attributes: ['id', 'fullName',  'email', 'phone', 'authProvider', 'status'],
       include: [
         { model: Order, as: 'orders' },
         { model: Review, as: 'reviews' },

@@ -47,7 +47,7 @@ const sendOrderEmail = async (email, customerName, orderId, productDetails) => {
       `
     });
 
-    console.log(" Order confirmation email sent:", response);
+    // console.log(" Order confirmation email sent:", response);
   } catch (error) {
     console.error(" Error sending order confirmation email:", error);
   }

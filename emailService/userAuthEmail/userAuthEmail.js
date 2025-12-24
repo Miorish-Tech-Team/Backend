@@ -33,7 +33,7 @@ const sendVerificationEmail = async (email, fullName, otp) => {
         `
       });
   
-      console.log("Verification email sent successfully:", response);
+      // console.log("Verification email sent successfully:", response);
     } catch (error) {
       console.error("Error sending verification email:", error);
     }
@@ -74,7 +74,7 @@ const sendVerificationEmail = async (email, fullName, otp) => {
         `,
       });
   
-      console.log("Welcome email sent successfully:", response);
+      // console.log("Welcome email sent successfully:", response);
     } catch (error) {
       console.error("Error sending welcome email:", error);
     }
@@ -118,7 +118,7 @@ const sendVerificationEmail = async (email, fullName, otp) => {
       `,
     });
 
-    console.log("2FA OTP email sent successfully:", response);
+    // console.log("2FA OTP email sent successfully:", response);
   } catch (error) {
     console.error("Error sending 2FA OTP email:", error);
   }
@@ -156,7 +156,7 @@ const sendTwoFactorAuthStatusEmail = async (email, fullName, isEnabled) => {
       `,
     });
 
-    console.log(`2FA status email (${statusText}) sent successfully to ${email}`);
+    // console.log(`2FA status email (${statusText}) sent successfully to ${email}`);
   } catch (error) {
     console.error("Error sending 2FA status email:", error);
   }
@@ -199,7 +199,7 @@ const sendTwoFactorAuthStatusEmail = async (email, fullName, isEnabled) => {
         `,
       });
   
-      console.log("Password reset link email sent successfully:", response);
+      // console.log("Password reset link email sent successfully:", response);
     } catch (error) {
       console.error("Error sending password reset email:", error);
     }
@@ -240,7 +240,7 @@ const sendTwoFactorAuthStatusEmail = async (email, fullName, isEnabled) => {
         `,
       });
   
-      console.log("Recovery email sent successfully:", response);
+      // console.log("Recovery email sent successfully:", response);
     } catch (error) {
       console.error("Error sending recovery email:", error);
     }
@@ -282,7 +282,7 @@ const sendTwoFactorAuthStatusEmail = async (email, fullName, isEnabled) => {
         `,
       });
   
-      console.log("Password change email sent successfully:", response);
+      // console.log("Password change email sent successfully:", response);
     } catch (error) {
       console.error("Error sending password change email:", error);
     }
@@ -323,7 +323,7 @@ const sendTwoFactorAuthStatusEmail = async (email, fullName, isEnabled) => {
         `,
       });
   
-      console.log("Profile update email sent successfully:", response);
+      // console.log("Profile update email sent successfully:", response);
     } catch (error) {
       console.error("Error sending profile update email:", error);
     }

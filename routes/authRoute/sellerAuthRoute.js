@@ -15,7 +15,7 @@ const router = express.Router();
 
 router.post(
   "/seller-signup",
-  upload.array([
+  ...upload.fields([
     { name: "shopLogo", maxCount: 1 },
     { name: "businessLicenseDocument", maxCount: 1 },
     { name: "taxDocument", maxCount: 1 },

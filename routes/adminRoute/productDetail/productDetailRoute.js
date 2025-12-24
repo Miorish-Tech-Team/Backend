@@ -12,14 +12,27 @@ const {
   handleUpdateProduct,
   handleDeleteProduct,
   handleBulkDeleteProducts,
+  getMyProducts,
+  getMyProductById,
+  getMyProductsByStatus,
+  getMyProductCount,
 } = require("../../../controllers/productController/productController");
 const router = express.Router();
 
+// Admin product management routes
 router.get("/products", getAllProducts);
 router.get("/products/:id", getProductById);
 router.get("/products-count", getProductCount);
 router.get("/products-stats", getProductStats);
 router.get("/products/status/:status", getProductsByStatus);
+
+// Seller product management routes (for admin to view seller products)
+router.get("/my-products", getMyProducts);
+router.get("/my-products/count", getMyProductCount);
+router.get("/my-products/status/:status", getMyProductsByStatus);
+router.get("/my-products/:productId", getMyProductById);
+
+// Product CRUD routes
 router.post("/add-products", ...upload.single("coverImageUrl"), handleAddProduct);
 router.put(
   "/update-product/:productId",

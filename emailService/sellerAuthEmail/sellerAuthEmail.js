@@ -32,7 +32,6 @@ const sendVerificationEmail = async (email, fullName, otp) => {
         `
       });
   
-      console.log("Verification email sent successfully:", response);
     } catch (error) {
       console.error("Error sending verification email:", error);
     }
@@ -83,7 +82,6 @@ const sendVerificationEmail = async (email, fullName, otp) => {
         `,
       });
   
-      console.log("Seller welcome email sent successfully:", response);
     } catch (error) {
       console.error("Error sending seller welcome email:", error);
     }
@@ -126,7 +124,6 @@ const sendVerificationEmail = async (email, fullName, otp) => {
         `,
       });
   
-      console.log("Seller approval email sent successfully", response);
     } catch (error) {
       console.error("Error sending seller approval email:", error);
     }
@@ -170,19 +167,19 @@ const sendVerificationEmail = async (email, fullName, otp) => {
         `
       });
   
-      console.log("Seller approval email sent successfully:", response);
+      // console.log("Seller approval email sent successfully:", response);
     } catch (error) {
       console.error("Error sending seller approval email:", error);
     }
   };
 
-  const sendApprovalRejectEmail = async (email, sellerName) => {
+  const sendApprovalRejectEmail = async (email, sellerName, rejectionReason) => {
     try {
       const response = await transporter.sendMail({
         from: `"${name} Team" <${adminEmail}>`,
         to: email,
         subject: `Seller Account Approval Rejected - ${name}`,
-        text: `Hi ${sellerName},\n\nWe regret to inform you that your seller account request has been rejected after review.\n\nThis may be due to incomplete or invalid information provided during registration. Please feel free to reach out to our support team if you have any questions or would like to reapply.\n\n- ${name} Team`,
+        text: `Hi ${sellerName},\n\nWe regret to inform you that your seller account request has been rejected after review.\n\nReason for rejection:\n${rejectionReason}\n\nPlease feel free to reach out to our support team if you have any questions or would like to reapply after addressing the mentioned issues.\n\n- ${name} Team`,
         html: `
           <div style="background-color: #f3f4f6; padding: 40px 0; font-family: Arial, sans-serif;">
             <div style="max-width: 580px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
@@ -195,13 +192,16 @@ const sendVerificationEmail = async (email, fullName, otp) => {
               </p>
               <p style="text-align: center; font-size: 15px; color: #555; margin: 20px 0;">
                 We're sorry to inform you that your seller account request has been rejected after review.
-                <br /><br />
-                 This might be due to missing, invalid, or unverifiable information.
-                <br /><br />
-                If you believe this is a mistake or you'd like to reapply, feel free to contact us.
+              </p>
+              <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                <p style="margin: 0; font-size: 14px; color: #333; font-weight: bold;">Reason for Rejection:</p>
+                <p style="margin: 10px 0 0 0; font-size: 14px; color: #555; line-height: 1.6;">${rejectionReason}</p>
+              </div>
+              <p style="text-align: center; font-size: 15px; color: #555; margin: 20px 0;">
+                If you believe this is a mistake or you'd like to reapply after addressing the issues mentioned above, feel free to contact us.
               </p>
               <div style="text-align: center; margin: 30px 0;">
-                <a href="mailto:support@favorselect.com" style="background-color: #d63384; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold;">Contact Support</a>
+                <a href="mailto:${adminEmail}" style="background-color: #d63384; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold;">Contact Support</a>
               </div>
               <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;" />
               <p style="text-align: center; font-size: 13px; color: #aaa;">
@@ -212,7 +212,7 @@ const sendVerificationEmail = async (email, fullName, otp) => {
         `
       });
   
-      console.log("Approval rejection email sent successfully:", response);
+      // console.log("Approval rejection email sent successfully:", response);
     } catch (error) {
       console.error("Error sending approval rejection email:", error);
     }
@@ -254,7 +254,7 @@ const sendVerificationEmail = async (email, fullName, otp) => {
         `,
       });
   
-      console.log("Profile update email sent successfully:", response);
+      // console.log("Profile update email sent successfully:", response);
     } catch (error) {
       console.error("Error sending profile update email:", error);
     }
@@ -294,7 +294,7 @@ const sendVerificationEmail = async (email, fullName, otp) => {
         `,
       });
   
-      console.log("Password change email sent successfully:", response);
+      // console.log("Password change email sent successfully:", response);
     } catch (error) {
       console.error("Error sending password change email:", error);
     }

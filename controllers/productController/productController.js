@@ -969,6 +969,225 @@ const handleBulkDeleteProducts = async (req, res) => {
   }
 };
 
+// Seller-specific product controllers
+const getMyProducts = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const seller = await Seller.findOne({ where: { userId } });
+
+    if (!seller) {
+      return res.status(404).json({
+        success: false,
+        message: "Seller not found",
+      });
+    }
+
+    const { page = 1, limit = 10, search = "" } = req.query;
+    const offset = (page - 1) * limit;
+
+    const whereClause = { sellerId: seller.id };
+
+    if (search) {
+      whereClause.productName = {
+        [Op.like]: `%${search}%`,
+      };
+    }
+
+    const { count, rows: products } = await Product.findAndCountAll({
+      where: whereClause,
+      include: [
+        {
+          model: Category,
+          as: "category",
+          attributes: ["categoryName"],
+        },
+        {
+          model: SubCategory,
+          as: "subcategory",
+          attributes: ["subCategoryName"],
+        },
+      ],
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      order: [["createdAt", "DESC"]],
+    });
+
+    res.status(200).json({
+      success: true,
+      products,
+      totalProducts: count,
+      currentPage: parseInt(page),
+      totalPages: Math.ceil(count / limit),
+    });
+  } catch (error) {
+    console.error("Get My Products Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while fetching products",
+      error: error.message,
+    });
+  }
+};
+
+const getMyProductById = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { productId } = req.params;
+
+    const seller = await Seller.findOne({ where: { userId } });
+
+    if (!seller) {
+      return res.status(404).json({
+        success: false,
+        message: "Seller not found",
+      });
+    }
+
+    const product = await Product.findOne({
+      where: {
+        id: productId,
+        sellerId: seller.id,
+      },
+      include: [
+        {
+          model: Category,
+          as: "category",
+          attributes: ["categoryName"],
+        },
+        {
+          model: SubCategory,
+          as: "subcategory",
+          attributes: ["subCategoryName"],
+        },
+      ],
+    });
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found or you don't have permission to view it",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      product,
+    });
+  } catch (error) {
+    console.error("Get My Product By ID Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while fetching product",
+      error: error.message,
+    });
+  }
+};
+
+const getMyProductsByStatus = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { status } = req.params;
+    const { page = 1, limit = 10 } = req.query;
+
+    const seller = await Seller.findOne({ where: { userId } });
+
+    if (!seller) {
+      return res.status(404).json({
+        success: false,
+        message: "Seller not found",
+      });
+    }
+
+    const offset = (page - 1) * limit;
+
+    const { count, rows: products } = await Product.findAndCountAll({
+      where: {
+        sellerId: seller.id,
+        status,
+      },
+      include: [
+        {
+          model: Category,
+          as: "category",
+          attributes: ["categoryName"],
+        },
+        {
+          model: SubCategory,
+          as: "subcategory",
+          attributes: ["subCategoryName"],
+        },
+      ],
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      order: [["createdAt", "DESC"]],
+    });
+
+    res.status(200).json({
+      success: true,
+      products,
+      totalProducts: count,
+      currentPage: parseInt(page),
+      totalPages: Math.ceil(count / limit),
+      status,
+    });
+  } catch (error) {
+    console.error("Get My Products By Status Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while fetching products by status",
+      error: error.message,
+    });
+  }
+};
+
+const getMyProductCount = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const seller = await Seller.findOne({ where: { userId } });
+
+    if (!seller) {
+      return res.status(404).json({
+        success: false,
+        message: "Seller not found",
+      });
+    }
+
+    const totalCount = await Product.count({
+      where: { sellerId: seller.id },
+    });
+
+    const approvedCount = await Product.count({
+      where: { sellerId: seller.id, status: "approved" },
+    });
+
+    const pendingCount = await Product.count({
+      where: { sellerId: seller.id, status: "pending" },
+    });
+
+    const rejectedCount = await Product.count({
+      where: { sellerId: seller.id, status: "rejected" },
+    });
+
+    res.status(200).json({
+      success: true,
+      count: {
+        total: totalCount,
+        approved: approvedCount,
+        pending: pendingCount,
+        rejected: rejectedCount,
+      },
+    });
+  } catch (error) {
+    console.error("Get My Product Count Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while fetching product count",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   handleAddProduct,
   handleUpdateProduct,
@@ -984,4 +1203,8 @@ module.exports = {
   getProductsByCategoryMultiple,
   handleGetQuerySuggestions,
   getSimilarProducts,
+  getMyProducts,
+  getMyProductById,
+  getMyProductsByStatus,
+  getMyProductCount,
 };

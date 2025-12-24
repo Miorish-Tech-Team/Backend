@@ -3,7 +3,10 @@ const Category = require("../../../models/categoryModel/categoryModel");
 
 const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.findAll({
+    const { page = 1, limit = 50 } = req.query;
+    const offset = (page - 1) * limit;
+
+    const { count, rows: products } = await Product.findAndCountAll({
       include: [
         {
           model: Category,
@@ -11,8 +14,17 @@ const getAllProducts = async (req, res) => {
           attributes: ["categoryName"],
         },
       ],
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      order: [["createdAt", "DESC"]],
     });
-    res.status(200).json(products);
+
+    res.status(200).json({
+      products,
+      totalProducts: count,
+      currentPage: parseInt(page),
+      totalPages: Math.ceil(count / limit),
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -98,8 +110,30 @@ const getProductStats = async (req, res) => {
 const getProductsByStatus = async (req, res) => {
   try {
     const { status } = req.params;
-    const products = await Product.findAll({ where: { status } });
-    res.status(200).json(products);
+    const { page = 1, limit = 50 } = req.query;
+    const offset = (page - 1) * limit;
+
+    const { count, rows: products } = await Product.findAndCountAll({
+      where: { status },
+      include: [
+        {
+          model: Category,
+          as: "category",
+          attributes: ["categoryName"],
+        },
+      ],
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      order: [["createdAt", "DESC"]],
+    });
+
+    res.status(200).json({
+      products,
+      totalProducts: count,
+      currentPage: parseInt(page),
+      totalPages: Math.ceil(count / limit),
+      status,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

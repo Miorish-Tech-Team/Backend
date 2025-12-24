@@ -11,9 +11,10 @@ const router = express.Router();
 router.get("/profile", getSellerProfile);
 router.put(
   "/profile/edit",
-  upload.array([
+ ...upload.fields([
     { name: "shopLogo", maxCount: 1 },
     { name: "taxDocument", maxCount: 1 },
+    { name: "identityProof", maxCount: 1 },
   ]),
   updateSellerProfile
 );

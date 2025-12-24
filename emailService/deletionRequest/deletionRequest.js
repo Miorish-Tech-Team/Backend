@@ -34,7 +34,7 @@ const sendAccountDeletionStatusEmail = async (email, fullName, requestId, status
       `
     });
 
-    console.log(`Deletion request ${status} email sent to ${email}`);
+    // console.log(`Deletion request ${status} email sent to ${email}`);
   } catch (error) {
     console.error("Error sending deletion request email:", error);
   }

@@ -71,14 +71,20 @@ const handleApproveSeller = async (req, res) => {
 
 const handleRejectSeller = async (req, res) => {
   try {
-    const { adminId: sellerId } = req.params;
+    const { sellerId } = req.params;
+    const { rejectionReason } = req.body;
+
+    if (!rejectionReason || rejectionReason.trim() === "") {
+      return res.status(400).json({ success: false, message: "Rejection reason is required" });
+    }
+
     const seller = await Seller.findByPk(sellerId);
 
     if (!seller) {
       return res.status(404).json({ success: false, message: "Seller not found" });
     }
 
-    await sendApprovalRejectEmail(seller.email, seller.sellerName);
+    await sendApprovalRejectEmail(seller.email, seller.sellerName, rejectionReason);
     await seller.destroy();
 
     res.status(200).json({ success: true, message: "Seller request rejected successfully" });

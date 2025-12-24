@@ -29,7 +29,7 @@ const sendMembershipAssignedEmail = async (email, sellerName, planName, startDat
       `
     });
 
-    console.log("Membership assigned email sent:", response);
+    // console.log("Membership assigned email sent:", response);
   } catch (error) {
     console.error("Error sending membership assigned email:", error);
   }
@@ -63,7 +63,7 @@ const sendMembershipRenewalEmail = async (email, sellerName, planName, startDate
       `
     });
 
-    console.log("Membership renewal email sent:", response);
+    // console.log("Membership renewal email sent:", response);
   } catch (error) {
     console.error("Error sending membership renewal email:", error);
   }
@@ -90,7 +90,7 @@ const sendPreExpiryEmailToSeller = async (email, planName, duration) => {
         </div>
       `
     });
-    console.log("Pre-expiry email sent to:", email);
+    // console.log("Pre-expiry email sent to:", email);
   } catch (err) {
     console.error("Error sending pre-expiry email:", err.message);
   }
@@ -117,7 +117,7 @@ const sendExpiryEmailToSeller = async (email, planName, duration) => {
         </div>
       `
     });
-    console.log("Expiry email sent to:", email);
+    // console.log("Expiry email sent to:", email);
   } catch (err) {
     console.error("Error sending expiry email:", err.message);
   }
