@@ -100,7 +100,7 @@ const googleCallback = async (req, res) => {
     setTokenCookie(res, token, middlewareToken);
 
 
-    res.redirect(FRONTEND_URL_MAIN);
+    res.redirect(`${FRONTEND_URL_MAIN}/auth/callback`);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
