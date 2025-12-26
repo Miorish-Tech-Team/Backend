@@ -26,7 +26,7 @@ router.get("/products-count", getProductCount);
 router.get("/products-stats", getProductStats);
 router.get("/products/status/:status", getProductsByStatus);
 
-// Seller product management routes (for admin to view seller products)
+// admin's product details routes
 router.get("/my-products", getMyProducts);
 router.get("/my-products/count", getMyProductCount);
 router.get("/my-products/status/:status", getMyProductsByStatus);

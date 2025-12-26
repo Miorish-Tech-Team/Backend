@@ -219,19 +219,25 @@ const handleUpdateProduct = async (req, res) => {
       }
     });
 
-    if (req.fileUrl) {
-      updateFields.coverImageUrl = req.fileUrl;
+    // Handle cover image if uploaded
+    if (req.files && req.files.coverImageUrl && req.files.coverImageUrl.length > 0) {
+      updateFields.coverImageUrl = req.files.coverImageUrl[0].location;
     }
 
     // Handle gallery images: merge existing URLs with new uploads
-    if (req.body.existingGalleryUrls || (req.fileUrls && req.fileUrls.length > 0)) {
-      const existingUrls = req.body.existingGalleryUrls 
-        ? JSON.parse(req.body.existingGalleryUrls) 
-        : [];
-      const newUrls = req.fileUrls || [];
-      
-      // Combine existing and new, limit to 5 total
-      const combinedUrls = [...existingUrls, ...newUrls].slice(0, 5);
+    const existingUrls = req.body.existingGalleryUrls 
+      ? (Array.isArray(req.body.existingGalleryUrls) 
+          ? req.body.existingGalleryUrls 
+          : JSON.parse(req.body.existingGalleryUrls))
+      : [];
+    
+    const newGalleryUrls = req.files && req.files.galleryImageUrls 
+      ? req.files.galleryImageUrls.map(file => file.location)
+      : [];
+    
+    // Combine existing and new, limit to 5 total
+    if (existingUrls.length > 0 || newGalleryUrls.length > 0) {
+      const combinedUrls = [...existingUrls, ...newGalleryUrls].slice(0, 5);
       updateFields.galleryImageUrls = combinedUrls.length > 0 ? combinedUrls : null;
     }
 
@@ -973,19 +979,29 @@ const handleBulkDeleteProducts = async (req, res) => {
 const getMyProducts = async (req, res) => {
   try {
     const userId = req.user.id;
-    const seller = await Seller.findOne({ where: { userId } });
+    const userRole = req.user.role;
 
-    if (!seller) {
-      return res.status(404).json({
-        success: false,
-        message: "Seller not found",
-      });
+    let whereClause = {};
+
+    // If user is a seller, filter by sellerId
+    if (userRole === "seller") {
+      const seller = await Seller.findOne({ where: { userId } });
+
+      if (!seller) {
+        return res.status(404).json({
+          success: false,
+          message: "Seller not found",
+        });
+      }
+
+      whereClause.sellerId = seller.id;
+    } else if (userRole === "admin") {
+      // If user is admin, filter by UserId (admin's user ID)
+      whereClause.UserId = userId;
     }
 
     const { page = 1, limit = 10, search = "" } = req.query;
     const offset = (page - 1) * limit;
-
-    const whereClause = { sellerId: seller.id };
 
     if (search) {
       whereClause.productName = {
@@ -1032,22 +1048,30 @@ const getMyProducts = async (req, res) => {
 const getMyProductById = async (req, res) => {
   try {
     const userId = req.user.id;
+    const userRole = req.user.role;
     const { productId } = req.params;
 
-    const seller = await Seller.findOne({ where: { userId } });
+    let whereClause = { id: productId };
 
-    if (!seller) {
-      return res.status(404).json({
-        success: false,
-        message: "Seller not found",
-      });
+    // If user is a seller, filter by sellerId
+    if (userRole === "seller") {
+      const seller = await Seller.findOne({ where: { userId } });
+
+      if (!seller) {
+        return res.status(404).json({
+          success: false,
+          message: "Seller not found",
+        });
+      }
+
+      whereClause.sellerId = seller.id;
+    } else if (userRole === "admin") {
+      // If user is admin, filter by UserId (admin's user ID)
+      whereClause.UserId = userId;
     }
 
     const product = await Product.findOne({
-      where: {
-        id: productId,
-        sellerId: seller.id,
-      },
+      where: whereClause,
       include: [
         {
           model: Category,
@@ -1086,25 +1110,33 @@ const getMyProductById = async (req, res) => {
 const getMyProductsByStatus = async (req, res) => {
   try {
     const userId = req.user.id;
+    const userRole = req.user.role;
     const { status } = req.params;
     const { page = 1, limit = 10 } = req.query;
 
-    const seller = await Seller.findOne({ where: { userId } });
+    let whereClause = { status };
 
-    if (!seller) {
-      return res.status(404).json({
-        success: false,
-        message: "Seller not found",
-      });
+    // If user is a seller, filter by sellerId
+    if (userRole === "seller") {
+      const seller = await Seller.findOne({ where: { userId } });
+
+      if (!seller) {
+        return res.status(404).json({
+          success: false,
+          message: "Seller not found",
+        });
+      }
+
+      whereClause.sellerId = seller.id;
+    } else if (userRole === "admin") {
+      // If user is admin, filter by UserId (admin's user ID)
+      whereClause.UserId = userId;
     }
 
     const offset = (page - 1) * limit;
 
     const { count, rows: products } = await Product.findAndCountAll({
-      where: {
-        sellerId: seller.id,
-        status,
-      },
+      where: whereClause,
       include: [
         {
           model: Category,
@@ -1143,30 +1175,41 @@ const getMyProductsByStatus = async (req, res) => {
 const getMyProductCount = async (req, res) => {
   try {
     const userId = req.user.id;
+    const userRole = req.user.role;
 
-    const seller = await Seller.findOne({ where: { userId } });
+    let whereClause = {};
 
-    if (!seller) {
-      return res.status(404).json({
-        success: false,
-        message: "Seller not found",
-      });
+    // If user is a seller, filter by sellerId
+    if (userRole === "seller") {
+      const seller = await Seller.findOne({ where: { userId } });
+
+      if (!seller) {
+        return res.status(404).json({
+          success: false,
+          message: "Seller not found",
+        });
+      }
+
+      whereClause.sellerId = seller.id;
+    } else if (userRole === "admin") {
+      // If user is admin, filter by UserId (admin's user ID)
+      whereClause.UserId = userId;
     }
 
     const totalCount = await Product.count({
-      where: { sellerId: seller.id },
+      where: whereClause,
     });
 
     const approvedCount = await Product.count({
-      where: { sellerId: seller.id, status: "approved" },
+      where: { ...whereClause, status: "approved" },
     });
 
     const pendingCount = await Product.count({
-      where: { sellerId: seller.id, status: "pending" },
+      where: { ...whereClause, status: "pending" },
     });
 
     const rejectedCount = await Product.count({
-      where: { sellerId: seller.id, status: "rejected" },
+      where: { ...whereClause, status: "rejected" },
     });
 
     res.status(200).json({

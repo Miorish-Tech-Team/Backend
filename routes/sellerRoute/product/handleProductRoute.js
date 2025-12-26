@@ -22,13 +22,13 @@ router.get("/my-products/:productId", getMyProductById);
 router.post(
   "/add-products",
   checkSellerMembership,
-  upload.single("coverImageUrl"),
+  ...upload.single("coverImageUrl"),
   handleAddProduct
 );
 router.put(
   "/update-product/:productId",
   checkSellerMembership,
-  upload.array([
+  ...upload.fields([
     { name: "coverImageUrl", maxCount: 1 },
     { name: "galleryImageUrls", maxCount: 5 },
     { name: "productVideoUrl", maxCount: 1 },
