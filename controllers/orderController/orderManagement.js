@@ -12,6 +12,7 @@ const { createUserNotification } = require("../notifications/userNotification");
 
 const handleAdminGetAllOrders = async (req, res) => {
   try {
+    console.log("Admin fetching all orders - User role:", req.user?.role);
     const { orderStatus, uniqueOrderId, orderDate } = req.query;
 
     const whereClause = {};
@@ -34,12 +35,14 @@ const handleAdminGetAllOrders = async (req, res) => {
       };
     }
 
+    console.log("Fetching orders with where clause:", whereClause);
+
     const orders = await Order.findAll({
       where: whereClause,
       include: [
         {
           model: User,
-          attributes: ["id", "firstName", "lastName", "email"],
+          attributes: ["id", "fullName", "email", "phone"],
         },
         {
           model: OrderItem,
@@ -53,9 +56,25 @@ const handleAdminGetAllOrders = async (req, res) => {
             "productImageUrl",
           ],
         },
+        {
+          model: Address,
+          as: "shippingAddress",
+          attributes: [
+            "id",
+            "recipientName",
+            "phoneNumber",
+            "street",
+            "city",
+            "state",
+            "postalCode",
+            "country",
+          ],
+        },
       ],
       order: [["orderDate", "DESC"]],
     });
+
+    console.log(`Found ${orders.length} orders`);
 
     res.status(200).json({
       message: "Orders retrieved successfully",
@@ -64,7 +83,7 @@ const handleAdminGetAllOrders = async (req, res) => {
     });
   } catch (error) {
     console.error("Error getting orders:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Internal server error", message: error.message });
   }
 };
 

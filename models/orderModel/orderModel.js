@@ -72,7 +72,7 @@ addressId: {
   },
 
   paymentMethod: {
-    type: DataTypes.ENUM('CreditCard', 'DebitCard', 'PayPal', 'CashOnDelivery'),
+    type: DataTypes.ENUM('CreditCard', 'DebitCard', 'PayPal', 'CashOnDelivery', 'Razorpay'),
     defaultValue: 'CashOnDelivery',
   },
 

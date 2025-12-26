@@ -179,10 +179,7 @@ const handlePlaceOrderFromCart = async (req, res) => {
 
   const allowedMethods = [
     "CashOnDelivery",
-    "CreditCard",
-    "DebitCard",
-    "PayPal",
-    "Stripe",
+    "Razorpay",
   ];
   if (!allowedMethods.includes(paymentMethod)) {
     return res.status(400).json({ message: "Invalid payment method" });
