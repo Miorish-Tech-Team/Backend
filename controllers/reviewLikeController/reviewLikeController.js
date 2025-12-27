@@ -40,11 +40,12 @@ const getUsersWhoLikedReview = async (req, res) => {
       where: { reviewId },
       include: {
         model: User,
-        attributes: ['id', 'firstName', 'email', ], 
+        as: 'user',
+        attributes: ['id', 'fullName', 'email', ], 
       },
     });
 
-    const users = likes.map(like => like.User);
+    const users = likes.map(like => like.user);
 
     res.status(200).json({
       success: true,

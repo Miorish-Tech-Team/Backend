@@ -1,7 +1,7 @@
 const Review = require("../../models/reviewModel/reviewModel");
 const Product = require("../../models/productModel/productModel");
 const User = require("../../models/authModel/userModel");
-const ReviewLike = require('../../models/reviewLikeModel/reviewLikeModel')
+const ReviewLike = require("../../models/reviewLikeModel/reviewLikeModel");
 
 const handleAddReview = async (req, res) => {
   const userId = req.user.id;
@@ -23,7 +23,6 @@ const handleAddReview = async (req, res) => {
       allReviews.reduce((acc, item) => acc + item.rating, 0) /
       allReviews.length;
 
-    
     const allTexts = allReviews
       .filter((r) => r.reviewText)
       .map((r) => r.reviewText);
@@ -36,12 +35,11 @@ const handleAddReview = async (req, res) => {
       photos: allPhotos,
     };
 
-
     await Product.update(
       {
         averageCustomerRating: avgRating,
         totalCustomerReviews: allReviews.length,
-        customerReviews: JSON.stringify(reviewsData), 
+        customerReviews: JSON.stringify(reviewsData),
       },
       { where: { id: productId } }
     );
@@ -60,9 +58,6 @@ const handleUpdateReview = async (req, res) => {
   const userId = req.user?.id;
   const { rating, reviewText } = req.body;
   const { reviewId } = req.params;
-
-  console.log("Received reviewId:", reviewId);
-  console.log("Authenticated userId:", userId);
 
   try {
     const review = await Review.findOne({
@@ -96,11 +91,16 @@ const handleUpdateReview = async (req, res) => {
 
     const avgRating =
       allReviews.length > 0
-        ? allReviews.reduce((acc, item) => acc + item.rating, 0) / allReviews.length
+        ? allReviews.reduce((acc, item) => acc + item.rating, 0) /
+          allReviews.length
         : 0;
 
-    const allTexts = allReviews.filter(r => r.reviewText).map(r => r.reviewText);
-    const allPhotos = allReviews.filter(r => r.reviewPhoto).map(r => r.reviewPhoto);
+    const allTexts = allReviews
+      .filter((r) => r.reviewText)
+      .map((r) => r.reviewText);
+    const allPhotos = allReviews
+      .filter((r) => r.reviewPhoto)
+      .map((r) => r.reviewPhoto);
 
     const reviewsData = {
       texts: allTexts,
@@ -142,7 +142,7 @@ const handleGetProductReviews = async (req, res) => {
         {
           model: User,
           as: "user",
-          attributes: ["id", "firstName", "email"],
+          attributes: ["id", "fullName", "email"],
         },
         {
           model: ReviewLike,
@@ -151,14 +151,15 @@ const handleGetProductReviews = async (req, res) => {
             {
               model: User,
               as: "user",
-              attributes: ["id", "firstName", "email"],
-            }
-          ]
-        }, {
+              attributes: ["id", "fullName", "email"],
+            },
+          ],
+        },
+        {
           model: Product,
           as: "product",
           attributes: ["id", "productName", "productPrice", "coverImageUrl"],
-        }
+        },
       ],
       order: [["reviewDate", "DESC"]],
     });
@@ -175,7 +176,6 @@ const handleGetProductReviews = async (req, res) => {
   }
 };
 
-
 const handleGetUserReviewsWithProducts = async (req, res) => {
   const userId = req.user.id;
 
@@ -185,23 +185,23 @@ const handleGetUserReviewsWithProducts = async (req, res) => {
       include: [
         {
           model: Product,
-          as: 'product',
-          attributes: ['id', 'productName', 'coverImageUrl', 'productPrice'], 
+          as: "product",
+          attributes: ["id", "productName", "coverImageUrl", "productPrice"],
         },
         {
           model: ReviewLike,
-          as: 'likes',
-          attributes: ['id', 'userId'],
+          as: "likes",
+          attributes: ["id", "userId"],
           include: [
             {
               model: User,
-              as: 'user',
-              attributes: ['id', 'firstName', 'email'],
-            }
-          ]
-        }
+              as: "user",
+              attributes: ["id", "fullName", "email"],
+            },
+          ],
+        },
       ],
-      order: [['reviewDate', 'DESC']],
+      order: [["reviewDate", "DESC"]],
     });
 
     res.status(200).json({
@@ -210,10 +210,10 @@ const handleGetUserReviewsWithProducts = async (req, res) => {
       reviews: userReviews,
     });
   } catch (error) {
-    console.error('Error fetching user reviews:', error);
+    console.error("Error fetching user reviews:", error);
     res.status(500).json({
       success: false,
-      message: 'Server error while fetching user reviews',
+      message: "Server error while fetching user reviews",
       error: error.message,
     });
   }
@@ -264,14 +264,14 @@ const handleDeleteReviewByUser = async (req, res) => {
 
     const productId = review.productId;
 
-
     await review.destroy();
 
     const allReviews = await Review.findAll({ where: { productId } });
 
     const avgRating =
       allReviews.length > 0
-        ? allReviews.reduce((acc, item) => acc + item.rating, 0) / allReviews.length
+        ? allReviews.reduce((acc, item) => acc + item.rating, 0) /
+          allReviews.length
         : 0;
 
     const allTexts = allReviews
@@ -310,7 +310,6 @@ const handleDeleteReviewByUser = async (req, res) => {
   }
 };
 
-
 const handleDeleteUserReviewByAdmin = async (req, res) => {
   const { reviewId } = req.params;
 
@@ -329,7 +328,8 @@ const handleDeleteUserReviewByAdmin = async (req, res) => {
     // Recalculate
     const allReviews = await Review.findAll({ where: { productId } });
     const avgRating =
-      allReviews.reduce((acc, item) => acc + item.rating, 0) / (allReviews.length || 1);
+      allReviews.reduce((acc, item) => acc + item.rating, 0) /
+      (allReviews.length || 1);
 
     const allTexts = allReviews
       .filter((r) => r.reviewText)
@@ -366,7 +366,6 @@ const handleDeleteUserReviewByAdmin = async (req, res) => {
   }
 };
 
-
 module.exports = {
   handleAddReview,
   handleGetProductReviews,
@@ -374,5 +373,5 @@ module.exports = {
   handleUpdateReview,
   handleDeleteReviewByUser,
   handleDeleteUserReviewByAdmin,
-  handleGetUserReviewsWithProducts
+  handleGetUserReviewsWithProducts,
 };

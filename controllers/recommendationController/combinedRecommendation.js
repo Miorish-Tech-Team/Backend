@@ -97,27 +97,11 @@ const recommendCombined = async (req, res) => {
     const userId = req.user?.id;
 
     if (!userId) {
-      const topProducts = await Product.findAll({
-        where: { status: "approved" },
-        order: [["totalSoldCount", "DESC"]],
-        limit: 12,
-        include: [
-          {
-            model: Category,
-            as: "category",
-            attributes: ["categoryName"],
-          },
-          {
-            model: Seller,
-            as: "seller",
-            attributes: ["id", "sellerName", "shopName"],
-          },
-        ],
-      });
-
+      // Return empty recommendations for non-authenticated users
       return res.json({
         success: true,
-        recommended: topProducts,
+        recommended: [],
+        message: "Please login to get personalized recommendations"
       });
     }
 

@@ -483,9 +483,271 @@ const handleGetSingleOrderDetails = async (req, res) => {
   }
 };
 
+const handlePlaceOrderFromSelectedCartItems = async (req, res) => {
+  const userId = req.user.id;
+  const { paymentMethod, addressId, cartItemIds } = req.body;
+
+  // Validate input
+  if (!cartItemIds || !Array.isArray(cartItemIds) || cartItemIds.length === 0) {
+    return res.status(400).json({ 
+      success: false, 
+      message: "Please provide cart item IDs to order" 
+    });
+  }
+
+  const allowedMethods = ["CashOnDelivery", "Razorpay"];
+  if (!allowedMethods.includes(paymentMethod)) {
+    return res.status(400).json({ 
+      success: false, 
+      message: "Invalid payment method" 
+    });
+  }
+
+  const t = await sequelize.transaction();
+
+  try {
+    // Verify address belongs to user
+    const address = await Address.findOne({ 
+      where: { id: addressId, userId },
+      transaction: t 
+    });
+    
+    if (!address) {
+      await t.rollback();
+      return res.status(404).json({ 
+        success: false, 
+        message: "Address not found for this user" 
+      });
+    }
+
+    // Get user's cart
+    const cart = await Cart.findOne({ 
+      where: { userId }, 
+      transaction: t 
+    });
+    
+    if (!cart) {
+      await t.rollback();
+      return res.status(404).json({ 
+        success: false, 
+        message: "Cart not found" 
+      });
+    }
+
+    // Fetch selected cart items
+    const selectedCartItems = await CartItem.findAll({
+      where: { 
+        id: cartItemIds,
+        cartId: cart.id 
+      },
+      include: [{ model: Product }],
+      transaction: t,
+    });
+
+    if (selectedCartItems.length === 0) {
+      await t.rollback();
+      return res.status(400).json({ 
+        success: false, 
+        message: "No valid cart items found" 
+      });
+    }
+
+    // Verify all requested items belong to user's cart
+    if (selectedCartItems.length !== cartItemIds.length) {
+      await t.rollback();
+      return res.status(400).json({ 
+        success: false, 
+        message: "Some cart items are invalid or don't belong to you" 
+      });
+    }
+
+    // Calculate total amount
+    const totalAmount = selectedCartItems.reduce(
+      (sum, item) => sum + item.totalPrice,
+      0
+    );
+
+    // Handle coupon discount if applied
+    let discountAmount = 0;
+    let appliedCouponId = null;
+
+    const userCoupon = await UserCoupon.findOne({
+      where: {
+        userId,
+        used: false,
+        applied: true,
+      },
+      include: [
+        {
+          model: Coupon,
+          as: "coupon",
+        },
+      ],
+      transaction: t,
+    });
+
+    if (userCoupon && userCoupon.coupon) {
+      const coupon = userCoupon.coupon;
+
+      if (coupon.discountPercentage) {
+        discountAmount = (coupon.discountPercentage / 100) * totalAmount;
+      } else if (coupon.discountAmount) {
+        discountAmount = coupon.discountAmount;
+      }
+
+      if (discountAmount > totalAmount) discountAmount = totalAmount;
+
+      appliedCouponId = coupon.id;
+
+      // Mark coupon as used
+      userCoupon.used = true;
+      userCoupon.applied = false;
+      await userCoupon.save({ transaction: t });
+
+      coupon.usageCount += 1;
+      await coupon.save({ transaction: t });
+
+      // Send coupon notification
+      await createUserNotification({
+        userId,
+        title: "Coupon Used",
+        message: `Your coupon ${coupon.code} was used to save ₹${discountAmount.toFixed(2)}.`,
+        type: "coupon",
+        coverImage: null,
+      });
+    }
+
+    const finalAmount = totalAmount - discountAmount;
+
+    // Validate payment method
+    if (paymentMethod !== "CashOnDelivery") {
+      const paymentSuccess = true; // Replace with actual payment verification
+      if (!paymentSuccess) {
+        await t.rollback();
+        return res.status(400).json({ 
+          success: false, 
+          message: "Payment failed" 
+        });
+      }
+    }
+
+    // Generate unique order ID
+    const customOrderId = generateFormattedOrderId();
+
+    // Create order
+    const order = await Order.create(
+      {
+        uniqueOrderId: customOrderId,
+        userId,
+        cartId: cart.id,
+        totalAmount: finalAmount,
+        appliedCouponId,
+        addressId,
+        paymentMethod,
+        paymentStatus: paymentMethod === "CashOnDelivery" ? "Pending" : "Completed",
+        orderDate: new Date(),
+      },
+      { transaction: t }
+    );
+
+    const emailOrderItems = [];
+
+    // Create order items and update product stock
+    for (const item of selectedCartItems) {
+      const product = item.Product;
+      
+      if (!product) {
+        await t.rollback();
+        return res.status(400).json({ 
+          success: false, 
+          message: `Product not found for cart item ${item.id}` 
+        });
+      }
+
+      // Check stock availability
+      if (product.availableStockQuantity < item.quantity) {
+        await t.rollback();
+        return res.status(400).json({ 
+          success: false, 
+          message: `Insufficient stock for ${product.productName}` 
+        });
+      }
+
+      // Create order item
+      await OrderItem.create(
+        {
+          orderId: order.id,
+          productId: item.productId,
+          quantity: item.quantity,
+          price: item.price,
+          totalPrice: item.totalPrice,
+          productName: product.productName,
+          productImageUrl: product.coverImageUrl,
+        },
+        { transaction: t }
+      );
+
+      // Update product stock and sold count
+      product.totalSoldCount += item.quantity;
+      product.availableStockQuantity -= item.quantity;
+      await product.save({ transaction: t });
+
+      emailOrderItems.push({
+        productName: product.productName,
+        quantity: item.quantity,
+        price: product.productPrice || item.price,
+        totalPrice: item.totalPrice,
+      });
+    }
+
+    // Remove selected items from cart
+    await CartItem.destroy({ 
+      where: { id: cartItemIds }, 
+      transaction: t 
+    });
+
+    // Update revenue and order statistics
+    await updateRevenueAndOrders(finalAmount);
+
+    // Send order confirmation email
+    await sendOrderEmail(
+      req.user.email,
+      req.user.firstName,
+      order.uniqueOrderId,
+      emailOrderItems
+    );
+
+    // Send user notification
+    await createUserNotification({
+      userId,
+      title: "Order Placed Successfully",
+      message: `Your order ${customOrderId} with ${selectedCartItems.length} item(s) has been placed.`,
+      type: "order",
+      coverImage: selectedCartItems[0]?.Product?.coverImageUrl || null,
+    });
+
+    await t.commit();
+
+    return res.status(201).json({
+      success: true,
+      message: "Order placed successfully from selected cart items",
+      uniqueOrderId: customOrderId,
+      order,
+    });
+  } catch (error) {
+    await t.rollback();
+    console.error("Transaction failed:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: error.message || "Something went wrong" 
+    });
+  }
+};
+
 module.exports = {
   handleGetSingleOrderDetails,
   handleGetUserOrders,
   handlePlaceOrderFromCart,
+  handlePlaceOrderFromSelectedCartItems,
   handleBuyNow,
 };

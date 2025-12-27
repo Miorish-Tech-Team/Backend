@@ -19,9 +19,10 @@ const upload = require('../../config/uploadComfig/upload')
 
 router.post(
   "/review/add",
+  
+  ...upload.single("reviewPhoto"),
   hasPurchasedProduct,
  canReviewProduct,
-  ...upload.single("reviewPhoto"),
   handleAddReview
 );
 

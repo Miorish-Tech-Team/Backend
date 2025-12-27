@@ -8,8 +8,6 @@ const checkForAuthenticationCookie = require("./authMiddleware/authMiddleware");
 const { authorizeRoles } = require("./authMiddleware/roleMiddleware");
 
 
-
-
 const userAuthRoute = require("./routes/authRoute/userAuthRoute");
 const userProfileRoute = require("./routes/profileRoute/userProfileRoute");
 const handleProductRoute = require("./routes/sellerRoute/product/handleProductRoute");

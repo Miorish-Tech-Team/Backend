@@ -2,7 +2,8 @@ const Product = require("../../models/productModel/productModel");
 // const elasticClient = require("../../config/elasticSearchConfig/elasticSearchClient");
 const Category = require("../../models/categoryModel/categoryModel");
 const Seller = require("../../models/authModel/sellerModel");
-const { Op } = require("sequelize");
+const { Op, Sequelize } = require("sequelize");
+const { sequelize } = require("../../mysqlConnection/dbConnection");
 const Review = require("../../models/reviewModel/reviewModel");
 const User = require("../../models/authModel/userModel");
 const ReviewLike = require("../../models/reviewLikeModel/reviewLikeModel");
@@ -834,31 +835,46 @@ const getSimilarProducts = async (req, res) => {
 
     const { productTags, productCategoryId, productSubCategoryId } = currentProduct;
 
-    const tagList = productTags
-      ? productTags.split(",").map((tag) => tag.trim().toLowerCase())
-      : [];
+    // Parse productTags - could be JSON string or array
+    let tagList = [];
+    if (productTags) {
+      try {
+        const parsedTags = typeof productTags === 'string' 
+          ? JSON.parse(productTags) 
+          : productTags;
+        tagList = Array.isArray(parsedTags)
+          ? parsedTags.map(tag => tag.trim().toLowerCase())
+          : [];
+      } catch (e) {
+        // If parsing fails, try splitting as comma-separated string
+        tagList = productTags.split(",").map((tag) => tag.trim().toLowerCase());
+      }
+    }
+
+    // Build the where clause
+    const whereConditions = {
+      id: { [Op.ne]: productId },
+      status: "approved",
+      [Op.or]: [
+        { productCategoryId },
+        { productSubCategoryId }
+      ]
+    };
+
+    // Add tag matching if tags exist - use Sequelize.where for JSON casting
+    if (tagList.length > 0) {
+      const tagConditions = tagList.map((tag) => 
+        sequelize.where(
+          sequelize.cast(sequelize.col('productTags'), 'TEXT'),
+          { [Op.iLike]: `%${tag}%` }
+        )
+      );
+      whereConditions[Op.or].push(...tagConditions);
+    }
 
     const similarProducts = await Product.findAll({
-      where: {
-        id: { [Op.ne]: productId }, 
-        status: "approved",
-        [Op.or]: [
-          { productCategoryId },
-          { productSubCategoryId },
-          ...(tagList.length > 0
-            ? [
-                {
-                  productTags: {
-                    [Op.or]: tagList.map((tag) => ({
-                      [Op.iLike]: `%${tag}%`,
-                    })),
-                  },
-                },
-              ]
-            : []),
-        ],
-      },
-      limit: process.env.similarProducts, 
+      where: whereConditions,
+      limit: parseInt(process.env.similarProducts) || 4,
       order: [["createdAt", "DESC"]],
       attributes: [
         "id",

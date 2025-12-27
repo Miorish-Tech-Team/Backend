@@ -89,5 +89,39 @@ const removeFromWishlist = async (req, res) => {
   }
 };
 
+const removeFromWishlistByProductId = async (req, res) => {
+  const userId = req.user.id;
+  const { productId } = req.body;
 
-module.exports = { addToWishlist, getWishlist, removeFromWishlist };
+  if (!productId) {
+    return res.status(400).json({ success: false, message: "Product ID is required" });
+  }
+
+  try {
+    const deletedCount = await Wishlist.destroy({
+      where: {
+        productId,
+        userId,
+      },
+    });
+
+    if (deletedCount === 0) {
+      return res.status(404).json({ success: false, message: "Product not found in wishlist." });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Successfully removed product from wishlist.",
+    });
+  } catch (error) {
+    console.error("Remove Wishlist By Product ID Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while removing wishlist item",
+      error: error.message,
+    });
+  }
+};
+
+
+module.exports = { addToWishlist, getWishlist, removeFromWishlist, removeFromWishlistByProductId };
