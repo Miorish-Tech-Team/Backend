@@ -133,6 +133,7 @@ const handleResetPasswordOtp = async (req, res) => {
     user.verificationCodeExpiresAt = verificationCodeExpiresAt;
     await user.save();
     await sendVerificationEmail(user.email, user.firstName, verificationCode);
+    console.log("Sent verification code:", verificationCode,verificationCodeExpiresAt);
     return res.status(200).json({ message: "OTP resent to email." });
   } catch (err) {
     console.error(err);
@@ -182,6 +183,14 @@ const handleVerifyEmail = async (req, res) => {
 const handleVerifyResetPasswordOtp = async (req, res) => {
   try {
     const { verificationCode } = req.body;
+    
+    if (!verificationCode) {
+      return res.status(400).json({
+        success: false,
+        message: "Verification code is required",
+      });
+    }
+    
     const user = await User.findOne({
       where: {
         verificationCode: verificationCode,
@@ -354,8 +363,6 @@ const handleUserResetPasswordFromUrl = async (req, res) => {
   try {
     const { resetToken } = req.params;
     const { newPassword } = req.body;
-    console.log(newPassword);
-    console.log(resetToken);
     const decoded = JWT.verify(resetToken, process.env.JWT_SECRET);
     const user = await User.findByPk(decoded.userId);
     if (!user) {
