@@ -44,6 +44,44 @@ const UserCoupon = sequelize.define(
   {
     tableName: "user_coupons",
     timestamps: false,
+    indexes: [
+      // Index on userId for user coupon queries
+      {
+        name: 'idx_user_coupons_user_id',
+        fields: ['userId']
+      },
+      // Index on couponId for coupon distribution tracking
+      {
+        name: 'idx_user_coupons_coupon_id',
+        fields: ['couponId']
+      },
+      // Index on used for filtering used coupons
+      {
+        name: 'idx_user_coupons_used',
+        fields: ['used']
+      },
+      // Index on applied for filtering applied coupons
+      {
+        name: 'idx_user_coupons_applied',
+        fields: ['applied']
+      },
+      // Index on assignedAt for sorting by assignment date
+      {
+        name: 'idx_user_coupons_assigned_at',
+        fields: ['assignedAt']
+      },
+      // Composite unique index to prevent duplicate assignments
+      {
+        name: 'idx_user_coupons_user_coupon',
+        unique: true,
+        fields: ['userId', 'couponId']
+      },
+      // Composite index for user and usage status
+      {
+        name: 'idx_user_coupons_user_used',
+        fields: ['userId', 'used']
+      }
+    ]
   }
 );
 

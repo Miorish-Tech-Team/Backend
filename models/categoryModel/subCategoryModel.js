@@ -40,6 +40,33 @@ const SubCategory = sequelize.define(
   {
     tableName: "subcategories",
     timestamps: true,
+    indexes: [
+      // Index on categoryId for category subcategory queries
+      {
+        name: 'idx_subcategories_category_id',
+        fields: ['categoryId']
+      },
+      // Index on subCategoryName for name searches
+      {
+        name: 'idx_subcategories_name',
+        fields: ['subCategoryName']
+      },
+      // Index on subCategoryProductCount for sorting
+      {
+        name: 'idx_subcategories_product_count',
+        fields: ['subCategoryProductCount']
+      },
+      // Composite index for category and name queries
+      {
+        name: 'idx_subcategories_category_name',
+        fields: ['categoryId', 'subCategoryName']
+      },
+      // Index on createdAt for sorting
+      {
+        name: 'idx_subcategories_created_at',
+        fields: ['createdAt']
+      }
+    ]
   }
 );
 

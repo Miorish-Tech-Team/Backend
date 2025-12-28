@@ -91,6 +91,58 @@ const User = sequelize.define(
   {
     tableName: "users",
     timestamps: true,
+    indexes: [
+      // Index on email for faster lookups during login
+      {
+        name: 'idx_users_email',
+        fields: ['email']
+      },
+      // Index on googleId for OAuth logins
+      {
+        name: 'idx_users_google_id',
+        fields: ['googleId']
+      },
+      // Index on status for filtering active/suspended/deleted users
+      {
+        name: 'idx_users_status',
+        fields: ['status']
+      },
+      // Index on role for role-based queries
+      {
+        name: 'idx_users_role',
+        fields: ['role']
+      },
+      // Index on isVerified for filtering verified users
+      {
+        name: 'idx_users_is_verified',
+        fields: ['isVerified']
+      },
+      // Index on authProvider for filtering login methods
+      {
+        name: 'idx_users_auth_provider',
+        fields: ['authProvider']
+      },
+      // Composite index for status and role queries
+      {
+        name: 'idx_users_status_role',
+        fields: ['status', 'role']
+      },
+      // Index on createdAt for sorting by registration date
+      {
+        name: 'idx_users_created_at',
+        fields: ['createdAt']
+      },
+      // Index on phone for phone-based lookups
+      {
+        name: 'idx_users_phone',
+        fields: ['phone']
+      },
+      // Composite index for location-based queries
+      {
+        name: 'idx_users_location',
+        fields: ['country', 'state', 'city']
+      }
+    ]
   }
 );
 

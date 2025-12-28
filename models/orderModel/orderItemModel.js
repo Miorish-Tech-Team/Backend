@@ -67,7 +67,29 @@ const OrderItem = sequelize.define(
   },
   {
     tableName: "order_items",
-    timestamps: true, // Will create createdAt and updatedAt fields
+    timestamps: true,
+    indexes: [
+      // Index on orderId for order items lookup
+      {
+        name: 'idx_order_items_order_id',
+        fields: ['orderId']
+      },
+      // Index on productId for product order tracking
+      {
+        name: 'idx_order_items_product_id',
+        fields: ['productId']
+      },
+      // Composite index for order and product queries
+      {
+        name: 'idx_order_items_order_product',
+        fields: ['orderId', 'productId']
+      },
+      // Index on createdAt for sorting
+      {
+        name: 'idx_order_items_created_at',
+        fields: ['createdAt']
+      }
+    ]
   }
 );
 

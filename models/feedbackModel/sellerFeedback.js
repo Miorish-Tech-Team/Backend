@@ -64,7 +64,45 @@ const SellerFeedback = sequelize.define('SellerFeedback', {
   },
 }, {
   tableName: 'seller_feedbacks',
-  timestamps: true,   
+  timestamps: true,
+  indexes: [
+    // Index on sellerId for seller feedback queries
+    {
+      name: 'idx_seller_feedbacks_seller_id',
+      fields: ['sellerId']
+    },
+    // Index on userId for user feedback history
+    {
+      name: 'idx_seller_feedbacks_user_id',
+      fields: ['userId']
+    },
+    // Index on orderId for order feedback lookups
+    {
+      name: 'idx_seller_feedbacks_order_id',
+      fields: ['orderId']
+    },
+    // Index on rating for rating-based filtering
+    {
+      name: 'idx_seller_feedbacks_rating',
+      fields: ['rating']
+    },
+    // Index on createdAt for date sorting
+    {
+      name: 'idx_seller_feedbacks_created_at',
+      fields: ['createdAt']
+    },
+    // Composite index for seller and rating queries
+    {
+      name: 'idx_seller_feedbacks_seller_rating',
+      fields: ['sellerId', 'rating']
+    },
+    // Composite unique index to prevent duplicate feedback per order
+    {
+      name: 'idx_seller_feedbacks_user_order',
+      unique: true,
+      fields: ['userId', 'orderId']
+    }
+  ]   
 });
 
 module.exports = SellerFeedback;

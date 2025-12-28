@@ -20,6 +20,18 @@ const HomepageBanner = sequelize.define('HomepageBanner', {
 }, {
   tableName: 'homepage_banners',
   timestamps: true,
+  indexes: [
+    // Index on createdAt for sorting by creation time
+    {
+      name: 'idx_homepage_banners_created_at',
+      fields: ['createdAt']
+    },
+    // Index on updatedAt for recent updates
+    {
+      name: 'idx_homepage_banners_updated_at',
+      fields: ['updatedAt']
+    }
+  ]
 });
 
 module.exports = HomepageBanner;

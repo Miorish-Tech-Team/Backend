@@ -27,7 +27,25 @@ const SearchHistory = sequelize.define(
     },
   },
   {
+    tableName: "searchhistories",
     timestamps: true,
+    indexes: [
+      // Index on userId for user search history lookups (already unique)
+      {
+        name: 'idx_search_history_user_id',
+        fields: ['userId']
+      },
+      // Index on createdAt for sorting
+      {
+        name: 'idx_search_history_created_at',
+        fields: ['createdAt']
+      },
+      // Index on updatedAt for recent searches
+      {
+        name: 'idx_search_history_updated_at',
+        fields: ['updatedAt']
+      }
+    ]
   }
 );
 

@@ -65,6 +65,53 @@ const Review = sequelize.define(
   {
     tableName: "reviews",
     timestamps: true,
+    indexes: [
+      // Index on userId for user reviews
+      {
+        name: 'idx_reviews_user_id',
+        fields: ['userId']
+      },
+      // Index on productId for product reviews
+      {
+        name: 'idx_reviews_product_id',
+        fields: ['productId']
+      },
+      // Index on rating for rating-based filtering
+      {
+        name: 'idx_reviews_rating',
+        fields: ['rating']
+      },
+      // Index on reviewDate for date-based sorting
+      {
+        name: 'idx_reviews_date',
+        fields: ['reviewDate']
+      },
+      // Index on reviewLike for most liked reviews
+      {
+        name: 'idx_reviews_like_count',
+        fields: ['reviewLike']
+      },
+      // Index on createdAt for sorting by creation time
+      {
+        name: 'idx_reviews_created_at',
+        fields: ['createdAt']
+      },
+      // Composite index for product and rating queries
+      {
+        name: 'idx_reviews_product_rating',
+        fields: ['productId', 'rating']
+      },
+      // Composite index for product and date queries
+      {
+        name: 'idx_reviews_product_date',
+        fields: ['productId', 'reviewDate']
+      },
+      // Composite index for user and product (prevent duplicate reviews)
+      {
+        name: 'idx_reviews_user_product',
+        fields: ['userId', 'productId']
+      }
+    ]
   }
 );
 

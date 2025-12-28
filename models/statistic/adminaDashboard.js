@@ -32,7 +32,30 @@ const AdminStats = sequelize.define(
     },
   },
   {
+    tableName: "admin_stats",
     timestamps: true,
+    indexes: [
+      // Index on createdAt for time-series analysis
+      {
+        name: 'idx_admin_stats_created_at',
+        fields: ['createdAt']
+      },
+      // Index on updatedAt for recent stats
+      {
+        name: 'idx_admin_stats_updated_at',
+        fields: ['updatedAt']
+      },
+      // Index on totalRevenue for revenue-based queries
+      {
+        name: 'idx_admin_stats_revenue',
+        fields: ['totalRevenue']
+      },
+      // Index on totalOrders for order count queries
+      {
+        name: 'idx_admin_stats_orders',
+        fields: ['totalOrders']
+      }
+    ]
   }
 );
 

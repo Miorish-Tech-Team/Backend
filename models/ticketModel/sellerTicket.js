@@ -47,6 +47,38 @@ const SellerTicket = sequelize.define(
   {
     tableName: "seller_tickets",
     timestamps: true,
+    indexes: [
+      // Index on sellerId for seller ticket queries
+      {
+        name: 'idx_seller_tickets_seller_id',
+        fields: ['sellerId']
+      },
+      // Index on ticketNumber for ticket lookups (already unique)
+      {
+        name: 'idx_seller_tickets_number',
+        fields: ['ticketNumber']
+      },
+      // Index on status for ticket status filtering
+      {
+        name: 'idx_seller_tickets_status',
+        fields: ['status']
+      },
+      // Index on createdAt for sorting by creation time
+      {
+        name: 'idx_seller_tickets_created_at',
+        fields: ['createdAt']
+      },
+      // Composite index for seller and status queries
+      {
+        name: 'idx_seller_tickets_seller_status',
+        fields: ['sellerId', 'status']
+      },
+      // Index on updatedAt for recent activity tracking
+      {
+        name: 'idx_seller_tickets_updated_at',
+        fields: ['updatedAt']
+      }
+    ]
   }
 );
 

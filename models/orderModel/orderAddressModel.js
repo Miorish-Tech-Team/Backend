@@ -67,6 +67,38 @@ const Address = sequelize.define('Address', {
 }, {
   tableName: 'addresses',
   timestamps: true,
+  indexes: [
+    // Index on userId for user address lookups
+    {
+      name: 'idx_addresses_user_id',
+      fields: ['userId']
+    },
+    // Index on isDefault for default address queries
+    {
+      name: 'idx_addresses_default',
+      fields: ['isDefault']
+    },
+    // Index on type for address type filtering
+    {
+      name: 'idx_addresses_type',
+      fields: ['type']
+    },
+    // Composite index for user and default address
+    {
+      name: 'idx_addresses_user_default',
+      fields: ['userId', 'isDefault']
+    },
+    // Composite index for location queries
+    {
+      name: 'idx_addresses_location',
+      fields: ['country', 'state', 'city']
+    },
+    // Index on postalCode for zip-based searches
+    {
+      name: 'idx_addresses_postal',
+      fields: ['postalCode']
+    }
+  ]
 });
 
 

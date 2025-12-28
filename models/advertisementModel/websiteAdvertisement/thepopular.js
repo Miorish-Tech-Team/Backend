@@ -20,6 +20,18 @@ const  ThePopular = sequelize.define('ThePopular', {
 }, {
   tableName: 'the_populars',
   timestamps: true,
+  indexes: [
+    // Index on createdAt for sorting by creation time
+    {
+      name: 'idx_the_populars_created_at',
+      fields: ['createdAt']
+    },
+    // Index on updatedAt for recent updates
+    {
+      name: 'idx_the_populars_updated_at',
+      fields: ['updatedAt']
+    }
+  ]
 });
 
 module.exports = ThePopular;

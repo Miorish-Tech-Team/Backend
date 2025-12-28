@@ -59,7 +59,44 @@ const AccountDeletionRequest = sequelize.define('AccountDeletionRequest', {
   },
 }, {
   tableName: 'account_deletion_requests',
-  timestamps: true
+  timestamps: true,
+  indexes: [
+    // Index on userId for user deletion requests
+    {
+      name: 'idx_deletion_requests_user_id',
+      fields: ['userId']
+    },
+    // Index on sellerId for seller deletion requests
+    {
+      name: 'idx_deletion_requests_seller_id',
+      fields: ['sellerId']
+    },
+    // Index on status for status filtering
+    {
+      name: 'idx_deletion_requests_status',
+      fields: ['status']
+    },
+    // Index on uniqueAccountDeletedId for unique ID lookups (already unique)
+    {
+      name: 'idx_deletion_requests_unique_id',
+      fields: ['uniqueAccountDeletedId']
+    },
+    // Index on createdAt for sorting by creation time
+    {
+      name: 'idx_deletion_requests_created_at',
+      fields: ['createdAt']
+    },
+    // Index on deletedUserEmail for email lookups
+    {
+      name: 'idx_deletion_requests_user_email',
+      fields: ['deletedUserEmail']
+    },
+    // Index on deletedSellerEmail for email lookups
+    {
+      name: 'idx_deletion_requests_seller_email',
+      fields: ['deletedSellerEmail']
+    }
+  ]
 });
 
 module.exports = AccountDeletionRequest;

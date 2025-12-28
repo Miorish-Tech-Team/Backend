@@ -20,6 +20,18 @@ const  BrandPoster = sequelize.define('BrandPoster', {
 }, {
   tableName: 'brand_posters',
   timestamps: true,
+  indexes: [
+    // Index on createdAt for sorting by creation time
+    {
+      name: 'idx_brand_posters_created_at',
+      fields: ['createdAt']
+    },
+    // Index on updatedAt for recent updates
+    {
+      name: 'idx_brand_posters_updated_at',
+      fields: ['updatedAt']
+    }
+  ]
 });
 
 module.exports =  BrandPoster;

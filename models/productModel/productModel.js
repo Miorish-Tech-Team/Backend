@@ -241,6 +241,103 @@ const Product = sequelize.define(
   {
     tableName: "products",
     timestamps: true,
+    indexes: [
+      // Index on sellerId for seller product queries
+      {
+        name: 'idx_products_seller_id',
+        fields: ['sellerId']
+      },
+      // Index on UserId for user product queries
+      {
+        name: 'idx_products_user_id',
+        fields: ['UserId']
+      },
+      // Index on productCategoryId for category filtering
+      {
+        name: 'idx_products_category_id',
+        fields: ['productCategoryId']
+      },
+      // Index on productSubCategoryId for subcategory filtering
+      {
+        name: 'idx_products_sub_category_id',
+        fields: ['productSubCategoryId']
+      },
+      // Index on status for filtering pending/approved/rejected products
+      {
+        name: 'idx_products_status',
+        fields: ['status']
+      },
+      // Index on inventoryStatus for stock filtering
+      {
+        name: 'idx_products_inventory_status',
+        fields: ['inventoryStatus']
+      },
+      // Index on productBrand for brand filtering
+      {
+        name: 'idx_products_brand',
+        fields: ['productBrand']
+      },
+      // Index on productCode for quick product lookups
+      {
+        name: 'idx_products_product_code',
+        fields: ['productCode']
+      },
+      // Index on isNewArrivalProduct for filtering new arrivals
+      {
+        name: 'idx_products_new_arrival',
+        fields: ['isNewArrivalProduct']
+      },
+      // Index on productPrice for price-based sorting
+      {
+        name: 'idx_products_price',
+        fields: ['productPrice']
+      },
+      // Index on averageCustomerRating for rating-based sorting
+      {
+        name: 'idx_products_rating',
+        fields: ['averageCustomerRating']
+      },
+      // Index on totalSoldCount for best sellers
+      {
+        name: 'idx_products_sold_count',
+        fields: ['totalSoldCount']
+      },
+      // Index on productViewCount for popular products
+      {
+        name: 'idx_products_view_count',
+        fields: ['productViewCount']
+      },
+      // Index on createdAt for sorting by creation date
+      {
+        name: 'idx_products_created_at',
+        fields: ['createdAt']
+      },
+      // Composite index for category and status queries
+      {
+        name: 'idx_products_category_status',
+        fields: ['productCategoryId', 'status']
+      },
+      // Composite index for seller and status queries
+      {
+        name: 'idx_products_seller_status',
+        fields: ['sellerId', 'status']
+      },
+      // Composite index for category, status, and price sorting
+      {
+        name: 'idx_products_category_status_price',
+        fields: ['productCategoryId', 'status', 'productPrice']
+      },
+      // Composite index for inventory status and available stock
+      {
+        name: 'idx_products_inventory_stock',
+        fields: ['inventoryStatus', 'availableStockQuantity']
+      },
+      // Composite index for sale products
+      {
+        name: 'idx_products_sale_dates',
+        fields: ['saleStartDate', 'saleEndDate']
+      }
+    ]
   }
 );
 

@@ -41,6 +41,33 @@ const Notification = sequelize.define(
   {
     tableName: "notifications",
     timestamps: true,
+    indexes: [
+      // Index on userId for user notification queries
+      {
+        name: 'idx_notifications_user_id',
+        fields: ['userId']
+      },
+      // Index on type for notification type filtering
+      {
+        name: 'idx_notifications_type',
+        fields: ['type']
+      },
+      // Index on createdAt for sorting by creation time
+      {
+        name: 'idx_notifications_created_at',
+        fields: ['createdAt']
+      },
+      // Composite index for user and type queries
+      {
+        name: 'idx_notifications_user_type',
+        fields: ['userId', 'type']
+      },
+      // Composite index for user and date queries
+      {
+        name: 'idx_notifications_user_date',
+        fields: ['userId', 'createdAt']
+      }
+    ]
   }
 );
 

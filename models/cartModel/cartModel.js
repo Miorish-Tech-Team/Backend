@@ -28,6 +28,28 @@ const Cart = sequelize.define('Cart', {
 }, {
   tableName: 'carts',
   timestamps: true,
+  indexes: [
+    // Index on userId for user cart lookups
+    {
+      name: 'idx_carts_user_id',
+      fields: ['userId']
+    },
+    // Index on status for filtering active/ordered/cancelled carts
+    {
+      name: 'idx_carts_status',
+      fields: ['status']
+    },
+    // Composite index for user and status queries
+    {
+      name: 'idx_carts_user_status',
+      fields: ['userId', 'status']
+    },
+    // Index on createdAt for sorting by creation time
+    {
+      name: 'idx_carts_created_at',
+      fields: ['createdAt']
+    }
+  ]
 });
 
 module.exports = Cart;

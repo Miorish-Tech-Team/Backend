@@ -105,6 +105,78 @@ const Order = sequelize.define(
   {
     tableName: "orders",
     timestamps: true,
+    indexes: [
+      // Index on uniqueOrderId for order lookups
+      {
+        name: 'idx_orders_unique_order_id',
+        fields: ['uniqueOrderId']
+      },
+      // Index on userId for user order history
+      {
+        name: 'idx_orders_user_id',
+        fields: ['userId']
+      },
+      // Index on orderStatus for filtering orders by status
+      {
+        name: 'idx_orders_status',
+        fields: ['orderStatus']
+      },
+      // Index on paymentStatus for payment tracking
+      {
+        name: 'idx_orders_payment_status',
+        fields: ['paymentStatus']
+      },
+      // Index on paymentMethod for payment method analytics
+      {
+        name: 'idx_orders_payment_method',
+        fields: ['paymentMethod']
+      },
+      // Index on orderDate for date-based queries
+      {
+        name: 'idx_orders_order_date',
+        fields: ['orderDate']
+      },
+      // Index on createdAt for sorting by creation time
+      {
+        name: 'idx_orders_created_at',
+        fields: ['createdAt']
+      },
+      // Index on cartId for cart-to-order tracking
+      {
+        name: 'idx_orders_cart_id',
+        fields: ['cartId']
+      },
+      // Index on addressId for address-based queries
+      {
+        name: 'idx_orders_address_id',
+        fields: ['addressId']
+      },
+      // Index on appliedCouponId for coupon usage tracking
+      {
+        name: 'idx_orders_coupon_id',
+        fields: ['appliedCouponId']
+      },
+      // Composite index for user and status queries
+      {
+        name: 'idx_orders_user_status',
+        fields: ['userId', 'orderStatus']
+      },
+      // Composite index for user and order date
+      {
+        name: 'idx_orders_user_date',
+        fields: ['userId', 'orderDate']
+      },
+      // Composite index for status and payment status
+      {
+        name: 'idx_orders_status_payment',
+        fields: ['orderStatus', 'paymentStatus']
+      },
+      // Composite index for date range queries
+      {
+        name: 'idx_orders_dates',
+        fields: ['orderDate', 'deliveryDate']
+      }
+    ]
   }
 );
 

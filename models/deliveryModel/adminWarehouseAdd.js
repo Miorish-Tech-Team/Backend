@@ -43,6 +43,46 @@ const WarehouseAddress = sequelize.define("WarehouseAddress", {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
   },
+}, {
+  tableName: 'warehouse_addresses',
+  timestamps: true,
+  indexes: [
+    // Index on isPrimary for primary warehouse lookups
+    {
+      name: 'idx_warehouses_primary',
+      fields: ['isPrimary']
+    },
+    // Index on countryName for country-based filtering
+    {
+      name: 'idx_warehouses_country',
+      fields: ['countryName']
+    },
+    // Index on state for state-based filtering
+    {
+      name: 'idx_warehouses_state',
+      fields: ['state']
+    },
+    // Index on city for city-based filtering
+    {
+      name: 'idx_warehouses_city',
+      fields: ['city']
+    },
+    // Index on pinCode for pincode-based searches
+    {
+      name: 'idx_warehouses_pincode',
+      fields: ['pinCode']
+    },
+    // Composite index for location queries
+    {
+      name: 'idx_warehouses_location',
+      fields: ['countryName', 'state', 'city']
+    },
+    // Index on warehouseName for name searches
+    {
+      name: 'idx_warehouses_name',
+      fields: ['warehouseName']
+    }
+  ]
 });
 
 module.exports = WarehouseAddress;

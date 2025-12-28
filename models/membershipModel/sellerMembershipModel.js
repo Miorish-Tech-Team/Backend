@@ -26,6 +26,33 @@ const Membership = sequelize.define("Membership", {
 }, {
   tableName: "memberships",
   timestamps: true,
+  indexes: [
+    // Index on planName for plan type queries
+    {
+      name: 'idx_memberships_plan_name',
+      fields: ['planName']
+    },
+    // Index on isActive for filtering active plans
+    {
+      name: 'idx_memberships_active',
+      fields: ['isActive']
+    },
+    // Index on durationInDays for duration filtering
+    {
+      name: 'idx_memberships_duration',
+      fields: ['durationInDays']
+    },
+    // Index on price for price-based sorting
+    {
+      name: 'idx_memberships_price',
+      fields: ['price']
+    },
+    // Composite index for active plans by price
+    {
+      name: 'idx_memberships_active_price',
+      fields: ['isActive', 'price']
+    }
+  ]
 });
 
 module.exports = Membership;

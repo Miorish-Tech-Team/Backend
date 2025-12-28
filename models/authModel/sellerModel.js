@@ -151,6 +151,68 @@ const Seller = sequelize.define(
   {
     tableName: "sellers",
     timestamps: true,
+    indexes: [
+      // Index on email for seller lookups
+      {
+        name: 'idx_sellers_email',
+        fields: ['email']
+      },
+      // Index on userId for user-to-seller mapping
+      {
+        name: 'idx_sellers_user_id',
+        fields: ['userId']
+      },
+      // Index on contactNumber for phone lookups
+      {
+        name: 'idx_sellers_contact',
+        fields: ['contactNumber']
+      },
+      // Index on status for filtering active/suspended sellers
+      {
+        name: 'idx_sellers_status',
+        fields: ['status']
+      },
+      // Index on isVerified for filtering verified sellers
+      {
+        name: 'idx_sellers_verified',
+        fields: ['isVerified']
+      },
+      // Index on isApproved for filtering approved sellers
+      {
+        name: 'idx_sellers_approved',
+        fields: ['isApproved']
+      },
+      // Index on businessType for business type filtering
+      {
+        name: 'idx_sellers_business_type',
+        fields: ['businessType']
+      },
+      // Index on membershipId for membership queries
+      {
+        name: 'idx_sellers_membership',
+        fields: ['membershipId']
+      },
+      // Composite index for status and approval
+      {
+        name: 'idx_sellers_status_approved',
+        fields: ['status', 'isApproved']
+      },
+      // Composite index for location queries
+      {
+        name: 'idx_sellers_location',
+        fields: ['countryName', 'state', 'city']
+      },
+      // Index on membership dates for expiry tracking
+      {
+        name: 'idx_sellers_membership_dates',
+        fields: ['membershipStart', 'membershipEnd']
+      },
+      // Index on createdAt for sorting
+      {
+        name: 'idx_sellers_created_at',
+        fields: ['createdAt']
+      }
+    ],
     hooks: {
       beforeValidate: (seller) => {
         // Trim all string fields

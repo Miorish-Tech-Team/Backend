@@ -47,6 +47,36 @@ const AppliedCoupon = sequelize.define("AppliedCoupon", {
     allowNull: false,
     defaultValue: 0,
   },
+}, {
+  tableName: 'applied_coupons',
+  timestamps: true,
+  indexes: [
+    // Index on userId for user applied coupons
+    {
+      name: 'idx_applied_coupons_user_id',
+      fields: ['userId']
+    },
+    // Index on couponId for coupon usage tracking
+    {
+      name: 'idx_applied_coupons_coupon_id',
+      fields: ['couponId']
+    },
+    // Index on productId for product coupon tracking
+    {
+      name: 'idx_applied_coupons_product_id',
+      fields: ['productId']
+    },
+    // Composite index for user and coupon queries
+    {
+      name: 'idx_applied_coupons_user_coupon',
+      fields: ['userId', 'couponId']
+    },
+    // Composite index for coupon and product queries
+    {
+      name: 'idx_applied_coupons_coupon_product',
+      fields: ['couponId', 'productId']
+    }
+  ]
 });
 
 module.exports = AppliedCoupon;

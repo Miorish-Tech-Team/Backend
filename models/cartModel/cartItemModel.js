@@ -59,6 +59,28 @@ const CartItem = sequelize.define(
   {
     tableName: "cart_items",
     timestamps: true,
+    indexes: [
+      // Index on cartId for cart items lookup
+      {
+        name: 'idx_cart_items_cart_id',
+        fields: ['cartId']
+      },
+      // Index on productId for product-based queries
+      {
+        name: 'idx_cart_items_product_id',
+        fields: ['productId']
+      },
+      // Composite index for cart and product queries
+      {
+        name: 'idx_cart_items_cart_product',
+        fields: ['cartId', 'productId']
+      },
+      // Index on createdAt for sorting
+      {
+        name: 'idx_cart_items_created_at',
+        fields: ['createdAt']
+      }
+    ]
   }
 );
 
