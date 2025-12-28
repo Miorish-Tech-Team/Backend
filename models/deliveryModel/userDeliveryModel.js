@@ -7,9 +7,9 @@ const DeliveryEstimate = sequelize.define("DeliveryEstimate", {
     unique: true,
   },
   estimates: {
-    type: DataTypes.JSON, // key: productId, value: delivery info
+    type: DataTypes.JSON, 
     allowNull: false,
-    defaultValue: {}, // example: { "80": { distance: 12.4, eta: "2 days", deliveryDate: "2025-06-21" } }
+    defaultValue: {}, 
   },
 }, {
   tableName: 'delivery_estimates',

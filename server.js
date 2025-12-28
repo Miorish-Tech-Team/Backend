@@ -2,11 +2,10 @@ require("./schedular/sellerMembershipSchedular");
 require("dotenv").config();
 const express = require("express");
 const initDB = require("./mysqlConnection/dbInit");
-const cookieParser = require('cookie-parser');
+const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const checkForAuthenticationCookie = require("./authMiddleware/authMiddleware");
 const { authorizeRoles } = require("./authMiddleware/roleMiddleware");
-
 
 const userAuthRoute = require("./routes/authRoute/userAuthRoute");
 const userProfileRoute = require("./routes/profileRoute/userProfileRoute");
@@ -40,26 +39,31 @@ const productRoute = require("./routes/productRoute/productRoute");
 const handleReviewPermission = require("./routes/adminRoute/handleReviewPermission/reviewPermission");
 const sellerFeedbackRoute = require("./routes/feedbackRoute/sellerFeedbackRoute");
 const accountDeleteRequestRoute = require("./routes/accountDeleteRequestRoute/accountDeleteRequestRoute");
-const emailPreference = require('./routes/promotionRoute/emailPreference');
-const recommendationRoute = require('./routes/recommendationRoute/recommendation');
-const adminStatsRoute = require('./routes/statistic/adminDashboard');
-const recentAdminStats = require('./routes/statistic/recent');
-const graphStatsRoute = require('./routes/statistic/graphStats');
-const adminNotificationsRoute = require('./routes/adminRoute/notifications/userNotification');
-const generalNotificationsRoute = require('./routes/notifications/userNotification');
-const couponManagementRoute = require('./routes/adminRoute/couponRoute/userCoupon');
-const userCouponRoute = require('./routes/couponRoute/userCouponRoute');
+const emailPreference = require("./routes/promotionRoute/emailPreference");
+const recommendationRoute = require("./routes/recommendationRoute/recommendation");
+const adminStatsRoute = require("./routes/statistic/adminDashboard");
+const recentAdminStats = require("./routes/statistic/recent");
+const graphStatsRoute = require("./routes/statistic/graphStats");
+const adminNotificationsRoute = require("./routes/adminRoute/notifications/userNotification");
+const generalNotificationsRoute = require("./routes/notifications/userNotification");
+const couponManagementRoute = require("./routes/adminRoute/couponRoute/userCoupon");
+const userCouponRoute = require("./routes/couponRoute/userCouponRoute");
 const optionalAuthentication = require("./authMiddleware/optionalMiddleware");
-const razorpayRoute = require('./routes/orderRoute/razorpayRoute');
-const estimateDeliveryRoute = require('./routes/deliveryRoute/estimateDelivery');
-const warehouseAddRoute = require('./routes/deliveryRoute/adminWarehouseAdd')
+const razorpayRoute = require("./routes/orderRoute/razorpayRoute");
+const estimateDeliveryRoute = require("./routes/deliveryRoute/estimateDelivery");
+const warehouseAddRoute = require("./routes/deliveryRoute/adminWarehouseAdd");
 const subCategoryRoute = require("./routes/subcategoryRoutes/subcategoryRoutes");
 const publicMembershipRoute = require("./routes/membershipRoute/publicMembershipRoute");
 
 const app = express();
 const PORT = process.env.PORT || 7845;
 
-const allowedOrigins = [process.env.FRONTEND_URL_MAIN, process.env.FRONTEND_URL_ADMIN,process.env.FRONTEND_URL_MAIN_L,process.env.FRONTEND_URL_ADMIN_L];
+const allowedOrigins = [
+  process.env.FRONTEND_URL_MAIN,
+  process.env.FRONTEND_URL_ADMIN,
+  process.env.FRONTEND_URL_MAIN_L,
+  process.env.FRONTEND_URL_ADMIN_L,
+];
 
 app.use(
   cors({
@@ -71,7 +75,7 @@ app.use(
         return callback(new Error("Not allowed by CORS"));
       }
     },
-    methods: ["GET", "POST", "PUT", "DELETE","PATCH"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
@@ -80,12 +84,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use(
-  "/api/auth",
-  googleAuthRoute,
-  userAuthRoute,
-  sellerAuthRoute
-);
+app.use("/api/auth", googleAuthRoute, userAuthRoute, sellerAuthRoute);
 app.use(
   "/api/user",
   checkForAuthenticationCookie("token"),
@@ -102,8 +101,19 @@ app.use(
   razorpayRoute,
   estimateDeliveryRoute
 );
-app.use("/api/general", categoryRoute,subCategoryRoute, productRoute,generalNotificationsRoute, publicMembershipRoute);
-app.use("/api/recommendation",  optionalAuthentication("token"), recommendationRoute);
+app.use(
+  "/api/general",
+  categoryRoute,
+  subCategoryRoute,
+  productRoute,
+  generalNotificationsRoute,
+  publicMembershipRoute
+);
+app.use(
+  "/api/recommendation",
+  optionalAuthentication("token"),
+  recommendationRoute
+);
 app.use("/api/common-seller-admin", orderManageRoute);
 app.use(
   "/api/admin/dashboard",
@@ -135,8 +145,7 @@ app.use(
   sellerTicketRoute
 );
 
-
-app.use("/api/advertisement",BannerRoute, logoRoute);
+app.use("/api/advertisement", BannerRoute, logoRoute);
 app.use(
   "/api/support",
   userTicketRoute,
@@ -144,9 +153,8 @@ app.use(
   accountDeleteRequestRoute
 );
 
-
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok' });
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok" });
 });
 
 initDB(() => {

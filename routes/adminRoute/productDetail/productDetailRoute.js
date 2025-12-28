@@ -36,7 +36,7 @@ router.get("/my-products/:productId", getMyProductById);
 router.post("/add-products", ...upload.single("coverImageUrl"), handleAddProduct);
 router.put(
   "/update-product/:productId",
-  ...upload.array("galleryImageUrls", 5),
+  ...upload.fields([{ name: 'coverImageUrl', maxCount: 1 }, { name: 'galleryImageUrls', maxCount: 5 }]),
   handleUpdateProduct
 );
 router.delete("/delete-product/:productId",  handleDeleteProduct);

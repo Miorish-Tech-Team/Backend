@@ -144,6 +144,16 @@ const handleDeleteSubCategory = async (req, res) => {
 const getAllSubCategories = async (req, res) => {
   try {
     const subCategories = await SubCategory.findAll({
+      attributes: [
+        'id',
+        'subCategoryName',
+        'subCategoryDescription',
+        'subCategoryImage',
+        'subCategoryProductCount',
+        'categoryId',
+        'createdAt',
+        'updatedAt'
+      ],
       include: [
         {
           model: Category,
@@ -151,6 +161,7 @@ const getAllSubCategories = async (req, res) => {
           attributes: ["id", "categoryName"],
         },
       ],
+      order: [['categoryId', 'ASC'], ['subCategoryName', 'ASC']],
     });
 
     return res.status(200).json({
@@ -171,13 +182,26 @@ const getSubCategoriesByCategory = async (req, res) => {
   try {
     const categoryId = req.params.categoryId;
 
-    const category = await Category.findByPk(categoryId);
+    const category = await Category.findByPk(categoryId, {
+      attributes: ['id', 'categoryName']
+    });
     if (!category) {
       return res.status(404).json({ message: "Category not found" });
     }
 
     const subCategories = await SubCategory.findAll({
       where: { categoryId },
+      attributes: [
+        'id',
+        'subCategoryName',
+        'subCategoryDescription',
+        'subCategoryImage',
+        'subCategoryProductCount',
+        'categoryId',
+        'createdAt',
+        'updatedAt'
+      ],
+      order: [['subCategoryName', 'ASC']],
     });
 
     return res.status(200).json({
@@ -217,6 +241,7 @@ const getAllSubCategoriesWithProductCount = async (req, res) => {
           attributes: ["id", "categoryName"],
         },
       ],
+      order: [['categoryId', 'ASC'], ['subCategoryName', 'ASC']],
     });
 
     return res.status(200).json({

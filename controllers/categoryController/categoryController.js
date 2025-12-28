@@ -162,12 +162,30 @@ const handleBulkDeleteCategories = async (req, res) => {
 const handleGetAllCategories = async (req, res) => {
   try {
     const categories = await Category.findAll({
+      attributes: [
+        'id',
+        'categoryName',
+        'categoryDescription',
+        'categoryImage',
+        'categoryProductCount',
+        'createdAt',
+        'updatedAt'
+      ],
       include: [
         {
           model: SubCategory,
           as: "subcategories",
+          attributes: [
+            'id',
+            'subCategoryName',
+            'subCategoryDescription',
+            'subCategoryImage',
+            'subCategoryProductCount',
+            'categoryId'
+          ],
         },
       ],
+      order: [['categoryName', 'ASC']],
     });
 
     return res.status(200).json({ categories });
@@ -181,9 +199,29 @@ const getSingleCategoryWithSubcategories = async (req, res) => {
     const { id } = req.params;
 
     const category = await Category.findByPk(id, {
+      attributes: [
+        'id',
+        'categoryName',
+        'categoryDescription',
+        'categoryImage',
+        'categoryProductCount',
+        'createdAt',
+        'updatedAt'
+      ],
       include: {
         model: SubCategory,
         as: "subcategories",
+        attributes: [
+          'id',
+          'subCategoryName',
+          'subCategoryDescription',
+          'subCategoryImage',
+          'subCategoryProductCount',
+          'categoryId',
+          'createdAt',
+          'updatedAt'
+        ],
+        order: [['subCategoryName', 'ASC']],
       },
     });
 
@@ -207,6 +245,8 @@ const getAllCategoriesWithProductCounts = async (req, res) => {
       attributes: [
         "id",
         "categoryName",
+        "categoryDescription",
+        "categoryImage",
         "createdAt",
         "updatedAt",
         [sequelize.literal('(SELECT COUNT(*) FROM products WHERE products.productCategoryId = Category.id)'), 'categoryProductCount']
@@ -218,12 +258,16 @@ const getAllCategoriesWithProductCounts = async (req, res) => {
           attributes: [
             "id",
             "subCategoryName",
+            "subCategoryDescription",
+            "subCategoryImage",
+            "categoryId",
             "createdAt",
             "updatedAt",
             [sequelize.literal('(SELECT COUNT(*) FROM products WHERE products.productSubCategoryId = subcategories.id)'), 'subCategoryProductCount']
           ],
         },
       ],
+      order: [['categoryName', 'ASC'], [{ model: SubCategory, as: 'subcategories' }, 'subCategoryName', 'ASC']],
     });
 
     res.status(200).json({ categories: mainCategories });
