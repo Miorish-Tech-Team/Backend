@@ -12,6 +12,8 @@ const handleAddAddress = async (req, res) => {
     phoneNumber,
     type,
     isDefault,
+    latitude,
+    longitude,
   } = req.body;
 
   const userId = req.user.id;
@@ -38,6 +40,8 @@ const handleAddAddress = async (req, res) => {
         phoneNumber,
         type,
         isDefault: !!isDefault,
+        latitude,
+        longitude,
       },
       { transaction: t }
     );
@@ -93,6 +97,8 @@ const handleUpdateAddress = async (req, res) => {
     phoneNumber,
     type,
     isDefault,
+    latitude,
+    longitude,
   } = req.body;
 
   const t = await sequelize.transaction();
@@ -119,6 +125,8 @@ const handleUpdateAddress = async (req, res) => {
         phoneNumber,
         type,
         isDefault,
+        latitude,
+        longitude,
       },
       { transaction: t }
     );

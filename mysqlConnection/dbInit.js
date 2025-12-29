@@ -26,6 +26,7 @@ const UserTicket = require('../models/ticketModel/userTicketModel');
 const AppliedCoupon = require('../models/couponModel/appliedCoupon');
 const Coupon = require('../models/couponModel/couponModel');
 const UserCoupon = require('../models/couponModel/userCouponModel')
+const Blog = require('../models/blogModel/blogModel');
 
 
 const initDB = async (callback) => {

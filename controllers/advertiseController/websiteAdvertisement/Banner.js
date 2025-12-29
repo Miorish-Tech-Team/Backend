@@ -217,7 +217,7 @@ const getBrandPosterBanners = async (req, res) => {
   try {
     const banners = await BrandPoster.findAll({
       order: [["createdAt", "DESC"]],
-      limit: 1,
+      limit: 5,
     });
 
     return res.status(200).json({
@@ -256,6 +256,141 @@ const getProductPosterAdsBanners = async (req, res) => {
   }
 };
 
+// Delete Controllers
+const handleDeleteHomepageBanner = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const banner = await HomepageBanner.findByPk(id);
+    if (!banner) {
+      return res.status(404).json({
+        success: false,
+        message: "Homepage banner not found",
+      });
+    }
+
+    await banner.destroy();
+
+    return res.status(200).json({
+      success: true,
+      message: "Homepage banner deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error in handleDeleteHomepageBanner:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+const handleDeleteWeeklyPromotionBanner = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const banner = await WeeklyPromotion.findByPk(id);
+    if (!banner) {
+      return res.status(404).json({
+        success: false,
+        message: "Weekly Promotion banner not found",
+      });
+    }
+
+    await banner.destroy();
+
+    return res.status(200).json({
+      success: true,
+      message: "Weekly Promotion banner deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error in handleDeleteWeeklyPromotionBanner:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+const handleDeleteThePopularBanner = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const banner = await ThePopular.findByPk(id);
+    if (!banner) {
+      return res.status(404).json({
+        success: false,
+        message: "The Popular banner not found",
+      });
+    }
+
+    await banner.destroy();
+
+    return res.status(200).json({
+      success: true,
+      message: "The Popular banner deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error in handleDeleteThePopularBanner:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+const handleDeleteBrandPosterBanner = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const banner = await BrandPoster.findByPk(id);
+    if (!banner) {
+      return res.status(404).json({
+        success: false,
+        message: "Brand Poster banner not found",
+      });
+    }
+
+    await banner.destroy();
+
+    return res.status(200).json({
+      success: true,
+      message: "Brand Poster banner deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error in handleDeleteBrandPosterBanner:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+const handleDeleteProductPosterAdsBanner = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const banner = await ProductPosterAds.findByPk(id);
+    if (!banner) {
+      return res.status(404).json({
+        success: false,
+        message: "Product Poster Ads banner not found",
+      });
+    }
+
+    await banner.destroy();
+
+    return res.status(200).json({
+      success: true,
+      message: "Product Poster Ads banner deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error in handleDeleteProductPosterAdsBanner:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
 
 
 
@@ -270,4 +405,9 @@ module.exports = {
   getThePopularBanners,
   getWeeklyPromotionBanners,
   getBrandPosterBanners,
+  handleDeleteHomepageBanner,
+  handleDeleteWeeklyPromotionBanner,
+  handleDeleteThePopularBanner,
+  handleDeleteBrandPosterBanner,
+  handleDeleteProductPosterAdsBanner,
 };

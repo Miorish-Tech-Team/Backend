@@ -24,6 +24,7 @@ const UserCoupon = require("../couponModel/userCouponModel");
 const Coupon = require("../couponModel/couponModel");
 const AppliedCoupon = require("../couponModel/appliedCoupon");
 const DeliveryEstimate = require("../deliveryModel/userDeliveryModel");
+const Blog = require("../blogModel/blogModel");
 
 Coupon.hasMany(Order, {
   foreignKey: "appliedCouponId",
@@ -228,5 +229,16 @@ User.hasOne(EmailPreference, {
 EmailPreference.belongsTo(User, {
   foreignKey: 'userId',
   as: 'user',
+});
+// Association with User
+Blog.belongsTo(User, {
+  foreignKey: "userId",
+  as: "author",
+  onDelete: "CASCADE",
+});
+
+User.hasMany(Blog, {
+  foreignKey: "userId",
+  as: "blogs",
 });
 

@@ -188,8 +188,6 @@ const getEstimateForProductFromOSRM = async (req, res) => {
   }
 };
 
-
-
 module.exports = {
   getEstimateForProductFromGoogle,
   getEstimateForProductFromOSRM,

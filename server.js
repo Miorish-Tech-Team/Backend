@@ -54,6 +54,8 @@ const estimateDeliveryRoute = require("./routes/deliveryRoute/estimateDelivery")
 const warehouseAddRoute = require("./routes/deliveryRoute/adminWarehouseAdd");
 const subCategoryRoute = require("./routes/subcategoryRoutes/subcategoryRoutes");
 const publicMembershipRoute = require("./routes/membershipRoute/publicMembershipRoute");
+const blogRoute = require("./routes/blogRoute/blogRoute");
+const blogForUserRoute = require("./routes/blogRoute/BlogForUserRoute");
 
 const app = express();
 const PORT = process.env.PORT || 7845;
@@ -107,7 +109,8 @@ app.use(
   subCategoryRoute,
   productRoute,
   generalNotificationsRoute,
-  publicMembershipRoute
+  publicMembershipRoute,
+  blogForUserRoute
 );
 app.use(
   "/api/recommendation",
@@ -134,7 +137,8 @@ app.use(
   graphStatsRoute,
   adminNotificationsRoute,
   couponManagementRoute,
-  warehouseAddRoute
+  warehouseAddRoute,
+  blogRoute
 );
 app.use(
   "/api/seller/dashboard",
