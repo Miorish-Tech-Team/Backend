@@ -97,6 +97,19 @@ const handleAddProduct = async (req, res) => {
       await subCategory.increment("subCategoryProductCount");
     }
 
+    // Convert comma-separated strings to arrays for JSON fields
+    const processArrayField = (field) => {
+      if (!field) return null;
+      if (typeof field === 'string') {
+        const items = field.split(',').map(item => item.trim()).filter(Boolean);
+        return items.length > 0 ? items : null;
+      }
+      if (Array.isArray(field)) {
+        return field.length > 0 ? field : null;
+      }
+      return null;
+    };
+
     const product = await Product.create({
       productName,
       productDescription,
@@ -111,8 +124,8 @@ const handleAddProduct = async (req, res) => {
       productBestSaleTag: productBestSaleTag || null,
       productMaterial: productMaterial || null,
       productDimensions: productDimensions || null,
-      productColors: productColors || null,
-      productSizes: productSizes || null,
+      productColors: processArrayField(productColors),
+      productSizes: processArrayField(productSizes),
       productDiscountPercentage: productDiscountPercentage || null,
       productDiscountPrice: productDiscountPrice || null,
       saleDayleft: saleDayleft || null,
@@ -122,7 +135,7 @@ const handleAddProduct = async (req, res) => {
       productVideoUrl: productVideoUrl || null,
       productWarrantyInfo: productWarrantyInfo || null,
       productReturnPolicy: productReturnPolicy || null,
-      productTags: productTags || null,
+      productTags: processArrayField(productTags),
       waxType: waxType || null,
       singleOrCombo: singleOrCombo || "Single",
       distributorPurchasePrice: distributorPurchasePrice || null,
@@ -176,6 +189,21 @@ const handleUpdateProduct = async (req, res) => {
     fields.forEach((field) => {
       if (req.body[field] !== undefined) {
         updateFields[field] = req.body[field] === "" ? null : req.body[field];
+      }
+    });
+
+    // Convert comma-separated strings to arrays for JSON fields
+    const jsonArrayFields = ["productTags", "productSizes", "productColors"];
+    jsonArrayFields.forEach((field) => {
+      if (updateFields[field]) {
+        if (typeof updateFields[field] === 'string') {
+          // Split comma-separated string into array
+          const items = updateFields[field].split(',').map(item => item.trim()).filter(Boolean);
+          updateFields[field] = items.length > 0 ? items : null;
+        } else if (Array.isArray(updateFields[field])) {
+          // Already an array, keep as is
+          updateFields[field] = updateFields[field].length > 0 ? updateFields[field] : null;
+        }
       }
     });
 
@@ -279,6 +307,9 @@ const getAllProducts = async (req, res) => {
       brands,
       minPrice,
       maxPrice,
+      minDiscount,
+      maxDiscount,
+      inStock,
       inventoryStatus,
       colors,
       sortBy,
@@ -302,10 +333,15 @@ const getAllProducts = async (req, res) => {
         orderClause = [["averageCustomerRating", "DESC"]];
         break;
       case "priceLowToHigh":
+        // Will sort in JavaScript after fetching to handle discount price
         orderClause = [["productPrice", "ASC"]];
         break;
       case "priceHighToLow":
+        // Will sort in JavaScript after fetching to handle discount price
         orderClause = [["productPrice", "DESC"]];
+        break;
+      case "discountHighToLow":
+        orderClause = [["productDiscountPercentage", "DESC"]];
         break;
       case "latest":
         orderClause = [["createdAt", "DESC"]];
@@ -316,12 +352,6 @@ const getAllProducts = async (req, res) => {
       status: "approved",
       ...(brandFilter && {
         productBrand: { [Op.in]: brandFilter },
-      }),
-      ...((minPrice || maxPrice) && {
-        productPrice: {
-          ...(minPrice && { [Op.gte]: parseFloat(minPrice) }),
-          ...(maxPrice && { [Op.lte]: parseFloat(maxPrice) }),
-        },
       }),
 
       ...(inventoryFilter && {
@@ -367,9 +397,46 @@ const getAllProducts = async (req, res) => {
       order: orderClause,
     });
 
+    // Apply price filtering after fetching (to handle discount price)
+    let filteredProducts = products;
+    if (minPrice || maxPrice) {
+      filteredProducts = filteredProducts.filter((product) => {
+        const effectivePrice = product.productDiscountPrice || product.productPrice;
+        const min = minPrice ? parseFloat(minPrice) : 0;
+        const max = maxPrice ? parseFloat(maxPrice) : Infinity;
+        return effectivePrice >= min && effectivePrice <= max;
+      });
+    }
+
+    // Apply discount percentage filtering
+    if (minDiscount || maxDiscount) {
+      filteredProducts = filteredProducts.filter((product) => {
+        const discount = product.productDiscountPercentage || 0;
+        const min = minDiscount ? parseFloat(minDiscount) : 0;
+        const max = maxDiscount ? parseFloat(maxDiscount) : 100;
+        return discount >= min && discount <= max;
+      });
+    }
+
+    // Apply stock quantity filtering
+    if (inStock === "true") {
+      filteredProducts = filteredProducts.filter(
+        (product) => product.availableStockQuantity > 0
+      );
+    }
+
+    // Apply price sorting after filtering (to handle discount price)
+    if (sortBy === "priceLowToHigh" || sortBy === "priceHighToLow") {
+      filteredProducts.sort((a, b) => {
+        const priceA = a.productDiscountPrice || a.productPrice;
+        const priceB = b.productDiscountPrice || b.productPrice;
+        return sortBy === "priceLowToHigh" ? priceA - priceB : priceB - priceA;
+      });
+    }
+
     res.status(200).json({
       success: true,
-      products,
+      products: filteredProducts,
     });
   } catch (error) {
     console.error("Get All Products Error:", error);
