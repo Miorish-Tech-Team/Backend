@@ -15,7 +15,7 @@ const sendVerificationEmail = async (email, fullName, otp) => {
               <div style="text-align: center; margin-bottom: 30px;">
                 <img src="${logo}" alt="${name}" style="max-height: 60px;" onerror="this.style.display='none';" />
               </div>
-              <h2 style="text-align: center; padding: 20px; background-color:#d63384; border-radius: 6px; color: #f6f1f3;">Verification Code</h2>
+              <h2 style="text-align: center; padding: 20px; background-color:#B8994B; border-radius: 6px; color: #f6f1f3;">Verification Code</h2>
               <div style="text-align: center; padding: 16px; margin: 20px 0;">
                 <span style="font-size: 28px; font-weight: bold;">${otp}</span>
               </div>
@@ -47,11 +47,11 @@ const sendVerificationEmail = async (email, fullName, otp) => {
         subject: " Email Verified - Approval Request Submitted",
         text: `Hi ${fullName},\n\nYour email has been successfully verified! \n\nYour request to become a seller has been sent for approval. Once your account is approved, you will be able to log in and access your seller dashboard.\n\nIf you are already approved, you can log in now:\n\nLogin: ${loginURL}\n\nThanks for choosing ${name}!\n\n- The ${name} Team`,
         html: `
-          <div style="max-width: 600px; background-color: #fff0f5; margin: 0 auto; padding: 24px; border-radius: 12px; box-shadow: 0 6px 12px rgba(255, 105, 180, 0.2); font-family: Arial, sans-serif;">
+          <div style="max-width: 600px; background-color: #FCF1D6; margin: 0 auto; padding: 24px; border-radius: 12px; box-shadow: 0 6px 12px rgba(255, 105, 180, 0.2); font-family: Arial, sans-serif;">
             <div style="text-align: center; margin-bottom: 20px;">
               <img src="${logo}" alt="${name} Logo" style="max-width: 140px;" />
             </div>
-            <h2 style="color: #d63384; font-size: 26px; text-align: center; margin-bottom: 16px;">          
+            <h2 style="color: #B8994B; font-size: 26px; text-align: center; margin-bottom: 16px;">          
                Welcome, ${fullName}!
             </h2>
             <p style="color: #555; font-size: 17px; text-align: center; line-height: 1.6;">
@@ -66,7 +66,7 @@ const sendVerificationEmail = async (email, fullName, otp) => {
             </p>
   
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${loginURL}" style="background-color: #d63384; color: #fff; text-decoration: none; padding: 12px 24px; font-size: 18px; border-radius: 8px;">
+              <a href="${loginURL}" style="background-color: #B8994B; color: #fff; text-decoration: none; padding: 12px 24px; font-size: 18px; border-radius: 8px;">
                 Go to Login
               </a>
             </div>
@@ -75,7 +75,7 @@ const sendVerificationEmail = async (email, fullName, otp) => {
               Thank you for choosing ${name} to grow your business.
             </p>
   
-            <p style="text-align: center; margin-top: 30px; font-weight: bold; color: #d63384;">
+            <p style="text-align: center; margin-top: 30px; font-weight: bold; color: #B8994B;">
               - The ${name} Team
             </p>
           </div>
@@ -153,10 +153,10 @@ const sendVerificationEmail = async (email, fullName, otp) => {
                 ⏳ You can wait for your agreement approval, or if it is already approved, you can go ahead and log in to your dashboard.
               </p>
               <div style="text-align: center; margin: 30px 0;">
-                <a href="https://favorselect.com/seller-dashboard" style="background-color: #d63384; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold;">Go to Dashboard</a>
+                <a href="https://favorselect.com/seller-dashboard" style="background-color: #B8994B; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold;">Go to Dashboard</a>
               </div>
               <p style="text-align: center; font-size: 14px; color: #666;">
-                Need help? Contact us at <a href="mailto:support@favorselect.com" style="color: #d63384;">support@favorselect.com</a>.
+                Need help? Contact us at <a href="mailto:support@favorselect.com" style="color: #B8994B;">support@favorselect.com</a>.
               </p>
               <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;" />
               <p style="text-align: center; font-size: 13px; color: #aaa;">
@@ -201,7 +201,7 @@ const sendVerificationEmail = async (email, fullName, otp) => {
                 If you believe this is a mistake or you'd like to reapply after addressing the issues mentioned above, feel free to contact us.
               </p>
               <div style="text-align: center; margin: 30px 0;">
-                <a href="mailto:${adminEmail}" style="background-color: #d63384; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold;">Contact Support</a>
+                <a href="mailto:${adminEmail}" style="background-color: #B8994B; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold;">Contact Support</a>
               </div>
               <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;" />
               <p style="text-align: center; font-size: 13px; color: #aaa;">

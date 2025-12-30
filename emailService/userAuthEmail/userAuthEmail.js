@@ -1,22 +1,24 @@
-const { transporter } = require("../../config/nodemailerConfig/emailConfigMiddleware");
+const {
+  transporter,
+} = require("../../config/nodemailerConfig/emailConfigMiddleware");
 
 const logo = process.env.LOGO;
 const name = process.env.NAME;
 const adminEmail = process.env.ADMIN_EMAIL;
 const sendVerificationEmail = async (email, fullName, otp) => {
-    try {
-      const response = await transporter.sendMail({
-        from: `"${name} Team" <${adminEmail}>`,
-        to: email,
-        subject: `Email Verification Code - ${name}`,
-        text: `Hi ${fullName},\n\nYour ${name} verification code is: ${otp}\n\nThis code will expire in 10 minutes.\n\nIf you did not request this code, you can safely ignore this email.\n\n- ${name} Team`,
-        html: `
+  try {
+    const response = await transporter.sendMail({
+      from: `"${name} Team" <${adminEmail}>`,
+      to: email,
+      subject: `Email Verification Code - ${name}`,
+      text: `Hi ${fullName},\n\nYour ${name} verification code is: ${otp}\n\nThis code will expire in 10 minutes.\n\nIf you did not request this code, you can safely ignore this email.\n\n- ${name} Team`,
+      html: `
           <div style="background-color: #f3f4f6; padding: 40px 0; font-family: Arial, sans-serif;">
           <div style="max-width: 580px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
             <div style="text-align: center; margin-bottom: 30px;">
               <img src="${logo}" alt="${name} Logo" style="max-height: 60px;" />
             </div>
-            <h2 style="text-align: center; padding: 20px; background-color:#d63384;  border-radius: 6px; color: #f6f1f3;">Verification Code</h2>
+            <h2 style="text-align: center; padding: 20px; background-color:#B8994B;  border-radius: 6px; color: #f6f1f3;">Verification Code</h2>
             <div style="text-align: center; padding: 16px;  margin: 20px 0;">
               <span style="font-size: 28px; font-weight: bold;">${otp}</span>
             </div>
@@ -30,29 +32,29 @@ const sendVerificationEmail = async (email, fullName, otp) => {
             </p>
           </div>
         </div>
-        `
-      });
-  
-      // console.log("Verification email sent successfully:", response);
-    } catch (error) {
-      console.error("Error sending verification email:", error);
-    }
-  };
-  
-  const sendWelcomeEmail = async (email, fullName) => {
-    try {
-      const loginURL = `${process.env.FRONTEND_URL}/login`; 
-      const response = await transporter.sendMail({
-        from: `"${name} Team" <${adminEmail}>`,
-        to: email,
-        subject: " Email Verified",
-        text: `Hi ${fullName},\n\nYour email has been successfully verified! \n\n\n\nLogin: ${loginURL}\n\nThanks for joining ${name}!\n\n- The ${name} Team`,
-        html: `
-          <div style="max-width: 600px; background-color: #fff0f5; margin: 0 auto; padding: 24px; border-radius: 12px; box-shadow: 0 6px 12px rgba(255, 105, 180, 0.2); font-family: Arial, sans-serif;">
+        `,
+    });
+
+    // console.log("Verification email sent successfully:", response);
+  } catch (error) {
+    console.error("Error sending verification email:", error);
+  }
+};
+
+const sendWelcomeEmail = async (email, fullName) => {
+  try {
+    const loginURL = `${process.env.FRONTEND_URL}/login`;
+    const response = await transporter.sendMail({
+      from: `"${name} Team" <${adminEmail}>`,
+      to: email,
+      subject: " Email Verified",
+      text: `Hi ${fullName},\n\nYour email has been successfully verified! \n\n\n\nLogin: ${loginURL}\n\nThanks for joining ${name}!\n\n- The ${name} Team`,
+      html: `
+          <div style="max-width: 600px; background-color: #FCF1D6; margin: 0 auto; padding: 24px; border-radius: 12px; box-shadow: 0 6px 12px rgba(255, 105, 180, 0.2); font-family: Arial, sans-serif;">
             <div style="text-align: center; margin-bottom: 20px;">
               <img src="${logo}" alt="${name} Logo" style="max-width: 140px;" />
             </div>
-            <h2 style="color: #d63384; font-size: 26px; text-align: center; margin-bottom: 16px;">
+            <h2 style="color: #B8994B; font-size: 26px; text-align: center; margin-bottom: 16px;">
                Welcome, ${fullName}!
             </h2>
             <p style="color: #555; font-size: 17px; text-align: center; line-height: 1.6;">
@@ -60,48 +62,47 @@ const sendVerificationEmail = async (email, fullName, otp) => {
             </p>
       
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${loginURL}" style="background-color: #d63384; color: #fff; text-decoration: none; padding: 12px 24px; font-size: 18px; border-radius: 8px;">
+              <a href="${loginURL}" style="background-color: #B8994B; color: #fff; text-decoration: none; padding: 12px 24px; font-size: 18px; border-radius: 8px;">
                 Go to Login
               </a>
             </div>
             <p style="text-align: center; font-size: 15px; color: #888;">
              feel free to log in above.
             </p>
-            <p style="text-align: center; margin-top: 30px; font-weight: bold; color: #d63384;">
+            <p style="text-align: center; margin-top: 30px; font-weight: bold; color: #B8994B;">
                ${name} Team
             </p>
           </div>
         `,
-      });
-  
-      // console.log("Welcome email sent successfully:", response);
-    } catch (error) {
-      console.error("Error sending welcome email:", error);
-    }
-  };
+    });
 
+    // console.log("Welcome email sent successfully:", response);
+  } catch (error) {
+    console.error("Error sending welcome email:", error);
+  }
+};
 
-  const sendTwoFactorOtp = async (email, fullName, otp) => {
+const sendTwoFactorOtp = async (email, fullName, otp) => {
   try {
-    const verifyLoginURL = `${process.env.FRONTEND_URL}/verify-2fa`; 
+    const verifyLoginURL = `${process.env.FRONTEND_URL}/verify-2fa`;
     const response = await transporter.sendMail({
       from: `"${name} Team" <${adminEmail}>`,
       to: email,
       subject: `Your 2FA Login OTP - ${name}`,
       text: `Hi ${fullName},\n\nYour OTP for login is: ${otp}\nIt is valid for 10 minutes.\n\nIf you didn't attempt to login, please ignore this message.\n\n- The ${name} Team`,
       html: `
-        <div style="max-width: 600px; background-color: #fff0f5; margin: 0 auto; padding: 24px; border-radius: 12px; box-shadow: 0 6px 12px rgba(255, 105, 180, 0.2); font-family: Arial, sans-serif;">
+        <div style="max-width: 600px; background-color: #FCF1D6; margin: 0 auto; padding: 24px; border-radius: 12px; box-shadow: 0 6px 12px rgba(255, 105, 180, 0.2); font-family: Arial, sans-serif;">
           <div style="text-align: center; margin-bottom: 20px;">
             <img src="${logo}" alt="${name} Logo" style="max-width: 140px;" />
           </div>
-          <h2 style="color: #d63384; font-size: 26px; text-align: center; margin-bottom: 16px;">
+          <h2 style="color: #B8994B; font-size: 26px; text-align: center; margin-bottom: 16px;">
              Hi ${fullName} 
           </h2>
           <p style="color: #555; font-size: 17px; text-align: center; line-height: 1.6;">
             Your one-time password (OTP) for logging in is:
           </p>
           <div style="text-align: center; margin: 20px 0;">
-            <span style="display: inline-block; font-size: 28px; font-weight: bold; background: #d63384; color: #fff; padding: 12px 24px; border-radius: 8px;">
+            <span style="display: inline-block; font-size: 28px; font-weight: bold; background: #B8994B; color: #FBF9F3; padding: 12px 24px; border-radius: 8px;">
               ${otp}
             </span>
           </div>
@@ -111,7 +112,7 @@ const sendVerificationEmail = async (email, fullName, otp) => {
           <p style="text-align: center; font-size: 15px; color: #888;">
             If you did not request this, please ignore the email.
           </p>
-          <p style="text-align: center; margin-top: 30px; font-weight: bold; color: #d63384;">
+          <p style="text-align: center; margin-top: 30px; font-weight: bold; color: #B8994B;">
              - The ${name} Team
           </p>
         </div>
@@ -149,7 +150,7 @@ const sendTwoFactorAuthStatusEmail = async (email, fullName, isEnabled) => {
           <p style="color: #333; font-size: 17px; text-align: center; line-height: 1.6;">
             ${actionMessage}
           </p>
-          <p style="text-align: center; margin-top: 30px; font-weight: bold; color: #d63384;">
+          <p style="text-align: center; margin-top: 30px; font-weight: bold; color: #B8994B;">
             - The ${name} Team
           </p>
         </div>
@@ -162,26 +163,25 @@ const sendTwoFactorAuthStatusEmail = async (email, fullName, isEnabled) => {
   }
 };
 
-
-  const sendForgetPasswordURL = async (email, URL) => {
-    try {
-      const response = await transporter.sendMail({
-        from: `"${name} Support" <${adminEmail}>`,
-        to: email,
-        subject: `${name} Password Reset Request`,
-        text: `We received a request to reset your ${name} password. Click the link below to reset your password:\n\n${URL}\n\nIf you did not request this, please ignore this email.`,
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; background-color: #fff0f5; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(255, 105, 180, 0.2);">
+const sendForgetPasswordURL = async (email, URL) => {
+  try {
+    const response = await transporter.sendMail({
+      from: `"${name} Support" <${adminEmail}>`,
+      to: email,
+      subject: `${name} Password Reset Request`,
+      text: `We received a request to reset your ${name} password. Click the link below to reset your password:\n\n${URL}\n\nIf you did not request this, please ignore this email.`,
+      html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; background-color: #FCF1D6; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(255, 105, 180, 0.2);">
             <div style="text-align: center; padding: 15px 0;">
               <img src="${logo}" alt="${name} Logo" style="max-width: 150px;">
             </div>
             <div style="background-color: #ffffff; padding: 25px; border-radius: 10px;">
-              <h2 style="color: #d63384; text-align: center;">Reset Your Password</h2>
+              <h2 style="color: #B8994B; text-align: center;">Reset Your Password</h2>
               <p style="color: #555; font-size: 16px; line-height: 1.6;">
                 We've received a request to reset the password for your ${name} account.
               </p>
               <div style="text-align: center; margin: 30px 0;">
-                <a href="${URL}" style="background-color: #d63384; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-size: 16px;">
+                <a href="${URL}" style="background-color: #B8994B; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-size: 16px;">
                   Reset Password
                 </a>
               </div>
@@ -197,29 +197,29 @@ const sendTwoFactorAuthStatusEmail = async (email, fullName, isEnabled) => {
             </div>
           </div>
         `,
-      });
-  
-      // console.log("Password reset link email sent successfully:", response);
-    } catch (error) {
-      console.error("Error sending password reset email:", error);
-    }
-  };
-  
-  // Send Welcome Email
-  const sendRecoveryEmail = async (email, name) => {
-    try {
-      const loginURL = `${process.env.FRONTEND_URL}/signin`;
-      const response = await transporter.sendMail({
-        from: `"${name} Team" <${adminEmail}>`,
-        to: email,
-        subject: `Your ${name} Password Has Been Reset!`,
-        text: `Hi ${name}, your password has been successfully reset. You can now sign in using your new password. Login here: ${loginURL}`,
-        html: `
+    });
+
+    // console.log("Password reset link email sent successfully:", response);
+  } catch (error) {
+    console.error("Error sending password reset email:", error);
+  }
+};
+
+// Send Welcome Email
+const sendRecoveryEmail = async (email, name) => {
+  try {
+    const loginURL = `${process.env.FRONTEND_URL}/signin`;
+    const response = await transporter.sendMail({
+      from: `"${name} Team" <${adminEmail}>`,
+      to: email,
+      subject: `Your ${name} Password Has Been Reset!`,
+      text: `Hi ${name}, your password has been successfully reset. You can now sign in using your new password. Login here: ${loginURL}`,
+      html: `
           <div style="max-width: 600px; background-color: #ffe6f0; margin: 0 auto; padding: 24px; border-radius: 12px; box-shadow: 0 6px 12px rgba(255, 105, 180, 0.2); font-family: Arial, sans-serif;">
             <div style="text-align: center; margin-bottom: 20px;">
               <img src="${logo}" alt="${name} Logo" style="max-width: 140px;" />
             </div>
-            <h2 style="color: #d63384; font-size: 26px; text-align: center; margin-bottom: 16px;">
+            <h2 style="color: #B8994B; font-size: 26px; text-align: center; margin-bottom: 16px;">
               Hi ${name}, your password has been reset!
             </h2>
             <p style="color: #555; font-size: 17px; text-align: center; line-height: 1.6;">
@@ -233,29 +233,28 @@ const sendTwoFactorAuthStatusEmail = async (email, fullName, isEnabled) => {
             <p style="color: #999; font-size: 14px; text-align: center;">
               If you did not request a password reset, please contact our support team immediately.
             </p>
-            <p style="text-align: center; color: #d63384; font-weight: bold; margin-top: 30px;">
+            <p style="text-align: center; color: #B8994B; font-weight: bold; margin-top: 30px;">
                ${name} Team
             </p>
           </div>
         `,
-      });
-  
-      // console.log("Recovery email sent successfully:", response);
-    } catch (error) {
-      console.error("Error sending recovery email:", error);
-    }
-  };
-  
-  
-  const  sendChangePasswordEmail = async (email, fullName) => {
-    try {
-      const loginURL = `${process.env.FRONTEND_URL}/login`; 
-      const response = await transporter.sendMail({
-        from: `"${name} Team" <${adminEmail}>`,
-        to: email,
-        subject: " Password Changed Successfully",
-        text: `Hi ${fullName},\n\nYour password has been successfully changed! \n\n\n\nIf you did not request this change, please contact support immediately.\n\nLogin: ${loginURL}\n\nThanks for using ${name}!\n\n- The ${name} Team`,
-        html: `
+    });
+
+    // console.log("Recovery email sent successfully:", response);
+  } catch (error) {
+    console.error("Error sending recovery email:", error);
+  }
+};
+
+const sendChangePasswordEmail = async (email, fullName) => {
+  try {
+    const loginURL = `${process.env.FRONTEND_URL}/login`;
+    const response = await transporter.sendMail({
+      from: `"${name} Team" <${adminEmail}>`,
+      to: email,
+      subject: " Password Changed Successfully",
+      text: `Hi ${fullName},\n\nYour password has been successfully changed! \n\n\n\nIf you did not request this change, please contact support immediately.\n\nLogin: ${loginURL}\n\nThanks for using ${name}!\n\n- The ${name} Team`,
+      html: `
           <div style="max-width: 600px; background-color: #f0f8ff; margin: 0 auto; padding: 24px; border-radius: 12px; box-shadow: 0 6px 12px rgba(0, 123, 255, 0.2); font-family: Arial, sans-serif;">
             <div style="text-align: center; margin-bottom: 20px;">
               <img src="${logo}" alt="${name} Logo" style="max-width: 140px;" />
@@ -280,23 +279,23 @@ const sendTwoFactorAuthStatusEmail = async (email, fullName, isEnabled) => {
             </p>
           </div>
         `,
-      });
-  
-      // console.log("Password change email sent successfully:", response);
-    } catch (error) {
-      console.error("Error sending password change email:", error);
-    }
-  };
-  
-  const  sendUpdateProfileEmail= async (email, fullName) => {
-    try {
-      const loginURL = `${process.env.FRONTEND_URL}/profile`; 
-      const response = await transporter.sendMail({
-        from: `"${name} Team" <${adminEmail}>`,
-        to: email,
-        subject: " Profile Updated Successfully",
-        text: `Hi ${fullName},\n\nYour profile has been successfully updated! \n\n\n\nIf you did not make these changes, please contact support immediately.\n\nProfile: ${loginURL}\n\nThanks for being with ${name}!\n\n- The ${name} Team`,
-        html: `
+    });
+
+    // console.log("Password change email sent successfully:", response);
+  } catch (error) {
+    console.error("Error sending password change email:", error);
+  }
+};
+
+const sendUpdateProfileEmail = async (email, fullName) => {
+  try {
+    const loginURL = `${process.env.FRONTEND_URL}/profile`;
+    const response = await transporter.sendMail({
+      from: `"${name} Team" <${adminEmail}>`,
+      to: email,
+      subject: " Profile Updated Successfully",
+      text: `Hi ${fullName},\n\nYour profile has been successfully updated! \n\n\n\nIf you did not make these changes, please contact support immediately.\n\nProfile: ${loginURL}\n\nThanks for being with ${name}!\n\n- The ${name} Team`,
+      html: `
           <div style="max-width: 600px; background-color: #e8f0fe; margin: 0 auto; padding: 24px; border-radius: 12px; box-shadow: 0 6px 12px rgba(23, 162, 184, 0.2); font-family: Arial, sans-serif;">
             <div style="text-align: center; margin-bottom: 20px;">
               <img src="${logo}" alt="${name} Logo" style="max-width: 140px;" />
@@ -321,23 +320,21 @@ const sendTwoFactorAuthStatusEmail = async (email, fullName, isEnabled) => {
             </p>
           </div>
         `,
-      });
-  
-      // console.log("Profile update email sent successfully:", response);
-    } catch (error) {
-      console.error("Error sending profile update email:", error);
-    }
-  };
-  
-  module.exports = {
-    sendUpdateProfileEmail,
-    sendChangePasswordEmail,
-    sendRecoveryEmail,
-    sendForgetPasswordURL ,
-    sendWelcomeEmail,
-    sendVerificationEmail,
-    sendTwoFactorOtp,
-     sendTwoFactorAuthStatusEmail
+    });
 
+    // console.log("Profile update email sent successfully:", response);
+  } catch (error) {
+    console.error("Error sending profile update email:", error);
   }
-    
+};
+
+module.exports = {
+  sendUpdateProfileEmail,
+  sendChangePasswordEmail,
+  sendRecoveryEmail,
+  sendForgetPasswordURL,
+  sendWelcomeEmail,
+  sendVerificationEmail,
+  sendTwoFactorOtp,
+  sendTwoFactorAuthStatusEmail,
+};
