@@ -71,8 +71,6 @@ const Product = sequelize.define(
       },
     },
 
-
-
     stockKeepingUnit: {
       type: DataTypes.STRING,
     },
