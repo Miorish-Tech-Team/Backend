@@ -63,8 +63,7 @@ const PORT = process.env.PORT || 7845;
 const allowedOrigins = [
   process.env.FRONTEND_URL_MAIN,
   process.env.FRONTEND_URL_ADMIN,
-  process.env.FRONTEND_URL_MAIN_L,
-  process.env.FRONTEND_URL_ADMIN_L,
+  process.env.FRONTEND_URL_SELLER,
 ];
 
 app.use(
