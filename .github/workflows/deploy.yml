@@ -1,0 +1,18 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger deploy webhook
+        run: |
+          curl -X POST http://20.244.10.0:9000/deploy/backend \
+          -H "Content-Type: application/json" \
+          -H "X-Hub-Signature-256: sha256=$(echo -n '{}' | openssl dgst -sha256 -hmac '${{ secrets.WEBHOOK_SECRET }}' | sed 's/^.* //')" \
+          -d '{}'
