@@ -43,7 +43,7 @@ const sendVerificationEmail = async (email, fullName, otp) => {
 
 const sendWelcomeEmail = async (email, fullName) => {
   try {
-    const loginURL = `${process.env.FRONTEND_URL}/login`;
+    const loginURL = `${process.env.FRONTEND_URL_MAIN}/login`;
     const response = await transporter.sendMail({
       from: `"${name} Team" <${adminEmail}>`,
       to: email,
@@ -84,7 +84,7 @@ const sendWelcomeEmail = async (email, fullName) => {
 
 const sendTwoFactorOtp = async (email, fullName, otp) => {
   try {
-    const verifyLoginURL = `${process.env.FRONTEND_URL}/verify-2fa`;
+    const verifyLoginURL = `${process.env.FRONTEND_URL_MAIN}/verify-2fa`;
     const response = await transporter.sendMail({
       from: `"${name} Team" <${adminEmail}>`,
       to: email,
@@ -208,7 +208,7 @@ const sendForgetPasswordURL = async (email, URL) => {
 // Send Welcome Email
 const sendRecoveryEmail = async (email, name) => {
   try {
-    const loginURL = `${process.env.FRONTEND_URL}/signin`;
+    const loginURL = `${process.env.FRONTEND_URL_MAIN}/signin`;
     const response = await transporter.sendMail({
       from: `"${name} Team" <${adminEmail}>`,
       to: email,
@@ -248,7 +248,7 @@ const sendRecoveryEmail = async (email, name) => {
 
 const sendChangePasswordEmail = async (email, fullName) => {
   try {
-    const loginURL = `${process.env.FRONTEND_URL}/login`;
+    const loginURL = `${process.env.FRONTEND_URL_MAIN}/login`;
     const response = await transporter.sendMail({
       from: `"${name} Team" <${adminEmail}>`,
       to: email,
@@ -289,7 +289,7 @@ const sendChangePasswordEmail = async (email, fullName) => {
 
 const sendUpdateProfileEmail = async (email, fullName) => {
   try {
-    const loginURL = `${process.env.FRONTEND_URL}/profile`;
+    const loginURL = `${process.env.FRONTEND_URL_MAIN}/profile`;
     const response = await transporter.sendMail({
       from: `"${name} Team" <${adminEmail}>`,
       to: email,

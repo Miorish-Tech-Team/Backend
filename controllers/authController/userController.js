@@ -211,7 +211,7 @@ const handleVerifyResetPasswordOtp = async (req, res) => {
     user.verificationCodeExpiresAt = null;
 
     await user.save();
-    await sendWelcomeEmail(user.email, user.firstName);
+    await sendWelcomeEmail(user.email, user.fullName);
 
     return res.status(200).json({
       success: true,
@@ -372,7 +372,7 @@ const handleUserResetPasswordFromUrl = async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;
     await user.save();
-    await sendRecoveryEmail(user.email, user.firstName);
+    await sendRecoveryEmail(user.email, user.fullName);
     return res.status(200).json({ message: "Password reset successfully" });
   } catch (error) {
     return res
@@ -399,7 +399,7 @@ const handleUserResetPasswordFromOtp = async (req, res) => {
     user.password = hashedPassword;
 
     await user.save();
-    await sendRecoveryEmail(user.email, user.firstName);
+    await sendRecoveryEmail(user.email, user.fullName);
     return res.status(200).json({ message: "Password Reset successfully" });
   } catch (error) {
     return res
