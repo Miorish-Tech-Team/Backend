@@ -3,7 +3,7 @@ const setTokenCookie = (res, token, middlewareToken) => {
   res.setHeader("Set-Cookie", [
     // Secure, HttpOnly cookie
     serialize("token", token, {
-      domain:".example.com",
+      domain:".miorish.com",
       httpOnly: true,
       secure: true,
       sameSite: "none",
