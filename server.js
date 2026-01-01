@@ -64,20 +64,34 @@ const allowedOrigins = [
   process.env.FRONTEND_URL_MAIN,
   process.env.FRONTEND_URL_ADMIN,
   process.env.FRONTEND_URL_SELLER,
+  'https://api.miorish.com', // Allow API to call itself (for SSR)
+  'https://miorish.com', // Main frontend domain
+  'https://www.miorish.com', // WWW variant
 ];
 
 app.use(
   cors({
     origin: function (origin, callback) {
+      // Allow requests with no origin (SSR, mobile apps, Postman, etc.)
       if (!origin) return callback(null, true);
+      
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       } else {
+        console.warn('[CORS] Blocked origin:', origin);
         return callback(new Error("Not allowed by CORS"));
       }
     },
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: [
+      "Content-Type", 
+      "Authorization", 
+      "Cookie", 
+      "Accept",
+      "User-Agent",
+      "Referer",
+      "Origin"
+    ],
     credentials: true,
   })
 );

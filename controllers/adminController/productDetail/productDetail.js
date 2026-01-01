@@ -1,5 +1,6 @@
 const Product = require("../../../models/productModel/productModel");
 const Category = require("../../../models/categoryModel/categoryModel");
+const SubCategory = require("../../../models/categoryModel/subCategoryModel");
 
 const getAllProducts = async (req, res) => {
   try {
@@ -12,6 +13,11 @@ const getAllProducts = async (req, res) => {
           model: Category,
           as: "category",
           attributes: ["categoryName"],
+        },
+        {
+          model: SubCategory,
+          as: "subcategory",
+          attributes: ["subCategoryName"],
         },
       ],
       limit: parseInt(limit),
@@ -35,6 +41,7 @@ const getProductById = async (req, res) => {
     const product = await Product.findByPk(req.params.id, {
       include: [
         { model: Category, as: "category", attributes: ["categoryName"] },
+        { model: SubCategory, as: "subcategory", attributes: ["subCategoryName"] },
       ],
     });
     if (!product) return res.status(404).json({ message: "Product not found" });
@@ -120,6 +127,11 @@ const getProductsByStatus = async (req, res) => {
           model: Category,
           as: "category",
           attributes: ["categoryName"],
+        },
+        {
+          model: SubCategory,
+          as: "subcategory",
+          attributes: ["subCategoryName"],
         },
       ],
       limit: parseInt(limit),
