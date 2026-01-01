@@ -15,6 +15,11 @@ const {
   handleDeleteThePopularBanner,
   handleDeleteBrandPosterBanner,
   handleDeleteProductPosterAdsBanner,
+  handleUpdateHomepageBanner,
+  handleUpdateWeeklyPromotionBanner,
+  handleUpdateThePopularBanner,
+  handleUpdateBrandPosterBanner,
+  handleUpdateProductPosterAdsBanner,
 } = require("../../controllers/advertiseController/websiteAdvertisement/Banner");
 const router = express.Router();
 const checkForAuthenticationCookie = require("../../authMiddleware/authMiddleware");
@@ -99,6 +104,47 @@ router.delete(
   checkForAuthenticationCookie("token"),
   authorizeRoles(["admin", "admin+", "superadmin"]),
   handleDeleteProductPosterAdsBanner
+);
+
+// Update routes
+router.put(
+  "/homepage-banners/:id",
+  checkForAuthenticationCookie("token"),
+  authorizeRoles(["admin", "admin+", "superadmin"]),
+  ...upload.single('image'),
+  handleUpdateHomepageBanner
+);
+
+router.put(
+  "/weekly-banners/:id",
+  checkForAuthenticationCookie("token"),
+  authorizeRoles(["admin", "admin+", "superadmin"]),
+  ...upload.single('image'),
+  handleUpdateWeeklyPromotionBanner
+);
+
+router.put(
+  "/popular-banners/:id",
+  checkForAuthenticationCookie("token"),
+  authorizeRoles(["admin", "admin+", "superadmin"]),
+  ...upload.single('image'),
+  handleUpdateThePopularBanner
+);
+
+router.put(
+  "/brands-banners/:id",
+  checkForAuthenticationCookie("token"),
+  authorizeRoles(["admin", "admin+", "superadmin"]),
+  ...upload.single('image'),
+  handleUpdateBrandPosterBanner
+);
+
+router.put(
+  "/products-banners/:id",
+  checkForAuthenticationCookie("token"),
+  authorizeRoles(["admin", "admin+", "superadmin"]),
+  ...upload.single('image'),
+  handleUpdateProductPosterAdsBanner
 );
 
 module.exports = router;

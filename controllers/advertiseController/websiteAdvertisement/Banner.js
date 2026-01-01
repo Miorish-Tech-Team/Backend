@@ -392,6 +392,177 @@ const handleDeleteProductPosterAdsBanner = async (req, res) => {
   }
 };
 
+// Update Controllers
+const handleUpdateHomepageBanner = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title } = req.body;
+    const imageURL = req.fileUrl;
+
+    const banner = await HomepageBanner.findByPk(id);
+    if (!banner) {
+      return res.status(404).json({
+        success: false,
+        message: "Homepage banner not found",
+      });
+    }
+
+    // Update fields
+    if (title) banner.title = title;
+    if (imageURL) banner.image = imageURL;
+
+    await banner.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Homepage banner updated successfully",
+      banner,
+    });
+  } catch (error) {
+    console.error("Error in handleUpdateHomepageBanner:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+const handleUpdateWeeklyPromotionBanner = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title } = req.body;
+    const imageURL = req.fileUrl;
+
+    const banner = await WeeklyPromotion.findByPk(id);
+    if (!banner) {
+      return res.status(404).json({
+        success: false,
+        message: "Weekly Promotion banner not found",
+      });
+    }
+
+    // Update fields
+    if (title) banner.title = title;
+    if (imageURL) banner.image = imageURL;
+
+    await banner.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Weekly Promotion banner updated successfully",
+      banner,
+    });
+  } catch (error) {
+    console.error("Error in handleUpdateWeeklyPromotionBanner:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+const handleUpdateThePopularBanner = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title } = req.body;
+    const imageURL = req.fileUrl;
+
+    const banner = await ThePopular.findByPk(id);
+    if (!banner) {
+      return res.status(404).json({
+        success: false,
+        message: "The Popular banner not found",
+      });
+    }
+
+    // Update fields
+    if (title) banner.title = title;
+    if (imageURL) banner.image = imageURL;
+
+    await banner.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "The Popular banner updated successfully",
+      banner,
+    });
+  } catch (error) {
+    console.error("Error in handleUpdateThePopularBanner:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+const handleUpdateBrandPosterBanner = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title } = req.body;
+    const imageURL = req.fileUrl;
+
+    const banner = await BrandPoster.findByPk(id);
+    if (!banner) {
+      return res.status(404).json({
+        success: false,
+        message: "Brand Poster banner not found",
+      });
+    }
+
+    // Update fields
+    if (title) banner.title = title;
+    if (imageURL) banner.image = imageURL;
+
+    await banner.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Brand Poster banner updated successfully",
+      banner,
+    });
+  } catch (error) {
+    console.error("Error in handleUpdateBrandPosterBanner:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+const handleUpdateProductPosterAdsBanner = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title } = req.body;
+    const imageURL = req.fileUrl;
+
+    const banner = await ProductPosterAds.findByPk(id);
+    if (!banner) {
+      return res.status(404).json({
+        success: false,
+        message: "Product Poster Ads banner not found",
+      });
+    }
+
+    // Update fields
+    if (title) banner.title = title;
+    if (imageURL) banner.image = imageURL;
+
+    await banner.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Product Poster Ads banner updated successfully",
+      banner,
+    });
+  } catch (error) {
+    console.error("Error in handleUpdateProductPosterAdsBanner:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
 
 
 module.exports = {
@@ -410,4 +581,9 @@ module.exports = {
   handleDeleteThePopularBanner,
   handleDeleteBrandPosterBanner,
   handleDeleteProductPosterAdsBanner,
+  handleUpdateHomepageBanner,
+  handleUpdateWeeklyPromotionBanner,
+  handleUpdateThePopularBanner,
+  handleUpdateBrandPosterBanner,
+  handleUpdateProductPosterAdsBanner,
 };
