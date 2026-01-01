@@ -151,6 +151,7 @@ const verifyAndCompleteBuyNowOrder = async (req, res) => {
     quantity,
     addressId,
     shippingCost = 0,
+    idempotencyKey,
   } = req.body;
 
   const userId = req.user.id;
@@ -177,6 +178,7 @@ const verifyAndCompleteBuyNowOrder = async (req, res) => {
       addressId: parseInt(addressId),
       paymentMethod: "Razorpay",
       shippingCost: parseFloat(shippingCost),
+      idempotencyKey,
     };
 
     return await handleBuyNow(req, res);
@@ -200,6 +202,7 @@ const verifyAndCompleteCartOrder = async (req, res) => {
     razorpay_signature,
     addressId,
     shippingCost = 0,
+    idempotencyKey,
   } = req.body;
 
   const userId = req.user.id;
@@ -224,6 +227,7 @@ const verifyAndCompleteCartOrder = async (req, res) => {
       addressId: parseInt(addressId),
       paymentMethod: "Razorpay",
       shippingCost: parseFloat(shippingCost),
+      idempotencyKey,
     };
 
     return await handlePlaceOrderFromCart(req, res);

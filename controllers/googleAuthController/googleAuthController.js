@@ -58,8 +58,8 @@ const googleCallback = async (req, res) => {
 
     const { sub: googleId, name, email, picture } = userResponse.data;
 
-    const [firstName = "Google", ...lastNameParts] = name.split(" ");
-    const lastName = lastNameParts.join(" ") || "User";
+    // const [firstName = "Google", ...lastNameParts] = name.split(" ");
+    // const lastName = lastNameParts.join(" ") || "User";
     let user = await User.findOne({ where: { googleId } });
 
     if (user) {
@@ -75,8 +75,7 @@ const googleCallback = async (req, res) => {
       } else {
         user = await User.create({
           googleId,
-          firstName,
-          lastName,
+          fullName: name,
           email,
           profilePhoto: picture,
           password: null,
@@ -86,15 +85,15 @@ const googleCallback = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user.id, email: user.email, name: user.firstName },
+      { id: user.id, email: user.email, name: user.fullName },
       JWT_SECRET,
-      { expiresIn: "365d" }
+      { expiresIn: "30d" }
     );
 
      const middlewareToken = jwt.sign(
       { id: user.id },
       JWT_SECRET,
-      { expiresIn: "365d" }
+      { expiresIn: "30d" }
     );
 
     setTokenCookie(res, token, middlewareToken);

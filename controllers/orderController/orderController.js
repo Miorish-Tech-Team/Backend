@@ -4,7 +4,9 @@ const Product = require("../../models/productModel/productModel");
 const Cart = require("../../models/cartModel/cartModel");
 const CartItem = require("../../models/cartModel/cartItemModel");
 const Address = require("../../models/orderModel/orderAddressModel");
+const redis = require("../../config/redisConfig/redisConfig");
 const { sequelize } = require("../../mysqlConnection/dbConnection");
+const { Transaction } = require("sequelize");
 const {
   sendOrderEmail,
 } = require("../../emailService/orderPlacedEmail/orderPlacedEmail");
@@ -27,8 +29,17 @@ function generateFormattedOrderId() {
 }
 
 const handleBuyNow = async (req, res) => {
-  const { productId, quantity, addressId, paymentMethod, shippingCost = 0 } = req.body;
+  const { productId, quantity, addressId, paymentMethod, shippingCost = 0, idempotencyKey } = req.body;
   const userId = req.user.id;
+
+  // Check idempotency key
+  if (idempotencyKey) {
+    const cachedResult = await redis.get(`idempotency:order:${userId}:${idempotencyKey}`);
+    if (cachedResult) {
+      // Return cached result for duplicate request
+      return res.status(200).json(JSON.parse(cachedResult));
+    }
+  }
 
   const t = await sequelize.transaction();
 
@@ -40,7 +51,11 @@ const handleBuyNow = async (req, res) => {
         .json({ success: false, message: "Address not found for this user" });
     }
 
-    const product = await Product.findByPk(productId, { transaction: t });
+    // Use row-level locking (FOR UPDATE) to prevent race conditions
+    const product = await Product.findByPk(productId, {
+      transaction: t,
+      lock: Transaction.LOCK.UPDATE,
+    });
 
     if (!product) {
       await t.rollback();
@@ -162,12 +177,23 @@ const handleBuyNow = async (req, res) => {
       coverImage: product.coverImageUrl || null,
     });
 
-    res.status(201).json({
+    const responseData = {
       message: "Order placed successfully",
       orderId: customOrderId,
       order,
       orderItem,
-    });
+    };
+
+    // Cache the successful result with idempotency key for 24 hours
+    if (idempotencyKey) {
+      await redis.set(
+        `idempotency:order:${userId}:${idempotencyKey}`,
+        JSON.stringify(responseData),
+        { ex: 86400 } // 24 hours
+      );
+    }
+
+    res.status(201).json(responseData);
   } catch (error) {
     await t.rollback();
     res.status(500).json({ message: error.message || "Internal Server Error" });
@@ -176,7 +202,16 @@ const handleBuyNow = async (req, res) => {
 
 const handlePlaceOrderFromCart = async (req, res) => {
   const userId = req.user.id;
-  const { paymentMethod, addressId, shippingCost = 0 } = req.body;
+  const { paymentMethod, addressId, shippingCost = 0, idempotencyKey } = req.body;
+
+  // Check idempotency key
+  if (idempotencyKey) {
+    const cachedResult = await redis.get(`idempotency:order:${userId}:${idempotencyKey}`);
+    if (cachedResult) {
+      // Return cached result for duplicate request
+      return res.status(200).json(JSON.parse(cachedResult));
+    }
+  }
 
   const allowedMethods = [
     "CashOnDelivery",
@@ -203,6 +238,7 @@ const handlePlaceOrderFromCart = async (req, res) => {
       return res.status(404).json({ message: "Cart not found" });
     }
 
+    // First, get cart items without locking (to avoid LEFT JOIN + FOR UPDATE issue)
     const cartItems = await CartItem.findAll({
       where: { cartId: cart.id },
       include: [{ model: Product }],
@@ -212,6 +248,43 @@ const handlePlaceOrderFromCart = async (req, res) => {
     if (cartItems.length === 0) {
       await t.rollback();
       return res.status(400).json({ message: "Cart is empty" });
+    }
+
+    // Extract product IDs and lock them separately to avoid LEFT OUTER JOIN + FOR UPDATE error
+    const productIds = cartItems.map(item => item.productId).filter(Boolean);
+    
+    if (productIds.length === 0) {
+      await t.rollback();
+      return res.status(400).json({ message: "No valid products in cart" });
+    }
+
+    // Lock all products in a single query using FOR UPDATE
+    const lockedProducts = await Product.findAll({
+      where: { id: productIds },
+      transaction: t,
+      lock: Transaction.LOCK.UPDATE,
+    });
+
+    // Create a map for quick product lookup
+    const productMap = new Map(lockedProducts.map(p => [p.id, p]));
+
+    // Validate stock availability for all items before processing
+    for (const item of cartItems) {
+      const product = productMap.get(item.productId);
+      if (!product) {
+        await t.rollback();
+        return res.status(400).json({
+          success: false,
+          message: `Product not found for cart item ${item.id}`,
+        });
+      }
+      if (product.availableStockQuantity < item.quantity) {
+        await t.rollback();
+        return res.status(400).json({
+          success: false,
+          message: `Insufficient stock for ${product.productName}. Available: ${product.availableStockQuantity}, Required: ${item.quantity}`,
+        });
+      }
     }
 
     const totalAmount = cartItems.reduce(
@@ -300,7 +373,7 @@ const handlePlaceOrderFromCart = async (req, res) => {
     const emailOrderItems = [];
 
     for (const item of cartItems) {
-      const product = item.Product;
+      const product = productMap.get(item.productId);
       if (!product) {
         await t.rollback();
         return res
@@ -352,16 +425,27 @@ const handlePlaceOrderFromCart = async (req, res) => {
       title: "Order Placed from Cart",
       message: `Your order ${customOrderId} with ${cartItems.length} item(s) has been placed.`,
       type: "order",
-      coverImage: cartItems[0]?.Product?.coverImageUrl || null,
+      coverImage: productMap.get(cartItems[0]?.productId)?.coverImageUrl || null,
     });
 
     await t.commit();
 
-    return res.status(201).json({
+    const responseData = {
       message: "Order placed successfully from cart",
       uniqueOrderId: customOrderId,
       order,
-    });
+    };
+
+    // Cache the successful result with idempotency key for 24 hours
+    if (idempotencyKey) {
+      await redis.set(
+        `idempotency:order:${userId}:${idempotencyKey}`,
+        JSON.stringify(responseData),
+        { ex: 86400 } // 24 hours
+      );
+    }
+
+    return res.status(201).json(responseData);
   } catch (error) {
     console.error("Transaction failed:", error);
     res.status(500).json({ message: error.message || "Something went wrong" });
