@@ -27,7 +27,7 @@ function generateFormattedOrderId() {
 }
 
 const handleBuyNow = async (req, res) => {
-  const { productId, quantity, addressId, paymentMethod } = req.body;
+  const { productId, quantity, addressId, paymentMethod, shippingCost = 0 } = req.body;
   const userId = req.user.id;
 
   const t = await sequelize.transaction();
@@ -101,7 +101,7 @@ const handleBuyNow = async (req, res) => {
       });
     }
 
-    const totalPrice = product.productPrice * quantity - discountAmount;
+    const totalPrice = product.productPrice * quantity - discountAmount + shippingCost;
     const customOrderId = generateFormattedOrderId();
 
     const order = await Order.create(
@@ -115,6 +115,7 @@ const handleBuyNow = async (req, res) => {
           paymentMethod === "CashOnDelivery" ? "Pending" : "Completed",
         paymentMethod,
         appliedCouponId,
+        shippingCost,
       },
       { transaction: t }
     );
@@ -175,7 +176,7 @@ const handleBuyNow = async (req, res) => {
 
 const handlePlaceOrderFromCart = async (req, res) => {
   const userId = req.user.id;
-  const { paymentMethod, addressId } = req.body;
+  const { paymentMethod, addressId, shippingCost = 0 } = req.body;
 
   const allowedMethods = [
     "CashOnDelivery",
@@ -267,7 +268,7 @@ const handlePlaceOrderFromCart = async (req, res) => {
       });
     }
 
-    const finalAmount = totalAmount - discountAmount;
+    const finalAmount = totalAmount - discountAmount + shippingCost;
 
     if (paymentMethod !== "CashOnDelivery") {
       const paymentSuccess = true;
@@ -291,6 +292,7 @@ const handlePlaceOrderFromCart = async (req, res) => {
         paymentStatus:
           paymentMethod === "CashOnDelivery" ? "Pending" : "Completed",
         orderDate: new Date(),
+        shippingCost,
       },
       { transaction: t }
     );

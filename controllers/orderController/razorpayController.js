@@ -16,7 +16,7 @@ const razorpay = new Razorpay({
  * Create Razorpay order for Buy Now
  */
 const createRazorpayOrderForBuyNow = async (req, res) => {
-  const { productId, quantity, addressId } = req.body;
+  const { productId, quantity, addressId, shippingCost = 0 } = req.body;
   const userId = req.user.id;
 
   try {
@@ -36,8 +36,8 @@ const createRazorpayOrderForBuyNow = async (req, res) => {
       return res.status(400).json({ success: false, message: "Not enough stock available" });
     }
 
-    // Calculate amount
-    const amount = product.productPrice * quantity * 100; // Convert to paise
+    // Calculate amount (include shipping cost)
+    const amount = (product.productPrice * quantity + shippingCost) * 100; // Convert to paise
 
     // Create Razorpay order
     const razorpayOrder = await razorpay.orders.create({
@@ -50,6 +50,7 @@ const createRazorpayOrderForBuyNow = async (req, res) => {
         quantity: quantity.toString(),
         addressId: addressId.toString(),
         orderType: "buynow",
+        shippingCost: shippingCost.toString(),
       },
     });
 
@@ -74,7 +75,7 @@ const createRazorpayOrderForBuyNow = async (req, res) => {
  * Create Razorpay order for Cart checkout
  */
 const createRazorpayOrderForCart = async (req, res) => {
-  const { addressId } = req.body;
+  const { addressId, shippingCost = 0 } = req.body;
   const userId = req.user.id;
 
   try {
@@ -105,7 +106,7 @@ const createRazorpayOrderForCart = async (req, res) => {
       totalAmount += item.Product.productPrice * item.quantity;
     }
 
-    const amount = totalAmount * 100; // Convert to paise
+    const amount = (totalAmount + shippingCost) * 100; // Convert to paise
 
     // Create Razorpay order
     const razorpayOrder = await razorpay.orders.create({
@@ -117,6 +118,7 @@ const createRazorpayOrderForCart = async (req, res) => {
         addressId: addressId.toString(),
         cartId: cart.id.toString(),
         orderType: "cart",
+        shippingCost: shippingCost.toString(),
       },
     });
 
@@ -148,6 +150,7 @@ const verifyAndCompleteBuyNowOrder = async (req, res) => {
     productId,
     quantity,
     addressId,
+    shippingCost = 0,
   } = req.body;
 
   const userId = req.user.id;
@@ -173,6 +176,7 @@ const verifyAndCompleteBuyNowOrder = async (req, res) => {
       quantity: parseInt(quantity),
       addressId: parseInt(addressId),
       paymentMethod: "Razorpay",
+      shippingCost: parseFloat(shippingCost),
     };
 
     return await handleBuyNow(req, res);
@@ -195,6 +199,7 @@ const verifyAndCompleteCartOrder = async (req, res) => {
     razorpay_payment_id,
     razorpay_signature,
     addressId,
+    shippingCost = 0,
   } = req.body;
 
   const userId = req.user.id;
@@ -218,6 +223,7 @@ const verifyAndCompleteCartOrder = async (req, res) => {
     req.body = {
       addressId: parseInt(addressId),
       paymentMethod: "Razorpay",
+      shippingCost: parseFloat(shippingCost),
     };
 
     return await handlePlaceOrderFromCart(req, res);

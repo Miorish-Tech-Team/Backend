@@ -101,6 +101,13 @@ const Order = sequelize.define(
     deliveryDate: {
       type: DataTypes.DATE,
     },
+
+    shippingCost: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+      defaultValue: 0,
+      comment: "Shipping cost for the order",
+    },
   },
   {
     tableName: "orders",
