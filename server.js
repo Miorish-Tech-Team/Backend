@@ -64,9 +64,7 @@ const allowedOrigins = [
   process.env.FRONTEND_URL_MAIN,
   process.env.FRONTEND_URL_ADMIN,
   process.env.FRONTEND_URL_SELLER,
-  'https://api.miorish.com', // Allow API to call itself (for SSR)
-  'https://miorish.com', // Main frontend domain
-  'https://www.miorish.com', // WWW variant
+  process.env.INTERNAL_API_URL,
 ];
 
 app.use(
