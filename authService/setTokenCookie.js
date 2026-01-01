@@ -3,19 +3,19 @@ const setTokenCookie = (res, token, middlewareToken) => {
   res.setHeader("Set-Cookie", [
     // Secure, HttpOnly cookie
     serialize("token", token, {
-      domain:".miorish.com",
+      // domain:".miorish.com",
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
+      secure: false,
+      sameSite: "lax",
       path: "/",
       maxAge: 60 * 60 * 24 * 30, 
     }),
     // Non-HttpOnly for middleware
     serialize("token_middleware", middlewareToken, {
-       domain:".miorish.com",
+      //  domain:".miorish.com",
       httpOnly: false,
-      secure: true,
-      sameSite: "none",
+      secure: false,
+      sameSite: "lax",
       path: "/",
       maxAge: 60 * 60 * 24 * 30,
     }),
