@@ -4,50 +4,67 @@ const { User } = require("../../models/authModel/userModel");
 const WarehouseAddress = require("../../models/deliveryModel/adminWarehouseAdd");
 const Address = require("../../models/orderModel/orderAddressModel");
 
-// Calculate distance between two coordinates using Haversine formula
-const calculateDistance = (lat1, lon1, lat2, lon2) => {
-  const R = 6371; // Earth's radius in km
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-};
+const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
-// Get geocode from pincode (India only)
-const getGeocodeFromPincode = async (pincode, country = "India") => {
+/**
+ * Get distance and duration using Google Maps Distance Matrix API
+ * @param {string} origin - Origin address (warehouse)
+ * @param {string} destination - Destination address (user)
+ * @returns {Promise<Object>} - Distance in km and duration in seconds
+ */
+const getDistanceFromGoogleMaps = async (origin, destination) => {
   try {
     const response = await axios.get(
-      `https://nominatim.openstreetmap.org/search`,
+      "https://maps.googleapis.com/maps/api/distancematrix/json",
       {
         params: {
-          postalcode: pincode,
-          country: country,
-          format: "json",
-          limit: 1,
-        },
-        headers: {
-          "User-Agent": "Miorish-Delivery-Service/1.0",
+          origins: origin,
+          destinations: destination,
+          mode: "driving",
+          units: "metric",
+          key: GOOGLE_MAPS_API_KEY,
+          region: "in", // Optimize for India
         },
       }
     );
 
-    if (response.data && response.data.length > 0) {
-      return {
-        lat: parseFloat(response.data[0].lat),
-        lon: parseFloat(response.data[0].lon),
-      };
+    if (response.data.status !== "OK") {
+      console.error("Google Maps API error:", response.data.status);
+      return null;
     }
-    return null;
+
+    const element = response.data.rows[0]?.elements[0];
+
+    if (!element || element.status !== "OK") {
+      console.error("Distance calculation failed:", element?.status);
+      return null;
+    }
+
+    return {
+      distanceMeters: element.distance.value,
+      distanceKm: element.distance.value / 1000,
+      durationSeconds: element.duration.value,
+      distanceText: element.distance.text,
+      durationText: element.duration.text,
+    };
   } catch (err) {
-    console.error("Geocoding error:", err.message);
+    console.error("Google Maps Distance Matrix API error:", err.message);
     return null;
   }
+};
+
+/**
+ * Format address for Google Maps API
+ */
+const formatAddressForGoogleMaps = (address) => {
+  const parts = [
+    address.street,
+    address.city,
+    address.state,
+    address.postalCode,
+    address.country,
+  ].filter(Boolean);
+  return parts.join(", ");
 };
 
 // Main controller: Get delivery estimate
@@ -141,26 +158,37 @@ const getDeliveryEstimate = async (req, res) => {
       }
     }
 
-    // Get geocodes for both pincodes
-    const [warehouseGeo, userGeo] = await Promise.all([
-      getGeocodeFromPincode(warehousePincode, "India"),
-      getGeocodeFromPincode(userPincode, "India"),
-    ]);
+    // Format addresses for Google Maps API
+    const warehouseFullAddress = formatAddressForGoogleMaps({
+      street: warehouse.addressLine || warehouse.warehouseName,
+      city: warehouse.city,
+      state: warehouse.state,
+      postalCode: warehouse.pinCode,
+      country: warehouse.countryName,
+    });
 
-    if (!warehouseGeo || !userGeo) {
+    const userFullAddress = formatAddressForGoogleMaps({
+      street: userAddress.street,
+      city: userAddress.city,
+      state: userAddress.state,
+      postalCode: userAddress.postalCode,
+      country: userAddress.country,
+    });
+
+    // Get distance using Google Maps Distance Matrix API
+    const distanceData = await getDistanceFromGoogleMaps(
+      warehouseFullAddress,
+      userFullAddress
+    );
+
+    if (!distanceData) {
       return res.status(400).json({
         success: false,
-        message: "Unable to geocode pincodes. Please verify postal codes.",
+        message: "Unable to calculate delivery distance. Please verify your address.",
       });
     }
 
-    // Calculate distance
-    const distanceKm = calculateDistance(
-      warehouseGeo.lat,
-      warehouseGeo.lon,
-      userGeo.lat,
-      userGeo.lon
-    );
+    const distanceKm = distanceData.distanceKm;
 
     // Determine delivery days and shipping cost based on distance
     let deliveryDays;
@@ -185,6 +213,8 @@ const getDeliveryEstimate = async (req, res) => {
       userId,
       addressId,
       distanceKm: Math.round(distanceKm * 10) / 10, // Round to 1 decimal
+      distanceText: distanceData.distanceText,
+      durationText: distanceData.durationText,
       deliveryDays,
       shippingCost: baseShippingCost,
       estimatedDeliveryDate: deliveryDate.toISOString().split("T")[0],
@@ -196,6 +226,7 @@ const getDeliveryEstimate = async (req, res) => {
       addressVersion: userAddress.updatedAt ? userAddress.updatedAt.getTime() : Date.now(),
       warehouseVersion,
       cachedAt: new Date().toISOString(),
+      calculationMethod: "google_maps_distance_matrix",
     };
 
     // Cache for 30 days (2592000 seconds) - will auto-invalidate on address/warehouse update
