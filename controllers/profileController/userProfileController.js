@@ -1,4 +1,6 @@
 const bcrypt = require("bcrypt");
+const speakeasy = require("speakeasy");
+const QRCode = require("qrcode");
 const User = require("../../models/authModel/userModel");
 const Address = require("../../models/orderModel/orderAddressModel");
 const {
@@ -108,17 +110,58 @@ const handleChangePassword = async (req, res) => {
 const toggleTwoFactorAuth = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { enable } = req.body;
+    const { enable, password, method } = req.body;
+
+    if (!password) {
+      return res.status(400).json({ message: "Password is required" });
+    }
+
     const user = await User.findByPk(userId);
     if (!user) return res.status(404).json({ message: "User not found" });
 
+    // Verify password
+    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+    if (!isPasswordCorrect) {
+      return res.status(400).json({ message: "Incorrect password" });
+    }
+
     user.isTwoFactorAuthEnable = enable;
+    
+    if (enable && method) {
+      user.twoFactorMethod = method;
+      
+      // If enabling authenticator method, generate secret
+      if (method === "authenticator" && !user.twoFactorSecret) {
+        const secret = speakeasy.generateSecret({
+          name: `Miorish (${user.email})`,
+          issuer: "Miorish"
+        });
+        user.twoFactorSecret = secret.base32;
+        
+        // Generate QR code
+        const qrCodeUrl = await QRCode.toDataURL(secret.otpauth_url);
+        
+        await user.save();
+        await sendTwoFactorAuthStatusEmail(user.email, user.fullName, enable);
+        
+        return res.status(200).json({
+          success: true,
+          message: "Two-Factor Authentication enabled with Authenticator",
+          isTwoFactorAuthEnable: user.isTwoFactorAuthEnable,
+          twoFactorMethod: user.twoFactorMethod,
+          qrCode: qrCodeUrl,
+          secret: secret.base32
+        });
+      }
+    }
+    
     await user.save();
-    await sendTwoFactorAuthStatusEmail(user.email, user.firstName, enable);
+    await sendTwoFactorAuthStatusEmail(user.email, user.fullName, enable);
     return res.status(200).json({
       success: true,
       message: `Two-Factor Authentication ${enable ? "enabled" : "disabled"}`,
-      isTwoFactorAuthEnable: user.isTwoFactorAuthEnable
+      isTwoFactorAuthEnable: user.isTwoFactorAuthEnable,
+      twoFactorMethod: user.twoFactorMethod
     });
   } catch (error) {
     return res
@@ -131,14 +174,15 @@ const getTwoFactorAuthStatus = async (req, res) => {
   try {
     const userId = req.user.id;
     const user = await User.findByPk(userId, {
-      attributes: ['isTwoFactorAuthEnable']
+      attributes: ['isTwoFactorAuthEnable', 'twoFactorMethod']
     });
 
     if (!user) return res.status(404).json({ message: "User not found" });
 
     return res.status(200).json({
       success: true,
-      isTwoFactorAuthEnable: user.isTwoFactorAuthEnable
+      isTwoFactorAuthEnable: user.isTwoFactorAuthEnable,
+      twoFactorMethod: user.twoFactorMethod || "email"
     });
   } catch (error) {
     return res.status(500).json({

@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const JWT = require("jsonwebtoken");
 const { Op } = require("sequelize");
+const speakeasy = require("speakeasy");
 const setTokenCookie = require("../../authService/setTokenCookie");
 const clearTokenCookie = require("../../authService/clearCookie");
 const User = require("../../models/authModel/userModel");
@@ -244,22 +245,36 @@ const handleSignin = async (req, res) => {
 
     // If 2FA is enabled, send OTP
     if (user.isTwoFactorAuthEnable) {
-      const verificationCode = Math.floor(
-        100000 + Math.random() * 900000
-      ).toString();
-      const verificationCodeExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+      // Check if using email or authenticator method
+      if (user.twoFactorMethod === "authenticator") {
+        // For authenticator, just indicate that 2FA is required
+        return res.status(202).json({
+          success: true,
+          message: "Please enter the code from your authenticator app.",
+          isTwoFactorAuthEnable: user.isTwoFactorAuthEnable,
+          twoFactorMethod: "authenticator",
+          userId: user.id
+        });
+      } else {
+        // For email method, send OTP
+        const verificationCode = Math.floor(
+          100000 + Math.random() * 900000
+        ).toString();
+        const verificationCodeExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
-      user.verificationCode = verificationCode;
-      user.verificationCodeExpiresAt = verificationCodeExpiresAt;
-      await user.save();
+        user.verificationCode = verificationCode;
+        user.verificationCodeExpiresAt = verificationCodeExpiresAt;
+        await user.save();
 
-      await sendTwoFactorOtp(user.email, user.fullName, verificationCode);
-
-      return res.status(202).json({
-        success: true,
-        message: "OTP sent to your email. Please verify to complete login.",
-        isTwoFactorAuthEnable: user.isTwoFactorAuthEnable,
-      });
+        await sendTwoFactorOtp(user.email, user.fullName, verificationCode);
+        console.log("Sent 2FA OTP:", verificationCode, verificationCodeExpiresAt);
+        return res.status(202).json({
+          success: true,
+          message: "OTP sent to your email. Please verify to complete login.",
+          isTwoFactorAuthEnable: user.isTwoFactorAuthEnable,
+          twoFactorMethod: "email"
+        });
+      }
     }
 
     // If no 2FA, log user in
@@ -283,10 +298,12 @@ const handleSignin = async (req, res) => {
 
 const verify2FALogin = async (req, res) => {
   try {
-    const { verificationCode } = req.body;
+    const { verificationCode, userId } = req.body;
 
     console.log("Received 2FA verification code:", verificationCode);
-    const user = await User.findOne({
+    
+    // First try to find user by verification code (email method)
+    let user = await User.findOne({
       where: {
         verificationCode: verificationCode,
         verificationCodeExpiresAt: {
@@ -294,6 +311,43 @@ const verify2FALogin = async (req, res) => {
         },
       },
     });
+
+    // If not found, try authenticator method
+    if (!user && userId) {
+      user = await User.findByPk(userId);
+      
+      if (!user) {
+        return res.status(400).json({
+          success: false,
+          message: "User not found",
+        });
+      }
+
+      // Verify TOTP code for authenticator
+      if (user.twoFactorMethod === "authenticator" && user.twoFactorSecret) {
+        const verified = speakeasy.totp.verify({
+          secret: user.twoFactorSecret,
+          encoding: "base32",
+          token: verificationCode,
+          window: 2
+        });
+
+        if (!verified) {
+          console.log("Invalid authenticator code.");
+          return res.status(400).json({
+            success: false,
+            message: "Invalid authentication code",
+          });
+        }
+        
+        console.log("Authenticator code verified for user:", user.email);
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid or expired verification code",
+        });
+      }
+    }
 
     if (!user) {
       console.log("Invalid or expired verification code.");
@@ -305,16 +359,19 @@ const verify2FALogin = async (req, res) => {
 
     console.log("User verified:", user.email);
 
-    user.verificationCode = null;
-    user.verificationCodeExpiresAt = null;
-    await user.save();
-
-    console.log("Verification fields cleared.");
+    // Clear verification code for email method
+    if (user.twoFactorMethod === "email") {
+      user.verificationCode = null;
+      user.verificationCodeExpiresAt = null;
+      await user.save();
+      console.log("Verification fields cleared.");
+    }
 
     const token = createToken(user);
+    const middlewareToken = createMiddlewareToken(user);
     console.log("JWT token created:", token);
 
-    setTokenCookie(res, token);
+    setTokenCookie(res, token, middlewareToken);
     console.log("Token cookie set successfully.");
 
     return res.status(200).json({

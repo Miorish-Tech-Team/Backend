@@ -137,7 +137,7 @@ const sendTwoFactorAuthStatusEmail = async (email, fullName, isEnabled) => {
     const response = await transporter.sendMail({
       from: `"${name} Team" <${adminEmail}>`,
       to: email,
-      subject: `Two-Factor Authentication ${status} - ${name}`,
+      subject: `Two-Factor Authentication ${statusText} - ${name}`,
       text: `Hi ${fullName},\n\n${actionMessage}\n\n- The ${name} Team`,
       html: `
         <div style="max-width: 600px; background-color: ${actionBgColor}; margin: 0 auto; padding: 24px; border-radius: 12px; box-shadow: 0 6px 12px rgba(0,0,0,0.1); font-family: Arial, sans-serif;">

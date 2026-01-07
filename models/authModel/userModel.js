@@ -81,6 +81,14 @@ const User = sequelize.define(
      type: DataTypes.BOOLEAN,
       defaultValue: false, 
   },
+    twoFactorMethod: {
+      type: DataTypes.ENUM("email", "authenticator"),
+      defaultValue: "email",
+    },
+    twoFactorSecret: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     verificationCode: {
       type: DataTypes.STRING,
     },
