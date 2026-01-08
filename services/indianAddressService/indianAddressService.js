@@ -420,10 +420,10 @@ const validateIndianAddress = async (addressData) => {
 };
 
 /**
- * Validates if the pincode belongs to the specified state and district
+ * Validates if the pincode belongs to the specified state (district is optional/flexible)
  * @param {string} pincode - The pincode to validate
  * @param {string} state - The state to match against
- * @param {string} district - The district to match against
+ * @param {string} district - The district (optional, for reference only)
  * @returns {Object} - {isValid: boolean, message: string}
  */
 async function validatePincodeMatchesAddress(pincode, state, district) {
@@ -438,33 +438,25 @@ async function validatePincodeMatchesAddress(pincode, state, district) {
       };
     }
     
-    // If we have state and district from API, check if they match
-    if (pincodeValidation.state && pincodeValidation.district) {
+    // If we have state from API, check if it matches (district is flexible)
+    if (pincodeValidation.state) {
       const stateMatches = pincodeValidation.state.toLowerCase() === state.toLowerCase();
-      const districtMatches = pincodeValidation.district.toLowerCase() === district.toLowerCase();
       
-      if (!stateMatches || !districtMatches) {
-        let mismatchDetails = [];
-        if (!stateMatches) {
-          mismatchDetails.push(`State mismatch: Pincode belongs to ${pincodeValidation.state}, but you selected ${state}`);
-        }
-        if (!districtMatches) {
-          mismatchDetails.push(`District mismatch: Pincode belongs to ${pincodeValidation.district}, but you selected ${district}`);
-        }
-        
+      if (!stateMatches) {
         return {
           isValid: false,
-          message: mismatchDetails.join('. '),
+          message: `Pincode belongs to ${pincodeValidation.state}, but you selected ${state}`,
           correctState: pincodeValidation.state,
           correctDistrict: pincodeValidation.district
         };
       }
       
+      // State matches - district is flexible (can be different from API)
       return {
         isValid: true,
-        message: 'Address details match pincode',
+        message: 'Pincode verified for the selected state',
         state: pincodeValidation.state,
-        district: pincodeValidation.district
+        district: pincodeValidation.district // Info only, not enforced
       };
     }
     
