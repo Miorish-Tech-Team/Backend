@@ -1,5 +1,12 @@
 const Address = require("../../models/orderModel/orderAddressModel");
 const { sequelize } = require("../../mysqlConnection/dbConnection"); // for transactions
+const {
+  validateIndianAddress,
+  getStates,
+  getDistrictsByState,
+  validatePincode,
+  validatePincodeMatchesAddress
+} = require("../../services/indianAddressService/indianAddressService");
 
 const handleAddAddress = async (req, res) => {
   const {
@@ -21,6 +28,40 @@ const handleAddAddress = async (req, res) => {
   const t = await sequelize.transaction();
 
   try {
+    // Force country to be India
+    const addressCountry = "India";
+    
+    // First, validate that pincode matches state and district
+    const addressMatch = await validatePincodeMatchesAddress(postalCode, state, city);
+    
+    if (!addressMatch.isValid) {
+      await t.rollback();
+      return res.status(400).json({
+        success: false,
+        message: 'Address mismatch detected',
+        error: addressMatch.message,
+        correctState: addressMatch.correctState,
+        correctDistrict: addressMatch.correctDistrict
+      });
+    }
+    
+    // Then validate Indian address format
+    const validation = await validateIndianAddress({
+      state,
+      district: city, // Using city as district
+      postalCode,
+      country: addressCountry
+    });
+    
+    if (!validation.isValid) {
+      await t.rollback();
+      return res.status(400).json({
+        success: false,
+        message: 'Address validation failed',
+        errors: validation.errors
+      });
+    }
+
     if (isDefault) {
       await Address.update(
         { isDefault: false },
@@ -36,7 +77,7 @@ const handleAddAddress = async (req, res) => {
         city,
         state,
         postalCode,
-        country,
+        country: addressCountry,
         phoneNumber,
         type,
         isDefault: !!isDefault,
@@ -110,6 +151,40 @@ const handleUpdateAddress = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Address not found' });
     }
 
+    // Force country to be India
+    const addressCountry = "India";
+    
+    // First, validate that pincode matches state and district
+    const addressMatch = await validatePincodeMatchesAddress(postalCode, state, city);
+    
+    if (!addressMatch.isValid) {
+      await t.rollback();
+      return res.status(400).json({
+        success: false,
+        message: 'Address mismatch detected',
+        error: addressMatch.message,
+        correctState: addressMatch.correctState,
+        correctDistrict: addressMatch.correctDistrict
+      });
+    }
+    
+    // Then validate Indian address format
+    const validation = await validateIndianAddress({
+      state,
+      district: city, // Using city as district
+      postalCode,
+      country: addressCountry
+    });
+    
+    if (!validation.isValid) {
+      await t.rollback();
+      return res.status(400).json({
+        success: false,
+        message: 'Address validation failed',
+        errors: validation.errors
+      });
+    }
+
     if (isDefault === true) {
       await Address.update({ isDefault: false }, { where: { userId }, transaction: t });
     }
@@ -121,7 +196,7 @@ const handleUpdateAddress = async (req, res) => {
         city,
         state,
         postalCode,
-        country,
+        country: addressCountry,
         phoneNumber,
         type,
         isDefault,
@@ -212,10 +287,96 @@ const handleSetDefaultAddress = async (req, res) => {
   }
 };
 
+// Get all Indian states
+const handleGetStates = async (req, res) => {
+  try {
+    const states = getStates();
+    res.status(200).json({ 
+      success: true, 
+      states,
+      country: "India"
+    });
+  } catch (error) {
+    console.error('Get States Error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error while fetching states', 
+      error: error.message 
+    });
+  }
+};
+
+// Get districts by state
+const handleGetDistricts = async (req, res) => {
+  const { state } = req.query;
+  
+  try {
+    if (!state) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'State parameter is required' 
+      });
+    }
+    
+    const districts = getDistrictsByState(state);
+    
+    if (districts.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Invalid state or no districts found' 
+      });
+    }
+    
+    res.status(200).json({ 
+      success: true, 
+      state,
+      districts 
+    });
+  } catch (error) {
+    console.error('Get Districts Error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error while fetching districts', 
+      error: error.message 
+    });
+  }
+};
+
+// Validate pincode
+const handleValidatePincode = async (req, res) => {
+  const { pincode } = req.query;
+  
+  try {
+    if (!pincode) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Pincode parameter is required' 
+      });
+    }
+    
+    const validation = await validatePincode(pincode);
+    
+    res.status(200).json({ 
+      success: validation.isValid, 
+      ...validation
+    });
+  } catch (error) {
+    console.error('Validate Pincode Error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error while validating pincode', 
+      error: error.message 
+    });
+  }
+};
+
 module.exports = {
   handleAddAddress,
   handleGetUserAddresses,
   handleUpdateAddress,
   handleDeleteAddress,
   handleSetDefaultAddress,
+  handleGetStates,
+  handleGetDistricts,
+  handleValidatePincode,
 };
