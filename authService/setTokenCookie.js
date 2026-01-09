@@ -8,7 +8,7 @@ const setTokenCookie = (res, token, middlewareToken) => {
       secure: true,
       sameSite: "none",
       path: "/",
-      maxAge: 60 * 60 * 24 * 30, 
+      maxAge: 60*60*24*7,
     }),
     // Non-HttpOnly for middleware
     serialize("token_middleware", middlewareToken, {
@@ -17,7 +17,7 @@ const setTokenCookie = (res, token, middlewareToken) => {
       secure: true,
       sameSite: "none",
       path: "/",
-      maxAge: 60 * 60 * 24 * 30,
+      maxAge: 60*60*24*7,
     }),
   ]);
 };

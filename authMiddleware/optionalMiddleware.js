@@ -1,5 +1,6 @@
-const { validateToken } = require("../authService/authService");
+const JWT = require("jsonwebtoken");
 const { parse } = require("cookie");
+const clearTokenCookie = require("../authService/clearCookie");
 
 function  optionalAuthentication() {
   return (req, res, next) => {
@@ -20,13 +21,16 @@ function  optionalAuthentication() {
         return next();
       }
 
-      const userPayload = validateToken(token);
-      if (!userPayload) {
-        return next();
+      try {
+        const userPayload = JWT.verify(token, process.env.JWT_SECRET);
+        req.user = userPayload;
+        next();
+      } catch (jwtError) {
+        // Clear expired/invalid token cookies but continue without authentication
+        clearTokenCookie(res);
+        console.log("Optional auth - invalid/expired token, cleared cookies");
+        next();
       }
-
-      req.user = userPayload;
-      next();
     } catch (error) {
       console.error("Auth error:", error.message);
       next();
