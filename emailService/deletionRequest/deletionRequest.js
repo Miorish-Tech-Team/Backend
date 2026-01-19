@@ -16,7 +16,7 @@ const sendAccountDeletionStatusEmail = async (email, fullName, requestId, status
       to: email,
       subject: ` ${subjectLine}`,
       html: `
-        <div style="background-color: #f8f9fa; padding: 40px 0; font-family: Arial, sans-serif;">
+        <div style="background-color: #FCF1D6; padding: 40px 0; font-family: Arial, sans-serif;">
           <div style="max-width: 580px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
             <h2 style="text-align: center; background-color: #0d6efd; padding: 15px; color: white; border-radius: 6px;">Account Deletion Request ${status.toUpperCase()}</h2>
             <p>Hello <strong>${fullName}</strong>,</p>

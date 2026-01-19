@@ -11,7 +11,7 @@ const sendUserTicketCreationEmail = async (email, fullName, ticketNumber, subjec
       subject: `🎫 Ticket Created - ${name} (#${ticketNumber})`,
       text: `Hi ${fullName},\n\nYour support ticket has been created successfully.\n\nTicket Number: ${ticketNumber}\nSubject: ${subject}\n\nOur support team will contact you soon.\n\nThank you,\n${name} Support`,
       html: `
-        <div style="background-color: #f3f4f6; padding: 40px 0; font-family: Arial, sans-serif;">
+        <div style="background-color: #FCF1D6; padding: 40px 0; font-family: Arial, sans-serif;">
           <div style="max-width: 580px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
             <div style="text-align: center; margin-bottom: 30px;">
               <img src="${logo}" alt="FavorSelect Logo" style="max-height: 60px;" />
@@ -47,7 +47,7 @@ const sendUserTicketReplyEmail = async (email, fullName, ticketNumber, subject, 
       to: email,
       subject: `🛠️ Ticket #${ticketNumber} Update - ${status.toUpperCase()}`,
       html: `
-        <div style="background-color: #f8f9fa; padding: 40px 0; font-family: Arial, sans-serif;">
+        <div style="background-color: #FCF1D6; padding: 40px 0; font-family: Arial, sans-serif;">
           <div style="max-width: 580px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
             <h2 style="text-align: center; background-color: #198754; padding: 15px; color: white; border-radius: 6px;">Support Ticket Update</h2>
             <p>Hello <strong>${fullName}</strong>,</p>

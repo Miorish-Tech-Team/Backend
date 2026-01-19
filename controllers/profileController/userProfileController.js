@@ -2,7 +2,6 @@ const bcrypt = require("bcrypt");
 const speakeasy = require("speakeasy");
 const QRCode = require("qrcode");
 const User = require("../../models/authModel/userModel");
-const Address = require("../../models/orderModel/orderAddressModel");
 const {
   sendUpdateProfileEmail,
   sendChangePasswordEmail,
@@ -34,7 +33,6 @@ const handleUpdateUserProfile = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Profile updated successfully",
-      user,
     });
   } catch (error) {
     return res
@@ -51,12 +49,6 @@ const getUserProfile = async (req, res) => {
       attributes: {
         exclude: ["password", "verificationCode", "verificationCodeExpiresat"],
       },
-      include: [
-        {
-          model: Address,
-          as: "addresses",
-        },
-      ],
     });
 
     if (!user) {
@@ -99,7 +91,7 @@ const handleChangePassword = async (req, res) => {
     user.password = hashedPassword;
     await user.save();
     await sendChangePasswordEmail(user.email, user.firstName);
-    return res.status(200).json({ message: "Password changed successfully" });
+    return res.status(200).json({ success: true, message: "Password changed successfully" });
   } catch (error) {
     return res
       .status(500)
@@ -113,16 +105,15 @@ const toggleTwoFactorAuth = async (req, res) => {
     const { enable, password, method } = req.body;
 
     if (!password) {
-      return res.status(400).json({ message: "Password is required" });
+      return res.status(400).json({success: false, message: "Password is required" });
     }
 
     const user = await User.findByPk(userId);
-    if (!user) return res.status(404).json({ message: "User not found" });
-
+    if (!user) return res.status(404).json({success: false, message: "User not found" });
     // Verify password
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (!isPasswordCorrect) {
-      return res.status(400).json({ message: "Incorrect password" });
+      return res.status(400).json({success: false, message: "Incorrect password" });
     }
 
     user.isTwoFactorAuthEnable = enable;

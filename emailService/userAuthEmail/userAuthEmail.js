@@ -13,7 +13,7 @@ const sendVerificationEmail = async (email, fullName, otp) => {
       subject: `Email Verification Code - ${name}`,
       text: `Hi ${fullName},\n\nYour ${name} verification code is: ${otp}\n\nThis code will expire in 10 minutes.\n\nIf you did not request this code, you can safely ignore this email.\n\n- ${name} Team`,
       html: `
-          <div style="background-color: #f3f4f6; padding: 40px 0; font-family: Arial, sans-serif;">
+          <div style="background-color: #FCF1D6; padding: 40px 0; font-family: Arial, sans-serif;">
           <div style="max-width: 580px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
             <div style="text-align: center; margin-bottom: 30px;">
               <img src="${logo}" alt="${name} Logo" style="max-height: 60px;" />
@@ -140,11 +140,11 @@ const sendTwoFactorAuthStatusEmail = async (email, fullName, isEnabled) => {
       subject: `Two-Factor Authentication ${statusText} - ${name}`,
       text: `Hi ${fullName},\n\n${actionMessage}\n\n- The ${name} Team`,
       html: `
-        <div style="max-width: 600px; background-color: ${actionBgColor}; margin: 0 auto; padding: 24px; border-radius: 12px; box-shadow: 0 6px 12px rgba(0,0,0,0.1); font-family: Arial, sans-serif;">
+        <div style="max-width: 600px; background-color: #FCF1D6; margin: 0 auto; padding: 24px; border-radius: 12px; box-shadow: 0 6px 12px rgba(0,0,0,0.1); font-family: Arial, sans-serif;">
           <div style="text-align: center; margin-bottom: 20px;">
             <img src="${logo}" alt="${name} Logo" style="max-width: 140px;" />
           </div>
-          <h2 style="color: ${actionColor}; font-size: 26px; text-align: center; margin-bottom: 16px;">
+          <h2 style="color: #B8994B; font-size: 26px; text-align: center; margin-bottom: 16px;">
             Hi ${fullName},
           </h2>
           <p style="color: #333; font-size: 17px; text-align: center; line-height: 1.6;">
@@ -206,27 +206,27 @@ const sendForgetPasswordURL = async (email, URL) => {
 };
 
 // Send Welcome Email
-const sendRecoveryEmail = async (email, name) => {
+const sendRecoveryEmail = async (email, name1) => {
   try {
-    const loginURL = `${process.env.FRONTEND_URL_MAIN}/signin`;
+    const loginURL = `${process.env.FRONTEND_URL_MAIN}`;
     const response = await transporter.sendMail({
       from: `"${name} Team" <${adminEmail}>`,
       to: email,
-      subject: `Your ${name} Password Has Been Reset!`,
-      text: `Hi ${name}, your password has been successfully reset. You can now sign in using your new password. Login here: ${loginURL}`,
+      subject: `Password Has Been Reset!`,
+      text: `Hi ${name1}, your password has been successfully reset. You can now sign in using your new password. Login here: ${loginURL}`,
       html: `
-          <div style="max-width: 600px; background-color: #ffe6f0; margin: 0 auto; padding: 24px; border-radius: 12px; box-shadow: 0 6px 12px rgba(255, 105, 180, 0.2); font-family: Arial, sans-serif;">
+          <div style="max-width: 600px; background-color: #FCF1D6; margin: 0 auto; padding: 24px; border-radius: 12px; box-shadow: 0 6px 12px rgba(255, 105, 180, 0.2); font-family: Arial, sans-serif;">
             <div style="text-align: center; margin-bottom: 20px;">
               <img src="${logo}" alt="${name} Logo" style="max-width: 140px;" />
             </div>
             <h2 style="color: #B8994B; font-size: 26px; text-align: center; margin-bottom: 16px;">
-              Hi ${name}, your password has been reset!
+              Hi ${name1}, your password has been reset!
             </h2>
             <p style="color: #555; font-size: 17px; text-align: center; line-height: 1.6;">
-              You can now log in to your ${name} account with your new password. Click the button below to go to the login page:
+              You can now log in to your account with your new password. Click the button below to go to the login page:
             </p>
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${loginURL}" style="background-color: #ff69b4; color: #fff; text-decoration: none; padding: 12px 24px; font-size: 16px; border-radius: 6px;">
+              <a href="${loginURL}" style="background-color: #B8994B; color: #fff; text-decoration: none; padding: 12px 24px; font-size: 16px; border-radius: 6px;">
                 Go to Login
               </a>
             </div>
@@ -255,11 +255,11 @@ const sendChangePasswordEmail = async (email, fullName) => {
       subject: " Password Changed Successfully",
       text: `Hi ${fullName},\n\nYour password has been successfully changed! \n\n\n\nIf you did not request this change, please contact support immediately.\n\nLogin: ${loginURL}\n\nThanks for using ${name}!\n\n- The ${name} Team`,
       html: `
-          <div style="max-width: 600px; background-color: #f0f8ff; margin: 0 auto; padding: 24px; border-radius: 12px; box-shadow: 0 6px 12px rgba(0, 123, 255, 0.2); font-family: Arial, sans-serif;">
+          <div style="max-width: 600px; background-color: #FCF1D6; margin: 0 auto; padding: 24px; border-radius: 12px; box-shadow: 0 6px 12px rgba(0, 123, 255, 0.2); font-family: Arial, sans-serif;">
             <div style="text-align: center; margin-bottom: 20px;">
               <img src="${logo}" alt="${name} Logo" style="max-width: 140px;" />
             </div>
-            <h2 style="color: #007bff; font-size: 26px; text-align: center; margin-bottom: 16px;">
+            <h2 style="color: #B8994B; font-size: 26px; text-align: center; margin-bottom: 16px;">
                Password Changed Successfully, ${fullName}!
             </h2>
             <p style="color: #555; font-size: 17px; text-align: center; line-height: 1.6;">
@@ -267,14 +267,14 @@ const sendChangePasswordEmail = async (email, fullName) => {
             </p>
       
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${loginURL}" style="background-color: #007bff; color: #fff; text-decoration: none; padding: 12px 24px; font-size: 18px; border-radius: 8px;">
+              <a href="${loginURL}" style="background-color: #B8994B; color: #fff; text-decoration: none; padding: 12px 24px; font-size: 18px; border-radius: 8px;">
                 Go to Login
               </a>
             </div>
             <p style="text-align: center; font-size: 15px; color: #888;">
              Feel free to log in with your new password above.
             </p>
-            <p style="text-align: center; margin-top: 30px; font-weight: bold; color: #007bff;">
+            <p style="text-align: center; margin-top: 30px; font-weight: bold; color: #B8994B;">
                ${name} Team
             </p>
           </div>
@@ -289,18 +289,18 @@ const sendChangePasswordEmail = async (email, fullName) => {
 
 const sendUpdateProfileEmail = async (email, fullName) => {
   try {
-    const loginURL = `${process.env.FRONTEND_URL_MAIN}/profile`;
+    const loginURL = `${process.env.FRONTEND_URL_MAIN}/account/profile`;
     const response = await transporter.sendMail({
       from: `"${name} Team" <${adminEmail}>`,
       to: email,
       subject: " Profile Updated Successfully",
       text: `Hi ${fullName},\n\nYour profile has been successfully updated! \n\n\n\nIf you did not make these changes, please contact support immediately.\n\nProfile: ${loginURL}\n\nThanks for being with ${name}!\n\n- The ${name} Team`,
       html: `
-          <div style="max-width: 600px; background-color: #e8f0fe; margin: 0 auto; padding: 24px; border-radius: 12px; box-shadow: 0 6px 12px rgba(23, 162, 184, 0.2); font-family: Arial, sans-serif;">
+          <div style="max-width: 600px; background-color: #FCF1D6; margin: 0 auto; padding: 24px; border-radius: 12px; box-shadow: 0 6px 12px rgba(23, 162, 184, 0.2); font-family: Arial, sans-serif;">
             <div style="text-align: center; margin-bottom: 20px;">
               <img src="${logo}" alt="${name} Logo" style="max-width: 140px;" />
             </div>
-            <h2 style="color: #17a2b8; font-size: 26px; text-align: center; margin-bottom: 16px;">
+            <h2 style="color: #B8994B; font-size: 26px; text-align: center; margin-bottom: 16px;">
               Profile Updated Successfully, ${fullName}!
             </h2>
             <p style="color: #555; font-size: 17px; text-align: center; line-height: 1.6;">
@@ -308,14 +308,14 @@ const sendUpdateProfileEmail = async (email, fullName) => {
             </p>
       
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${loginURL}" style="background-color: #17a2b8; color: #fff; text-decoration: none; padding: 12px 24px; font-size: 18px; border-radius: 8px;">
+              <a href="${loginURL}" style="background-color: #B8994B; color: #fff; text-decoration: none; padding: 12px 24px; font-size: 18px; border-radius: 8px;">
                 View Profile
               </a>
             </div>
             <p style="text-align: center; font-size: 15px; color: #888;">
              Feel free to check and update your details anytime.
             </p>
-            <p style="text-align: center; margin-top: 30px; font-weight: bold; color: #17a2b8;">
+            <p style="text-align: center; margin-top: 30px; font-weight: bold; color: #B8994B;">
                ${name} Team
             </p>
           </div>

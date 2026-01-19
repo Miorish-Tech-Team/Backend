@@ -10,7 +10,7 @@ const sendMembershipAssignedEmail = async (email, sellerName, planName, startDat
       subject: `Membership Assigned - ${name}`,
       text: `Hi ${sellerName},\n\nYou have been subscribed to a new membership plan.\n\nPlan: ${planName}\nStart Date: ${startDate}\nEnd Date: ${endDate}\n\nThank you for being a part of ${name}!\n\n- ${name} Team`,
       html: `
-        <div style="background-color: #f3f4f6; padding: 40px 0; font-family: Arial, sans-serif;">
+        <div style="background-color: #FCF1D6; padding: 40px 0; font-family: Arial, sans-serif;">
           <div style="max-width: 580px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
             <div style="text-align: center; margin-bottom: 30px;">
               <img src="${logo}" alt="${name}" style="max-height: 60px;" onerror="this.style.display='none';" />
@@ -44,7 +44,7 @@ const sendMembershipRenewalEmail = async (email, sellerName, planName, startDate
       subject: `Membership Renewal - ${name}`,
       text: `Hi ${sellerName},\n\nYour membership has been renewed.\n\nPlan: ${planName}\nStart Date: ${startDate}\nEnd Date: ${endDate}\n\nThanks for staying with us!\n\n- ${name} Team`,
       html: `
-        <div style="background-color: #f3f4f6; padding: 40px 0; font-family: Arial, sans-serif;">
+        <div style="background-color: #FCF1D6; padding: 40px 0; font-family: Arial, sans-serif;">
           <div style="max-width: 580px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
             <div style="text-align: center; margin-bottom: 30px;">
               <img src="${logo}" alt="${name}" style="max-height: 60px;" onerror="this.style.display='none';" />
@@ -77,7 +77,7 @@ const sendPreExpiryEmailToSeller = async (email, planName, duration) => {
       to: email,
       subject: " Your Membership is Expiring Soon!",
       html: `
-        <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f5f5f5;">
+        <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #FCF1D6;">
           <div style="max-width: 600px; margin: auto; background-color: white; padding: 20px; border-radius: 8px;">
             <h2 style="color: #dc3545;">Membership Expiry Reminder</h2>
             <p>Dear Seller,</p>
@@ -104,7 +104,7 @@ const sendExpiryEmailToSeller = async (email, planName, duration) => {
       to: email,
       subject: " Your Membership Has Expired",
       html: `
-        <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f5f5f5;">
+        <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #FCF1D6;">
           <div style="max-width: 600px; margin: auto; background-color: white; padding: 20px; border-radius: 8px;">
             <h2 style="color: #dc3545;">Membership Expired</h2>
             <p>Dear Seller,</p>
