@@ -90,143 +90,11 @@ const handleSignUp = async (req, res) => {
 };
 
 
-const resendUserVerificationOtp = async (req, res) => {
-  try {
-    const { email } = req.body;
 
-    const user = await User.findOne({ where: { email } });
-    if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (user.isVerified)
-      return res.status(400).json({ message: "User already verified" });
 
-    const verificationCode = Math.floor(
-      100000 + Math.random() * 900000
-    ).toString();
 
-    const verificationCodeExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
-    user.verificationCode = verificationCode;
-    user.verificationCodeExpiresAt = verificationCodeExpiresAt;
-    await user.save();
-    await sendVerificationEmail(user.email, user.firstName, verificationCode);
-    return res.status(200).json({ message: "OTP resent to email." });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
-
-const handleResetPasswordOtp = async (req, res) => {
-  try {
-    const { email } = req.body;
-
-    const user = await User.findOne({ where: { email } });
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    const verificationCode = Math.floor(
-      100000 + Math.random() * 900000
-    ).toString();
-
-    const verificationCodeExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
-
-    user.verificationCode = verificationCode;
-    user.verificationCodeExpiresAt = verificationCodeExpiresAt;
-    await user.save();
-    await sendVerificationEmail(user.email, user.firstName, verificationCode);
-    console.log("Sent verification code:", verificationCode,verificationCodeExpiresAt);
-    return res.status(200).json({ message: "OTP resent to email." });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
-
-const handleVerifyEmail = async (req, res) => {
-  try {
-    const { verificationCode } = req.body;
-    const user = await User.findOne({
-      where: {
-        verificationCode: verificationCode,
-        verificationCodeExpiresAt: {
-          [Op.gt]: new Date(),
-        },
-      },
-    });
-
-    if (!user) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid or expired verification code",
-      });
-    }
-
-    user.isVerified = true;
-    user.verificationCode = null;
-    user.verificationCodeExpiresAt = null;
-
-    await user.save();
-
-    return res.status(200).json({
-      success: true,
-      message: "Email verified successfully",
-      user,
-    });
-  } catch (error) {
-    console.error("Error verifying email:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Server error while verifying email",
-    });
-  }
-};
-
-const handleVerifyResetPasswordOtp = async (req, res) => {
-  try {
-    const { verificationCode } = req.body;
-    
-    if (!verificationCode) {
-      return res.status(400).json({
-        success: false,
-        message: "Verification code is required",
-      });
-    }
-    
-    const user = await User.findOne({
-      where: {
-        verificationCode: verificationCode,
-        verificationCodeExpiresAt: {
-          [Op.gt]: new Date(),
-        },
-      },
-    });
-
-    if (!user) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid or expired verification code",
-      });
-    }
-
-    user.verificationCode = null;
-    user.verificationCodeExpiresAt = null;
-
-    await user.save();
-    await sendWelcomeEmail(user.email, user.fullName);
-
-    return res.status(200).json({
-      success: true,
-      message: "Email verified successfully",
-      user,
-    });
-  } catch (error) {
-    console.error("Error verifying email:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Server error while verifying email",
-    });
-  }
-};
 
 const handleSignin = async (req, res) => {
   const { email, password } = req.body;
@@ -403,7 +271,7 @@ const handleFindMyAccountPasswordURL = async (req, res) => {
     const resetToken = JWT.sign({ userId: user.id }, process.env.JWT_SECRET, {
       expiresIn: "1d",
     });
-    const resetLink = `${process.env.FRONTEND_URL_MAIN}/set-password/${resetToken}`;
+    const resetLink = `${process.env.FRONTEND_URL_MAIN}/auth/set-password/${resetToken}`;
     await sendForgetPasswordURL(user.email, resetLink);
 
     return res
@@ -438,43 +306,12 @@ const handleUserResetPasswordFromUrl = async (req, res) => {
   }
 };
 
-const handleUserResetPasswordFromOtp = async (req, res) => {
-  try {
-    const { email, newPassword } = req.body;
-    if (!email || !newPassword) {
-      return res
-        .status(400)
-        .json({ message: "Email and new password are required" });
-    }
-
-    const user = await User.findOne({ where: { email } });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    user.password = hashedPassword;
-
-    await user.save();
-    await sendRecoveryEmail(user.email, user.fullName);
-    return res.status(200).json({ message: "Password Reset successfully" });
-  } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Error Reseting  password", error: error.message });
-  }
-};
 
 module.exports = {
   handleSignUp,
-  handleVerifyEmail,
   handleSignin,
   handleLogout,
   handleFindMyAccountPasswordURL,
   handleUserResetPasswordFromUrl,
-  resendUserVerificationOtp,
-  handleResetPasswordOtp,
-  handleVerifyResetPasswordOtp,
-  handleUserResetPasswordFromOtp,
   verify2FALogin,
 };

@@ -5,7 +5,6 @@ const {
   handleDeleteUserReviewByAdmin,
   handleDeleteReviewByUser,
   handleUpdateReview,
-  getReviewCountForProduct,
   handleAddReview,
   handleGetUserReviewsWithProducts,
 } = require("../../controllers/reviewController/reviewController");
@@ -13,13 +12,8 @@ const hasPurchasedProduct = require("../../ReviewMiddleware/hasPurchasedProduct"
 const canReviewProduct = require("../../ReviewMiddleware/canReviewProduct");
 const upload = require('../../config/uploadComfig/upload')
 
-//check for production
-
-
-
 router.post(
   "/review/add",
-  
   ...upload.single("reviewPhoto"),
   hasPurchasedProduct,
  canReviewProduct,
@@ -36,16 +30,7 @@ router.delete(
   "/review/:reviewId",
   handleDeleteReviewByUser
 );
-
-
-// router.delete(
-//   "/review/:reviewId",
-//   authorizeRoles(["superadmin"]),
-//   handleDeleteUserReviewByAdmin
-// );
-
 router.get("/my-reviews", handleGetUserReviewsWithProducts);
-// router.get("/review/:productId/review-count", getReviewCountForProduct);
 
 
 module.exports = router;

@@ -10,7 +10,7 @@ const sendVerificationEmail = async (email, fullName, otp) => {
         subject: `Email Verification Code - ${name}`,
         text: `Hi ${fullName},\n\nYour ${name} verification code is: ${otp}\n\nThis code will expire in 10 minutes.\n\nIf you did not request this code, you can safely ignore this email.\n\n- ${name} Team`,
         html: `
-          <div style="background-color: #f3f4f6; padding: 40px 0; font-family: Arial, sans-serif;">
+          <div style="background-color: #FCF1D6; padding: 40px 0; font-family: Arial, sans-serif;">
             <div style="max-width: 580px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
               <div style="text-align: center; margin-bottom: 30px;">
                 <img src="${logo}" alt="${name}" style="max-height: 60px;" onerror="this.style.display='none';" />
@@ -95,7 +95,7 @@ const sendVerificationEmail = async (email, fullName, otp) => {
         subject: `New Seller Approval Request - ${name}`,
         text: `${sellerName} has requested to become a seller on ${name}. Please review their application and approve it from your admin panel.`,
         html: `
-          <div style="max-width: 600px; background-color: #ffffff; margin: 0 auto; padding: 20px; 
+          <div style="max-width: 600px; background-color: #FCF1D6; margin: 0 auto; padding: 20px; 
                       border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); font-family: Arial, sans-serif;">
             <h2 style="color: #1e88e5; font-size: 24px; text-align: center; margin-bottom: 15px;">
               New Seller Request
@@ -138,7 +138,7 @@ const sendVerificationEmail = async (email, fullName, otp) => {
         subject: `Seller Account Approved - ${name}`,
         text: `Hi ${sellerName},\n\nYour seller account has been approved successfully on ${name}.\n\nYou can now wait for your agreement approval, or if it has already been approved, you may log in to your seller dashboard.\n\nThank you for joining us!\n\n- ${name} Team`,
         html: `
-          <div style="background-color: #f3f4f6; padding: 40px 0; font-family: Arial, sans-serif;">
+          <div style="background-color: #FCF1D6; padding: 40px 0; font-family: Arial, sans-serif;">
             <div style="max-width: 580px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
               <div style="text-align: center; margin-bottom: 30px;">
                 <img src="${logo}" alt="${name}" style="max-height: 60px;" onerror="this.style.display='none';" />
@@ -181,7 +181,7 @@ const sendVerificationEmail = async (email, fullName, otp) => {
         subject: `Seller Account Approval Rejected - ${name}`,
         text: `Hi ${sellerName},\n\nWe regret to inform you that your seller account request has been rejected after review.\n\nReason for rejection:\n${rejectionReason}\n\nPlease feel free to reach out to our support team if you have any questions or would like to reapply after addressing the mentioned issues.\n\n- ${name} Team`,
         html: `
-          <div style="background-color: #f3f4f6; padding: 40px 0; font-family: Arial, sans-serif;">
+          <div style="background-color: #FCF1D6; padding: 40px 0; font-family: Arial, sans-serif;">
             <div style="max-width: 580px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
               <div style="text-align: center; margin-bottom: 30px;">
                 <img src="${logo}" alt="${name}" style="max-height: 60px;" onerror="this.style.display='none';" />
@@ -228,7 +228,7 @@ const sendVerificationEmail = async (email, fullName, otp) => {
         subject: " Profile Updated Successfully",
         text: `Hi ${fullName},\n\nYour profile has been successfully updated! \n\n\n\nIf you did not make these changes, please contact support immediately.\n\nProfile: ${loginURL}\n\nThanks for being with ${name}!\n\n- The ${name} Team`,
         html: `
-          <div style="max-width: 600px; background-color: #e8f0fe; margin: 0 auto; padding: 24px; border-radius: 12px; box-shadow: 0 6px 12px rgba(23, 162, 184, 0.2); font-family: Arial, sans-serif;">
+          <div style="max-width: 600px; background-color: #FCF1D6; margin: 0 auto; padding: 24px; border-radius: 12px; box-shadow: 0 6px 12px rgba(23, 162, 184, 0.2); font-family: Arial, sans-serif;">
             <div style="text-align: center; margin-bottom: 20px;">
               <img src="${logo}" alt="${name} Logo" style="max-width: 140px;" />
             </div>
@@ -268,7 +268,7 @@ const sendVerificationEmail = async (email, fullName, otp) => {
         subject: " Password Changed Successfully",
         text: `Hi ${fullName},\n\nYour password has been successfully changed! \n\n\n\nIf you did not request this change, please contact support immediately.\n\nLogin: ${loginURL}\n\nThanks for using ${name}!\n\n- The ${name} Team`,
         html: `
-          <div style="max-width: 600px; background-color: #f0f8ff; margin: 0 auto; padding: 24px; border-radius: 12px; box-shadow: 0 6px 12px rgba(0, 123, 255, 0.2); font-family: Arial, sans-serif;">
+          <div style="max-width: 600px; background-color: #FCF1D6; margin: 0 auto; padding: 24px; border-radius: 12px; box-shadow: 0 6px 12px rgba(0, 123, 255, 0.2); font-family: Arial, sans-serif;">
             <div style="text-align: center; margin-bottom: 20px;">
               <img src="${logo}" alt="${name} Logo" style="max-width: 140px;" />
             </div>

@@ -8,6 +8,24 @@ const handleAddReview = async (req, res) => {
   const { productId, rating, reviewText } = req.body;
 
   try {
+    // Check if user already has a review for this product
+    const existingReview = await Review.findOne({
+      where: { userId, productId },
+    });
+
+    if (existingReview) {
+      return res.status(400).json({
+        success: false,
+        message: "You have already reviewed this product. Please edit your existing review instead.",
+        existingReview: {
+          id: existingReview.id,
+          rating: existingReview.rating,
+          reviewText: existingReview.reviewText,
+          reviewPhoto: existingReview.reviewPhoto,
+        },
+      });
+    }
+
     const reviewPhotoUrl = req.fileUrl || null;
     const review = await Review.create({
       userId,
@@ -44,7 +62,16 @@ const handleAddReview = async (req, res) => {
       { where: { id: productId } }
     );
 
-    res.status(201).json({ success: true, review });
+    res.status(201).json({
+      success: true,
+      message: "Review added successfully",
+      review: {
+        id: review.id,
+        rating: review.rating,
+        reviewText: review.reviewText,
+        reviewPhoto: review.reviewPhoto,
+      },
+    });
   } catch (error) {
     console.error("Add Review Error:", error);
     res.status(500).json({
@@ -120,8 +147,13 @@ const handleUpdateReview = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Review updated",
-      review,
+      message: "Review updated successfully",
+      review: {
+        id: review.id,
+        rating: review.rating,
+        reviewText: review.reviewText,
+        reviewPhoto: review.reviewPhoto,
+      },
     });
   } catch (error) {
     console.error("Update Review Error:", error);
@@ -214,25 +246,6 @@ const handleGetUserReviewsWithProducts = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Server error while fetching user reviews",
-      error: error.message,
-    });
-  }
-};
-
-const getReviewCountForProduct = async (req, res) => {
-  const { productId } = req.params;
-  try {
-    const reviewCount = await Review.count({ where: { productId } });
-    res.status(200).json({
-      success: true,
-      productId,
-      totalReviews: reviewCount,
-    });
-  } catch (error) {
-    console.error("Error fetching review count:", error);
-    res.status(500).json({
-      success: false,
-      message: "Server error while getting review count",
       error: error.message,
     });
   }
@@ -369,7 +382,6 @@ const handleDeleteUserReviewByAdmin = async (req, res) => {
 module.exports = {
   handleAddReview,
   handleGetProductReviews,
-  getReviewCountForProduct,
   handleUpdateReview,
   handleDeleteReviewByUser,
   handleDeleteUserReviewByAdmin,

@@ -20,8 +20,11 @@ const addToWishlist = async (req, res) => {
       return res.status(400).json({ success: false, message: "Product already in wishlist" });
     }
 
-    const wishlistItem = await Wishlist.create({ userId, productId });
-    res.status(201).json({ success: true, wishlistItem });
+    await Wishlist.create({ userId, productId });
+    res.status(201).json({ 
+      success: true,
+      message: "Product added to wishlist successfully"
+    });
   } catch (error) {
     console.error("Add to Wishlist Error:", error);
     res.status(500).json({ success: false, message: "Server error while adding to wishlist", error: error.message });
@@ -34,7 +37,25 @@ const getWishlist = async (req, res) => {
   try {
     const wishlistItems = await Wishlist.findAll({
       where: { userId },
-      include: [{ model: Product, as: 'Product' }], 
+      attributes: ['id', 'userId', 'productId', 'createdAt', 'updatedAt'],
+      include: [{ 
+        model: Product, 
+        as: 'Product',
+        attributes: [
+          'id',
+          'productName',
+          'productDescription',
+          'productPrice',
+          'productDiscountPrice',
+          'productDiscountPercentage',
+          'coverImageUrl',
+          'productBrand',
+          'availableStockQuantity',
+          'productCategoryId',
+          'productSubCategoryId',
+          'inventoryStatus'
+        ]
+      }], 
     });
 
     const wishlistCount = wishlistItems.length;
