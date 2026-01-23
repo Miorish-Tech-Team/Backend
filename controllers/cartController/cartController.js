@@ -59,36 +59,15 @@ const handleAddToCart = async (req, res) => {
       });
     }
 
-    return res.status(200).json({ message: 'Product added to cart successfully' });
+    return res.status(200).json({ success: true, message: 'Product added to cart successfully' });
 
   } catch (error) {
     console.error('Add to Cart Error:', error);
-    return res.status(500).json({ message: 'Server error', error: error.message });
+    return res.status(500).json({ success: false, message: 'Server error', error: error.message });
   }
 };
 
-// 1. Get User Cart
-const handleGetUserCart = async (req, res) => {
-  try {
-    const userId = req.user.id;
 
-    const cart = await Cart.findOne({
-      where: { userId, status: 'active' },
-      include: {
-        model: CartItem,
-        include: [Product]
-      }
-    });
-
-    if (!cart || cart.CartItems.length === 0) {
-      return res.status(200).json({ message: "Cart is empty", cart: [] });
-    }
-
-    return res.status(200).json({ cart });
-  } catch (error) {
-    return res.status(500).json({ message: "Error retrieving cart", error: error.message });
-  }
-};
 
 
 const handleGetUserCartWithSummary = async (req, res) => {
@@ -98,8 +77,13 @@ const handleGetUserCartWithSummary = async (req, res) => {
       where: { userId, status: 'active' },
       include: {
         model: CartItem,
-        include: [Product],
+        attributes: ['id', 'productId', 'selectedSize', 'selectedColor', 'quantity', 'price', 'totalPrice'],
+        include: [{
+          model: Product,
+          attributes: ['id', 'productName', 'productBrand', 'productPrice', 'productDiscountPrice', 'coverImageUrl', 'availableStockQuantity']
+        }],
       },
+      attributes: ['id', 'userId']
     });
 
     if (!cart || cart.CartItems.length === 0) {
@@ -121,7 +105,11 @@ const handleGetUserCartWithSummary = async (req, res) => {
     }, 0);
 
     return res.status(200).json({
-      cart,
+      cart: {
+        id: cart.id,
+        userId: cart.userId,
+        CartItems: cart.CartItems
+      },
       summary: {
         totalItems,
         totalPrice,
@@ -152,13 +140,13 @@ const handleRemoveCartItem = async (req, res) => {
     });
 
     if (!item) {
-      return res.status(404).json({ message: "Item not found or unauthorized" });
+      return res.status(404).json({ success: false, message: "Item not found or unauthorized" });
     }
 
     await item.destroy();
-    return res.status(200).json({ message: "Item removed from cart" });
+    return res.status(200).json({ success: true, message: "Item removed from cart" });
   } catch (error) {
-    return res.status(500).json({ message: "Error removing item", error: error.message });
+    return res.status(500).json({ success: false, message: "Error removing item", error: error.message });
   }
 };
 
@@ -187,13 +175,14 @@ const updateCartItemQuantity = async (req, res) => {
     });
 
     if (!item) {
-      return res.status(404).json({ message: "Item not found or unauthorized" });
+      return res.status(404).json({success: false, message: "Item not found or unauthorized" });
     }
 
     const availableStock = item.Product.availableStockQuantity;
 
     if (quantity > availableStock) {
       return res.status(400).json({
+        success: false,
         message: `Requested quantity (${quantity}) exceeds available stock (${availableStock}).`,
       });
     }
@@ -202,41 +191,9 @@ const updateCartItemQuantity = async (req, res) => {
     item.totalPrice = item.price * quantity;
     await item.save();
 
-    return res.status(200).json({ message: "Quantity updated", item });
+    return res.status(200).json({ success: true, message: "Quantity updated" });
   } catch (error) {
-    return res.status(500).json({ message: "Error updating quantity", error: error.message });
-  }
-};
-
-const handleRemoveSelectedCartItems = async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const { itemIds } = req.body;
-
-    if (!Array.isArray(itemIds) || itemIds.length === 0) {
-      return res.status(400).json({ message: "No items selected for deletion" });
-    }
-    const userCart = await Cart.findOne({ where: { userId } });
-
-    if (!userCart) {
-      return res.status(404).json({ message: "Cart not found" });
-    }
-
-    const deletedCount = await CartItem.destroy({
-      where: {
-        id: itemIds,
-        cartId: userCart.id
-      }
-    });
-
-    return res.status(200).json({
-      message: `${deletedCount} item(s) removed from cart`
-    });
-  } catch (error) {
-    return res.status(500).json({
-      message: "Error removing selected items",
-      error: error.message
-    });
+    return res.status(500).json({ success: false, message: "Error updating quantity", error: error.message });
   }
 };
 
@@ -247,7 +204,7 @@ const handleRemoveAllCartItems = async (req, res) => {
     const userCart = await Cart.findOne({ where: { userId } });
 
     if (!userCart) {
-      return res.status(404).json({ message: "Cart not found for user" });
+      return res.status(404).json({ success: false, message: "Cart not found for user" });
     }
 
     const deletedCount = await CartItem.destroy({
@@ -255,52 +212,25 @@ const handleRemoveAllCartItems = async (req, res) => {
     });
 
     return res.status(200).json({
+      success: true,
       message: `${deletedCount} item(s) deleted from cart`
     });
   } catch (error) {
     return res.status(500).json({
+      success: false,
       message: "Failed to delete all cart items",
       error: error.message
     });
   }
 };
 
-// 6. Cart Summary
-const handleGetCartSummary = async (req, res) => {
-  try {
-    const userId = req.user.id;
-
-    const userCart = await Cart.findOne({ where: { userId } });
-
-    if (!userCart) {
-      return res.status(200).json({ items: [], totalItems: 0, totalPrice: 0 });
-    }
-
-    const cartItems = await CartItem.findAll({
-      where: { cartId: userCart.id },
-      include: [Product]
-    });
-
-    const totalItems = cartItems.length;
-    const totalPrice = cartItems.reduce((sum, item) => {
-      return sum + item.quantity * (item.Product?.productDiscountPrice || item.Product?.productPrice || 0);
-    }, 0);
-
-    res.status(200).json({ items: cartItems, totalItems, totalPrice });
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching cart summary", error: error.message });
-  }
-};
 
   
 
   module.exports = {
     updateCartItemQuantity,
     handleRemoveCartItem,
-    handleGetUserCart,
     handleAddToCart,
-    handleRemoveSelectedCartItems,
     handleRemoveAllCartItems ,
-    handleGetCartSummary,
     handleGetUserCartWithSummary
   }

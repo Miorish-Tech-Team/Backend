@@ -144,29 +144,30 @@ const handleDeleteSubCategory = async (req, res) => {
 const getAllSubCategories = async (req, res) => {
   try {
     const subCategories = await SubCategory.findAll({
-      attributes: [
-        'id',
-        'subCategoryName',
-        'subCategoryDescription',
-        'subCategoryImage',
-        'subCategoryProductCount',
-        'categoryId',
-        'createdAt',
-        'updatedAt'
-      ],
       include: [
         {
           model: Category,
           as: "category",
-          attributes: ["id", "categoryName"],
         },
       ],
       order: [['categoryId', 'ASC'], ['subCategoryName', 'ASC']],
     });
 
+    // Manually optimize response
+    const optimizedSubCategories = subCategories.map(sub => ({
+      id: sub.id,
+      subCategoryName: sub.subCategoryName,
+      subCategoryProductCount: sub.subCategoryProductCount,
+      categoryId: sub.categoryId,
+      category: sub.category ? {
+        id: sub.category.id,
+        categoryName: sub.category.categoryName,
+      } : null,
+    }));
+
     return res.status(200).json({
       success: true,
-      subCategories,
+      subCategories: optimizedSubCategories,
     });
   } catch (error) {
     console.error("Get All SubCategories Error:", error);
@@ -182,31 +183,29 @@ const getSubCategoriesByCategory = async (req, res) => {
   try {
     const categoryId = req.params.categoryId;
 
-    const category = await Category.findByPk(categoryId, {
-      attributes: ['id', 'categoryName']
-    });
+    const category = await Category.findByPk(categoryId);
     if (!category) {
       return res.status(404).json({ message: "Category not found" });
     }
 
     const subCategories = await SubCategory.findAll({
       where: { categoryId },
-      attributes: [
-        'id',
-        'subCategoryName',
-        'subCategoryDescription',
-        'subCategoryImage',
-        'subCategoryProductCount',
-        'categoryId',
-        'createdAt',
-        'updatedAt'
-      ],
       order: [['subCategoryName', 'ASC']],
     });
 
+    // Manually optimize response
+    const optimizedSubCategories = subCategories.map(sub => ({
+      id: sub.id,
+      subCategoryName: sub.subCategoryName,
+      subCategoryDescription: sub.subCategoryDescription,
+      subCategoryImage: sub.subCategoryImage,
+      subCategoryProductCount: sub.subCategoryProductCount,
+      categoryId: sub.categoryId,
+    }));
+
     return res.status(200).json({
       success: true,
-      subCategories,
+      subCategories: optimizedSubCategories,
     });
   } catch (error) {
     console.error("Get SubCategories By Category Error:", error);
@@ -224,29 +223,32 @@ const getAllSubCategoriesWithProductCount = async (req, res) => {
     const Product = require("../../models/productModel/productModel");
 
     const subCategories = await SubCategory.findAll({
-      attributes: [
-        "id",
-        "subCategoryName",
-        "subCategoryDescription",
-        "subCategoryImage",
-        "categoryId",
-        "createdAt",
-        "updatedAt",
-        [sequelize.literal('(SELECT COUNT(*) FROM products WHERE products.productSubCategoryId = SubCategory.id)'), 'subCategoryProductCount']
-      ],
       include: [
         {
           model: Category,
           as: "category",
-          attributes: ["id", "categoryName"],
         },
       ],
       order: [['categoryId', 'ASC'], ['subCategoryName', 'ASC']],
     });
 
+    // Manually optimize response
+    const optimizedSubCategories = subCategories.map(sub => ({
+      id: sub.id,
+      subCategoryName: sub.subCategoryName,
+      subCategoryDescription: sub.subCategoryDescription,
+      subCategoryImage: sub.subCategoryImage,
+      categoryId: sub.categoryId,
+      subCategoryProductCount: sub.subCategoryProductCount,
+      category: sub.category ? {
+        id: sub.category.id,
+        categoryName: sub.category.categoryName,
+      } : null,
+    }));
+
     return res.status(200).json({
       success: true,
-      subCategories,
+      subCategories: optimizedSubCategories,
     });
   } catch (error) {
     console.error("Get All SubCategories With Product Count Error:", error);

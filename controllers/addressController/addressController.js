@@ -89,7 +89,7 @@ const handleAddAddress = async (req, res) => {
 
     await t.commit();
 
-    res.status(201).json({ success: true, address: newAddress });
+    res.status(201).json({ success: true,message: "Address added successfully"});
   } catch (error) {
     await t.rollback();
     console.error("Add Address Error:", error);
@@ -163,8 +163,6 @@ const handleUpdateAddress = async (req, res) => {
         success: false,
         message: 'Address mismatch detected',
         error: addressMatch.message,
-        correctState: addressMatch.correctState,
-        correctDistrict: addressMatch.correctDistrict
       });
     }
     
@@ -208,7 +206,7 @@ const handleUpdateAddress = async (req, res) => {
 
     await t.commit();
 
-    res.status(200).json({ success: true, address });
+    res.status(200).json({ success: true, message: 'Address updated successfully' });
   } catch (error) {
     await t.rollback();
     console.error('Update Address Error:', error);
@@ -273,7 +271,7 @@ const handleSetDefaultAddress = async (req, res) => {
 
     res
       .status(200)
-      .json({ success: true, message: "Address marked as default", address });
+      .json({ success: true, message: "Address marked as default" });
   } catch (error) {
     await t.rollback();
     console.error("Set Default Address Error:", error);

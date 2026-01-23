@@ -22,7 +22,7 @@ const wislistRoute = require("./routes/wishlistRoute/wishlistRoute");
 const reviewRoute = require("./routes/reviewRoute/reviewRoute");
 const userAddressRoute = require("./routes/addressRoute/userAddressRoute");
 const orderRoute = require("./routes/orderRoute/orderRoute");
-const reviewLikeRoute = require("./routes/reviewLikeRoute/reviewLikeRoute");
+
 const googleAuthRoute = require("./routes/googleAuthRoute/googleAuthRoute");
 const BannerRoute = require("./routes/advertisementRoute/Banner");
 const userTicketRoute = require("./routes/ticketRoute/userTicketRoute");
@@ -37,15 +37,13 @@ const handleCategoryRoute = require("./routes/adminRoute/handleCategory/handleCa
 const handleSubCategoryRoute = require("./routes/adminRoute/handleCategory/handleSubCategoryRoute");
 const productRoute = require("./routes/productRoute/productRoute");
 const handleReviewPermission = require("./routes/adminRoute/handleReviewPermission/reviewPermission");
-const sellerFeedbackRoute = require("./routes/feedbackRoute/sellerFeedbackRoute");
+
 const accountDeleteRequestRoute = require("./routes/accountDeleteRequestRoute/accountDeleteRequestRoute");
-const emailPreference = require("./routes/promotionRoute/emailPreference");
+
 const recommendationRoute = require("./routes/recommendationRoute/recommendation");
 const adminStatsRoute = require("./routes/statistic/adminDashboard");
 const recentAdminStats = require("./routes/statistic/recent");
 const graphStatsRoute = require("./routes/statistic/graphStats");
-const adminNotificationsRoute = require("./routes/adminRoute/notifications/userNotification");
-const generalNotificationsRoute = require("./routes/notifications/userNotification");
 const couponManagementRoute = require("./routes/adminRoute/couponRoute/userCoupon");
 const userCouponRoute = require("./routes/couponRoute/userCouponRoute");
 const optionalAuthentication = require("./authMiddleware/optionalMiddleware");
@@ -107,9 +105,6 @@ app.use(
   userCartRoute,
   userAddressRoute,
   orderRoute,
-  reviewLikeRoute,
-  sellerFeedbackRoute,
-  emailPreference,
   userCouponRoute,
   razorpayRoute,
   estimateDeliveryRoute
@@ -119,7 +114,6 @@ app.use(
   categoryRoute,
   subCategoryRoute,
   productRoute,
-  generalNotificationsRoute,
   publicMembershipRoute,
   blogForUserRoute
 );
@@ -146,7 +140,6 @@ app.use(
   adminStatsRoute,
   recentAdminStats,
   graphStatsRoute,
-  adminNotificationsRoute,
   couponManagementRoute,
   warehouseAddRoute,
   blogRoute

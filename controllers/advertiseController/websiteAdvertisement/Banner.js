@@ -235,26 +235,7 @@ const getBrandPosterBanners = async (req, res) => {
 };
 
 
-const getProductPosterAdsBanners = async (req, res) => {
-  try {
-    const banners = await ProductPosterAds.findAll({
-      order: [["createdAt", "DESC"]],
-      limit: 4,
-    });
 
-    return res.status(200).json({
-      success: true,
-      message: "Last 5 Product Poster Ads banners fetched successfully",
-      banners,
-    });
-  } catch (error) {
-    console.error("Error in getProductPosterAdsBanners:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-    });
-  }
-};
 
 // Delete Controllers
 const handleDeleteHomepageBanner = async (req, res) => {
@@ -571,7 +552,6 @@ module.exports = {
   handleAddThePopularBanner,
   handleAddBrandAdsPosterBanner,
   handleAddProductPosterAdsBanner,
-  getProductPosterAdsBanners,
   getHomepageBanners,
   getThePopularBanners,
   getWeeklyPromotionBanners,
