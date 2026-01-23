@@ -47,10 +47,10 @@ const createUserTicket = async (req, res) => {
 
     res
       .status(201)
-      .json({ message: "Ticket submitted successfully", ticketNumber, ticket });
+      .json({success: true, message: "Ticket submitted successfully" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Failed to create ticket" });
+    res.status(500).json({success: false, error: "Failed to create ticket" });
   }
 };
 
@@ -206,12 +206,13 @@ const replyToTicketUser = async (req, res) => {
     });
 
     if (!ticket) {
-      return res.status(404).json({ error: "Ticket not found" });
+      return res.status(404).json({success: false, error: "Ticket not found" });
     }
 
     // Check if ticket is closed
     if (ticket.status === "closed") {
       return res.status(403).json({ 
+        success: false,
         error: "Cannot reply to a closed ticket. Please open a new ticket if you need further assistance." 
       });
     }
@@ -275,10 +276,10 @@ const replyToTicketUser = async (req, res) => {
     }
 
     res.status(200).json({ 
+      success: true,
       message: isCrossQuestion 
         ? "Cross-question sent successfully" 
         : "Reply added successfully", 
-      ticket 
     });
   } catch (error) {
     console.error("Error replying to ticket:", error);
@@ -293,12 +294,12 @@ const changeTicketStatus = async (req, res) => {
     const { status } = req.body;
 
     if (!status) {
-      return res.status(400).json({ error: "Status is required" });
+      return res.status(400).json({success: false, error: "Status is required" });
     }
 
     const validStatuses = ["open", "in_progress", "closed", "resolved"];
     if (!validStatuses.includes(status)) {
-      return res.status(400).json({ error: "Invalid status value" });
+      return res.status(400).json({ success: false, error: "Invalid status value" });
     }
 
     const ticket = await UserTicket.findByPk(ticketId, {
@@ -309,7 +310,7 @@ const changeTicketStatus = async (req, res) => {
     });
 
     if (!ticket) {
-      return res.status(404).json({ error: "Ticket not found" });
+      return res.status(404).json({ success: false, error: "Ticket not found" });
     }
 
     const oldStatus = ticket.status;
@@ -330,12 +331,12 @@ const changeTicketStatus = async (req, res) => {
     }
 
     res.status(200).json({ 
-      message: "Ticket status updated successfully", 
-      ticket 
+      success: true,
+      message: "Ticket status updated successfully",  
     });
   } catch (error) {
     console.error("Error changing ticket status:", error);
-    res.status(500).json({ error: "Failed to change ticket status" });
+    res.status(500).json({ success: false, error: "Failed to change ticket status" });
   }
 };
 

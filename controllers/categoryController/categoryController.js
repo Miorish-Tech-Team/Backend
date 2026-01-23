@@ -162,33 +162,30 @@ const handleBulkDeleteCategories = async (req, res) => {
 const handleGetAllCategories = async (req, res) => {
   try {
     const categories = await Category.findAll({
-      attributes: [
-        'id',
-        'categoryName',
-        'categoryDescription',
-        'categoryImage',
-        'categoryProductCount',
-        'createdAt',
-        'updatedAt'
-      ],
       include: [
         {
           model: SubCategory,
           as: "subcategories",
-          attributes: [
-            'id',
-            'subCategoryName',
-            'subCategoryDescription',
-            'subCategoryImage',
-            'subCategoryProductCount',
-            'categoryId'
-          ],
         },
       ],
       order: [['categoryName', 'ASC']],
     });
 
-    return res.status(200).json({ categories });
+    // Manually select only needed fields to reduce response size
+    const optimizedCategories = categories.map(category => ({
+      id: category.id,
+      categoryName: category.categoryName,
+      categoryImage: category.categoryImage,
+      categoryProductCount: category.categoryProductCount,
+      subcategories: category.subcategories?.map(sub => ({
+        id: sub.id,
+        subCategoryName: sub.subCategoryName,
+        subCategoryProductCount: sub.subCategoryProductCount,
+        categoryId: sub.categoryId,
+      })),
+    }));
+
+    return res.status(200).json({ categories: optimizedCategories });
   } catch (error) {
     return res.status(500).json({ message: "Server error", error });
   }
@@ -199,28 +196,9 @@ const getSingleCategoryWithSubcategories = async (req, res) => {
     const { id } = req.params;
 
     const category = await Category.findByPk(id, {
-      attributes: [
-        'id',
-        'categoryName',
-        'categoryDescription',
-        'categoryImage',
-        'categoryProductCount',
-        'createdAt',
-        'updatedAt'
-      ],
       include: {
         model: SubCategory,
         as: "subcategories",
-        attributes: [
-          'id',
-          'subCategoryName',
-          'subCategoryDescription',
-          'subCategoryImage',
-          'subCategoryProductCount',
-          'categoryId',
-          'createdAt',
-          'updatedAt'
-        ],
         order: [['subCategoryName', 'ASC']],
       },
     });
@@ -229,7 +207,24 @@ const getSingleCategoryWithSubcategories = async (req, res) => {
       return res.status(404).json({ message: "Category not found" });
     }
 
-    res.status(200).json(category);
+    // Manually select only needed fields
+    const optimizedCategory = {
+      id: category.id,
+      categoryName: category.categoryName,
+      categoryImage: category.categoryImage,
+      categoryDescription: category.categoryDescription,
+      categoryProductCount: category.categoryProductCount,
+      subcategories: category.subcategories?.map(sub => ({
+        id: sub.id,
+        subCategoryName: sub.subCategoryName,
+        subCategoryDescription: sub.subCategoryDescription,
+        subCategoryImage: sub.subCategoryImage,
+        subCategoryProductCount: sub.subCategoryProductCount,
+        categoryId: sub.categoryId,
+      })),
+    };
+
+    res.status(200).json(optimizedCategory);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
@@ -242,35 +237,33 @@ const getAllCategoriesWithProductCounts = async (req, res) => {
     const Product = require("../../models/productModel/productModel");
 
     const mainCategories = await Category.findAll({
-      attributes: [
-        "id",
-        "categoryName",
-        "categoryDescription",
-        "categoryImage",
-        "createdAt",
-        "updatedAt",
-        [sequelize.literal('(SELECT COUNT(*) FROM products WHERE products.productCategoryId = Category.id)'), 'categoryProductCount']
-      ],
       include: [
         {
           model: SubCategory,
           as: "subcategories",
-          attributes: [
-            "id",
-            "subCategoryName",
-            "subCategoryDescription",
-            "subCategoryImage",
-            "categoryId",
-            "createdAt",
-            "updatedAt",
-            [sequelize.literal('(SELECT COUNT(*) FROM products WHERE products.productSubCategoryId = subcategories.id)'), 'subCategoryProductCount']
-          ],
         },
       ],
       order: [['categoryName', 'ASC'], [{ model: SubCategory, as: 'subcategories' }, 'subCategoryName', 'ASC']],
     });
 
-    res.status(200).json({ categories: mainCategories });
+    // Manually optimize response to remove unused fields
+    const optimizedCategories = mainCategories.map(category => ({
+      id: category.id,
+      categoryName: category.categoryName,
+      categoryDescription: category.categoryDescription,
+      categoryImage: category.categoryImage,
+      categoryProductCount: category.categoryProductCount,
+      subcategories: category.subcategories?.map(sub => ({
+        id: sub.id,
+        subCategoryName: sub.subCategoryName,
+        subCategoryDescription: sub.subCategoryDescription,
+        subCategoryImage: sub.subCategoryImage,
+        subCategoryProductCount: sub.subCategoryProductCount,
+        categoryId: sub.categoryId,
+      })),
+    }));
+
+    res.status(200).json({ categories: optimizedCategories });
   } catch (error) {
     console.error("Error fetching categories with product counts:", error);
     res.status(500).json({ message: "Server error", error });

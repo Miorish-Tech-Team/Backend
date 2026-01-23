@@ -9,7 +9,6 @@ const {
   getWeeklyPromotionBanners,
   getThePopularBanners,
   getBrandPosterBanners,
-  getProductPosterAdsBanners,
   handleDeleteHomepageBanner,
   handleDeleteWeeklyPromotionBanner,
   handleDeleteThePopularBanner,
@@ -68,7 +67,6 @@ router.get("/homepage-banners", getHomepageBanners);
 router.get("/weekly-banners", getWeeklyPromotionBanners);
 router.get("/popular-banners", getThePopularBanners);
 router.get("/brands-banners", getBrandPosterBanners);
-router.get("/products-banners", getProductPosterAdsBanners);
 
 // Delete routes
 router.delete(
