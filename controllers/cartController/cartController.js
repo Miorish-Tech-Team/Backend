@@ -5,7 +5,7 @@ const Product = require('../../models/productModel/productModel');
 const handleAddToCart = async (req, res) => {
   try {
     const userId = req.user.id;
-    let { productId, quantity } = req.body;
+    let { productId, quantity, selectedColor } = req.body;
 
     console.log("REQ BODY:", req.body);
 
@@ -33,7 +33,14 @@ const handleAddToCart = async (req, res) => {
 
     console.log("Cart ID:", cart.id);
 
-    let cartItem = await CartItem.findOne({ where: { cartId: cart.id, productId } });
+    // Find cart item with matching productId and color
+    let cartItem = await CartItem.findOne({ 
+      where: { 
+        cartId: cart.id, 
+        productId,
+        selectedColor: selectedColor || null
+      } 
+    });
 
     let newQuantity = quantity;
     if (cartItem) {
@@ -56,6 +63,7 @@ const handleAddToCart = async (req, res) => {
         productId,
         quantity,
         price: product.productDiscountPrice || product.productPrice,
+        selectedColor: selectedColor || null,
       });
     }
 

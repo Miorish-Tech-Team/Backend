@@ -29,7 +29,7 @@ function generateFormattedOrderId() {
 }
 
 const handleBuyNow = async (req, res) => {
-  const { productId, quantity, addressId, paymentMethod, shippingCost = 0, idempotencyKey } = req.body;
+  const { productId, quantity, addressId, paymentMethod, shippingCost = 0, idempotencyKey, selectedColor } = req.body;
   const userId = req.user.id;
 
   // Check idempotency key
@@ -145,6 +145,7 @@ const handleBuyNow = async (req, res) => {
         totalPrice,
         productName: product.productName,
         productImageUrl: product.coverImageUrl,
+        selectedColor: selectedColor || null,
       },
       { transaction: t }
     );

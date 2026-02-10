@@ -16,7 +16,7 @@ const razorpay = new Razorpay({
  * Create Razorpay order for Buy Now
  */
 const createRazorpayOrderForBuyNow = async (req, res) => {
-  const { productId, quantity, addressId, shippingCost = 0 } = req.body;
+  const { productId, quantity, addressId, shippingCost = 0, selectedColor } = req.body;
   const userId = req.user.id;
 
   try {
@@ -51,6 +51,7 @@ const createRazorpayOrderForBuyNow = async (req, res) => {
         addressId: addressId.toString(),
         orderType: "buynow",
         shippingCost: shippingCost.toString(),
+        selectedColor: selectedColor || "",
       },
     });
 
@@ -152,6 +153,7 @@ const verifyAndCompleteBuyNowOrder = async (req, res) => {
     addressId,
     shippingCost = 0,
     idempotencyKey,
+    selectedColor,
   } = req.body;
 
   const userId = req.user.id;
@@ -179,6 +181,7 @@ const verifyAndCompleteBuyNowOrder = async (req, res) => {
       paymentMethod: "Razorpay",
       shippingCost: parseFloat(shippingCost),
       idempotencyKey,
+      selectedColor: selectedColor || null,
     };
 
     return await handleBuyNow(req, res);
