@@ -2,31 +2,32 @@ require("dotenv").config();
 const multer = require("multer");
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
-const supabase = require("../supabaseConfig/supabase");
-
-const BUCKET_NAME = process.env.SUPABASE_BUCKET;
+const cloudinary = require("../cloudinaryConfig/cloudinary");
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-const uploadToSupabase = async (file) => {
+const uploadToCloudinary = async (file) => {
   if (!file) return null;
 
-  const fileExt = path.extname(file.originalname);
-  const fileName = `${uuidv4()}${fileExt}`;
+  return new Promise((resolve, reject) => {
+    const fileExt = path.extname(file.originalname);
+    const fileName = `${uuidv4()}${fileExt}`;
+    
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: "miorish",
+        public_id: fileName.replace(fileExt, ""),
+        resource_type: "auto",
+      },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result.secure_url);
+      }
+    );
 
-  const { error } = await supabase.storage
-    .from(BUCKET_NAME)
-    .upload(fileName, file.buffer, {
-      cacheControl: "3600",
-      upsert: false,
-      contentType: file.mimetype,
-    });
-
-  if (error) throw error;
-
-  const { data } = supabase.storage.from(BUCKET_NAME).getPublicUrl(fileName);
-  return data.publicUrl;
+    uploadStream.end(file.buffer);
+  });
 };
 
 const singleUpload = (fieldName) => [
@@ -34,7 +35,7 @@ const singleUpload = (fieldName) => [
   async (req, res, next) => {
     try {
       if (req.file) {
-        req.fileUrl = await uploadToSupabase(req.file);
+        req.fileUrl = await uploadToCloudinary(req.file);
       }
       next();
     } catch (err) {
@@ -49,7 +50,7 @@ const multipleUpload = (fieldName, maxCount = 5) => [
     try {
       if (req.files && req.files.length > 0) {
         req.fileUrls = await Promise.all(
-          req.files.map((file) => uploadToSupabase(file))
+          req.files.map((file) => uploadToCloudinary(file))
         );
       }
       next();
@@ -70,7 +71,7 @@ const fieldsUpload = (fields) => [
           req.files[fieldName] = await Promise.all(
             filesArray.map(async (file) => ({
               ...file,
-              location: await uploadToSupabase(file)
+              location: await uploadToCloudinary(file)
             }))
           );
         }
