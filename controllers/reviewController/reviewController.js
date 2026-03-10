@@ -92,17 +92,17 @@ const handleUpdateReview = async (req, res) => {
     });
 
     if (!review) {
-      console.log("Review not found for user and reviewId");
+      
       return res.status(404).json({
         success: false,
         message: "Review not found.",
       });
     }
 
-    console.log("Review found:", review.id);
+  
 
     const reviewPhotoUrl = req.fileUrl || review.reviewPhoto;
-    console.log("Review photo URL:", reviewPhotoUrl);
+  
 
     review.rating = rating ?? review.rating;
     review.reviewText = reviewText ?? review.reviewText;
@@ -110,7 +110,7 @@ const handleUpdateReview = async (req, res) => {
     review.reviewDate = new Date();
 
     await review.save();
-    console.log("Review saved");
+
 
     const productId = review.productId;
 
@@ -143,7 +143,7 @@ const handleUpdateReview = async (req, res) => {
       { where: { id: productId } }
     );
 
-    console.log("Product updated");
+  
 
     res.status(200).json({
       success: true,
@@ -255,8 +255,7 @@ const handleDeleteReviewByUser = async (req, res) => {
   const userId = req.user?.id;
   const { reviewId } = req.params;
 
-  console.log("User ID:", userId);
-  console.log("Review ID:", reviewId);
+
 
   try {
     if (!userId || !reviewId) {

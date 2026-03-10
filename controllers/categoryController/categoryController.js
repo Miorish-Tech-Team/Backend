@@ -42,7 +42,6 @@ const handleUpdateCategory = async (req, res) => {
       return res.status(404).json({ message: "Category not found" });
     }
 
-    console.log("Current category image:", category.categoryImage);
 
     category.categoryName = categoryName ?? category.categoryName;
     category.categoryDescription =
@@ -50,7 +49,7 @@ const handleUpdateCategory = async (req, res) => {
 
     // Only update image if a new one is uploaded
     if (req.fileUrl) {
-      console.log("Updating image to:", req.fileUrl);
+     
       category.categoryImage = req.fileUrl;
     } else {
       console.log("No new image uploaded, keeping existing image");

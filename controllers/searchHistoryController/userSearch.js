@@ -5,7 +5,7 @@ const handleTrackSearch = async (req, res, next) => {
   try {
     const userId = req.user?.id || null;
     if (!userId) {
-      console.log("User not logged in, skipping search tracking");
+     
       return next();
     }
 
@@ -37,17 +37,15 @@ const handleTrackSearch = async (req, res, next) => {
         record.changed("searchTextList", true); 
         await record.save();
 
-        console.log(` Search term "${searchText}" added for userId ${userId}`);
-      } else {
-        console.log(` Search term "${searchText}" already exists for userId ${userId}`);
-      }
+        
+      } 
     } else {
       await SearchHistory.create({
         userId,
         productIdList: [],
         searchTextList: [searchText],
       });
-      console.log(` New search history created with "${searchText}" for userId ${userId}`);
+      
     }
 
     next();
@@ -61,7 +59,7 @@ const handleTrackProductClick = async (req, res, next) => {
   try {
     const userId = req.user?.id || null;
     if (!userId) {
-      console.log("User not logged in, skipping product click tracking");
+    
       return next();
     }
 
@@ -96,10 +94,7 @@ const handleTrackProductClick = async (req, res, next) => {
         record.changed("productIdList", true); 
         await record.save();
 
-        console.log(` productId ${productId} added to SearchHistory for userId ${userId}`);
-      } else {
-        console.log(` productId ${productId} already exists for userId ${userId}`);
-      }
+      } 
     } else {
       await SearchHistory.create({
         userId,
@@ -107,7 +102,7 @@ const handleTrackProductClick = async (req, res, next) => {
         searchTextList: [],
       });
 
-      console.log(` New SearchHistory created for userId ${userId} with productId ${productId}`);
+     
     }
 
     next();

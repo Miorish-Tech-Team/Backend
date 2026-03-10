@@ -84,14 +84,13 @@ const recommendBasedOnActivity = async (req, res) => {
     const relatedProductIds = await getUserRelatedProductIds(userId);
 
     if (!relatedProductIds.length) {
-      console.log(" No related products found.");
       return res.json({ success: true, recommended: [] });
     }
 
     const allProducts = await Product.findAll({ where: { status: "approved" } });
 
     if (!allProducts.length) {
-      console.log(" No approved products found.");
+     
       return res.json({ success: true, recommended: [] });
     }
 
@@ -100,7 +99,7 @@ const recommendBasedOnActivity = async (req, res) => {
       relatedProductIds.includes(product.id)
     );
 
-    console.log(" User interacted products:", userProducts.map(p => p.productName));
+
 
     const recommendedMap = new Map();
 
@@ -111,10 +110,7 @@ const recommendBasedOnActivity = async (req, res) => {
 
     userProducts.forEach(userProduct => {
       const similarProducts = getSimilarProducts(userProduct, allProducts);
-      console.log(
-        ` Found ${similarProducts.length} similar products for "${userProduct.productName}"`
-      );
-
+     
       similarProducts.forEach(product => {
         if (!recommendedMap.has(product.id)) {
           recommendedMap.set(product.id, product);
@@ -124,8 +120,7 @@ const recommendBasedOnActivity = async (req, res) => {
 
     const recommended = Array.from(recommendedMap.values());
 
-    console.log(" Final recommended products:", recommended.map(p => p.id));
-
+  
     res.json({
       success: true,
       recommended,

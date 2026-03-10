@@ -11,16 +11,15 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
-console.log("Razorpay initialized with Key ID:", process.env.RAZORPAY_KEY_ID ? "Present" : "Missing");
-console.log("Razorpay Secret:", process.env.RAZORPAY_KEY_SECRET ? "Present" : "Missing");
+
 
 // Create Razorpay order for membership purchase
 const createRazorpayOrderForMembership = async (req, res) => {
   try {
-    console.log("Creating Razorpay order for membership...");
+   
     const { membershipId } = req.params;
     const userId = req.user.id;
-    console.log("User ID:", userId, "Membership ID:", membershipId);
+   
 
     // Find seller
     const seller = await Seller.findOne({ where: { userId } });
@@ -28,15 +27,15 @@ const createRazorpayOrderForMembership = async (req, res) => {
       console.error("Seller not found for userId:", userId);
       return res.status(404).json({ message: "Seller not found" });
     }
-    console.log("Seller found:", seller.id);
+    
 
     // Find membership plan
     const membership = await Membership.findByPk(membershipId);
     if (!membership) {
-      console.error("Membership not found:", membershipId);
+      
       return res.status(404).json({ message: "Membership plan not found" });
     }
-    console.log("Membership found:", membership.planName, "Price:", membership.price);
+   
 
     if (!membership.isActive) {
       return res.status(400).json({ message: "Membership plan is not active" });
@@ -55,9 +54,9 @@ const createRazorpayOrderForMembership = async (req, res) => {
       },
     };
 
-    console.log("Creating Razorpay order with options:", options);
+  
     const razorpayOrder = await razorpay.orders.create(options);
-    console.log("Razorpay order created successfully:", razorpayOrder.id);
+   
 
     res.status(200).json({
       success: true,
@@ -74,8 +73,7 @@ const createRazorpayOrderForMembership = async (req, res) => {
     });
   } catch (error) {
     console.error("Error creating Razorpay order for membership:", error);
-    console.error("Error details:", error.message);
-    console.error("Error stack:", error.stack);
+  
     res.status(500).json({
       message: "Error creating payment order",
       error: error.message,

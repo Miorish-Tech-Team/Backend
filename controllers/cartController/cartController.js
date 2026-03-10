@@ -7,8 +7,6 @@ const handleAddToCart = async (req, res) => {
     const userId = req.user.id;
     let { productId, quantity, selectedColor } = req.body;
 
-    console.log("REQ BODY:", req.body);
-
     if (!productId || !quantity) {
       return res.status(400).json({ message: 'Product ID and quantity are required.' });
     }
@@ -31,7 +29,6 @@ const handleAddToCart = async (req, res) => {
       cart = await Cart.create({ userId, status: 'active' });
     }
 
-    console.log("Cart ID:", cart.id);
 
     // Find cart item with matching productId and color
     let cartItem = await CartItem.findOne({ 
