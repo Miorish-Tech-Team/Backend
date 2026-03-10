@@ -17,10 +17,8 @@ const {
  */
 const migrateExistingAddresses = async () => {
   try {
-    console.log("Starting address migration...");
-    
+   
     const addresses = await Address.findAll();
-    console.log(`Found ${addresses.length} addresses to migrate`);
     
     const results = {
       updated: 0,
@@ -63,7 +61,7 @@ const migrateExistingAddresses = async () => {
         if (needsUpdate && !needsReview) {
           await address.save();
           results.updated++;
-          console.log(`✓ Updated address ${address.id} - Set country to India`);
+         
         }
         
         // Log if needs manual review
@@ -77,7 +75,7 @@ const migrateExistingAddresses = async () => {
             currentPincode: address.postalCode,
             issues: issues
           });
-          console.log(`⚠ Address ${address.id} needs review: ${issues.join(', ')}`);
+          
         }
         
       } catch (error) {
@@ -88,25 +86,19 @@ const migrateExistingAddresses = async () => {
         console.error(`✗ Error processing address ${address.id}:`, error.message);
       }
     }
+
     
-    // Print summary
-    console.log("\n=== Migration Summary ===");
-    console.log(`Total addresses: ${addresses.length}`);
-    console.log(`Successfully updated: ${results.updated}`);
-    console.log(`Needs manual review: ${results.needsReview.length}`);
-    console.log(`Errors: ${results.errors.length}`);
-    
-    // Print addresses that need review
-    if (results.needsReview.length > 0) {
-      console.log("\n=== Addresses Needing Review ===");
-      results.needsReview.forEach(addr => {
-        console.log(`\nAddress ID: ${addr.id}`);
-        console.log(`User ID: ${addr.userId}`);
-        console.log(`Recipient: ${addr.recipientName}`);
-        console.log(`Current: ${addr.currentState}, ${addr.currentDistrict}, ${addr.currentPincode}`);
-        console.log(`Issues: ${addr.issues.join(', ')}`);
-      });
-    }
+    // // Print addresses that need review
+    // if (results.needsReview.length > 0) {
+    //   console.log("\n=== Addresses Needing Review ===");
+    //   results.needsReview.forEach(addr => {
+    //     console.log(`\nAddress ID: ${addr.id}`);
+    //     console.log(`User ID: ${addr.userId}`);
+    //     console.log(`Recipient: ${addr.recipientName}`);
+    //     console.log(`Current: ${addr.currentState}, ${addr.currentDistrict}, ${addr.currentPincode}`);
+    //     console.log(`Issues: ${addr.issues.join(', ')}`);
+    //   });
+    // }
     
     // Print errors
     if (results.errors.length > 0) {
@@ -130,10 +122,10 @@ const migrateExistingAddresses = async () => {
  */
 const auditAddresses = async () => {
   try {
-    console.log("Starting address audit...");
+   
     
     const addresses = await Address.findAll();
-    console.log(`Auditing ${addresses.length} addresses`);
+   
     
     const report = {
       total: addresses.length,
@@ -184,23 +176,23 @@ const auditAddresses = async () => {
       }
     }
     
-    // Print report
-    console.log("\n=== Audit Report ===");
-    console.log(`Total addresses: ${report.total}`);
-    console.log(`Valid addresses: ${report.valid} (${((report.valid/report.total)*100).toFixed(2)}%)`);
-    console.log(`Invalid country: ${report.invalidCountry}`);
-    console.log(`Invalid state: ${report.invalidState}`);
-    console.log(`Invalid district: ${report.invalidDistrict}`);
-    console.log(`Invalid pincode: ${report.invalidPincode}`);
+    // // Print report
+    // console.log("\n=== Audit Report ===");
+    // console.log(`Total addresses: ${report.total}`);
+    // console.log(`Valid addresses: ${report.valid} (${((report.valid/report.total)*100).toFixed(2)}%)`);
+    // console.log(`Invalid country: ${report.invalidCountry}`);
+    // console.log(`Invalid state: ${report.invalidState}`);
+    // console.log(`Invalid district: ${report.invalidDistrict}`);
+    // console.log(`Invalid pincode: ${report.invalidPincode}`);
     
-    if (report.details.length > 0) {
-      console.log("\n=== Invalid Addresses ===");
-      report.details.forEach(addr => {
-        console.log(`\nID: ${addr.id}, User: ${addr.userId}`);
-        console.log(`Address: ${addr.state}, ${addr.district}, ${addr.pincode}, ${addr.country}`);
-        console.log(`Issues: ${addr.issues.join(', ')}`);
-      });
-    }
+    // if (report.details.length > 0) {
+    //   console.log("\n=== Invalid Addresses ===");
+    //   report.details.forEach(addr => {
+    //     console.log(`\nID: ${addr.id}, User: ${addr.userId}`);
+    //     console.log(`Address: ${addr.state}, ${addr.district}, ${addr.pincode}, ${addr.country}`);
+    //     console.log(`Issues: ${addr.issues.join(', ')}`);
+    //   });
+    // }
     
     return report;
     
@@ -223,7 +215,7 @@ if (require.main === module) {
   if (action === 'migrate') {
     migrateExistingAddresses()
       .then(() => {
-        console.log("\nMigration completed!");
+       
         process.exit(0);
       })
       .catch(err => {
@@ -233,7 +225,7 @@ if (require.main === module) {
   } else if (action === 'audit') {
     auditAddresses()
       .then(() => {
-        console.log("\nAudit completed!");
+      
         process.exit(0);
       })
       .catch(err => {
@@ -241,9 +233,7 @@ if (require.main === module) {
         process.exit(1);
       });
   } else {
-    console.log("Usage: node addressMigration.js [audit|migrate]");
-    console.log("  audit   - Check existing addresses without making changes");
-    console.log("  migrate - Update addresses to comply with Indian validation");
+    
     process.exit(1);
   }
 }

@@ -135,7 +135,7 @@ const handleSignin = async (req, res) => {
         await user.save();
 
         await sendTwoFactorOtp(user.email, user.fullName, verificationCode);
-        console.log("Sent 2FA OTP:", verificationCode, verificationCodeExpiresAt);
+    
         return res.status(202).json({
           success: true,
           message: "OTP sent to your email. Please verify to complete login.",
@@ -167,8 +167,6 @@ const handleSignin = async (req, res) => {
 const verify2FALogin = async (req, res) => {
   try {
     const { verificationCode, userId } = req.body;
-
-    console.log("Received 2FA verification code:", verificationCode);
     
     // First try to find user by verification code (email method)
     let user = await User.findOne({
@@ -208,7 +206,6 @@ const verify2FALogin = async (req, res) => {
           });
         }
         
-        console.log("Authenticator code verified for user:", user.email);
       } else {
         return res.status(400).json({
           success: false,
@@ -225,22 +222,19 @@ const verify2FALogin = async (req, res) => {
       });
     }
 
-    console.log("User verified:", user.email);
-
     // Clear verification code for email method
     if (user.twoFactorMethod === "email") {
       user.verificationCode = null;
       user.verificationCodeExpiresAt = null;
       await user.save();
-      console.log("Verification fields cleared.");
     }
 
     const token = createToken(user);
     const middlewareToken = createMiddlewareToken(user);
-    console.log("JWT token created:", token);
+  
 
     setTokenCookie(res, token, middlewareToken);
-    console.log("Token cookie set successfully.");
+
 
     return res.status(200).json({
       success: true,

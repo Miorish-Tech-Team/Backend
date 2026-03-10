@@ -231,19 +231,19 @@ const validatePincodeFormat = (pincode) => {
  */
 const validatePincodeWithAPI = async (pincode) => {
   try {
-    console.log(`[Pincode API] Validating pincode: ${pincode}`);
+  
     
     const response = await axios.get(`https://api.postalpincode.in/pincode/${pincode}`, {
       timeout: 5000 // 5 second timeout
     });
     
-    console.log(`[Pincode API] Response status: ${response.data[0]?.Status}`);
+   
     
     if (response.data && response.data[0] && response.data[0].Status === 'Success') {
       const postOffices = response.data[0].PostOffice;
       if (postOffices && postOffices.length > 0) {
         const postOffice = postOffices[0];
-        console.log(`[Pincode API] Verified: ${postOffice.District}, ${postOffice.State}`);
+        
         return {
           isValid: true,
           state: postOffice.State,
@@ -255,7 +255,7 @@ const validatePincodeWithAPI = async (pincode) => {
       }
     }
     
-    console.log(`[Pincode API] Pincode not found in database`);
+  
     return {
       isValid: false,
       message: 'Invalid pincode'

@@ -28,7 +28,7 @@ const updateRevenueAndOrders = async (orderAmount) => {
         totalOrdersPercentage: ordersPercent,
       });
 
-      console.log("AdminStats updated successfully (existing record)");
+   
     } else {
       await AdminStats.create({
         totalRevenue: orderAmount,
@@ -39,7 +39,7 @@ const updateRevenueAndOrders = async (orderAmount) => {
         totalCustomersPercentage: 0,
       });
 
-      console.log("AdminStats created successfully (new record)");
+      
     }
   } catch (err) {
     console.error("Failed to update/create AdminStats:", err);
@@ -63,7 +63,7 @@ const updateCustomers = async () => {
         totalCustomersPercentage: customersPercent,
       });
 
-      console.log("AdminStats customer count updated (existing record)");
+     
     } else {
       await AdminStats.create({
         totalCustomers: 1,
@@ -74,7 +74,6 @@ const updateCustomers = async () => {
         totalOrdersPercentage: 0,
       });
 
-      console.log("AdminStats created successfully (new record)");
     }
   } catch (err) {
     console.error("Failed to update/create customers:", err);

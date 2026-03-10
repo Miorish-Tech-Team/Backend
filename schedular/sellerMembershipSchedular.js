@@ -28,7 +28,6 @@ cron.schedule('0 0 * * *', async () => {
     }
 
     
-    console.log('Checked membership expiry:', new Date().toDateString());
   } catch (error) {
     console.error('Error in seller membership cron job:', error.message);
   }

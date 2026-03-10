@@ -102,7 +102,6 @@ const sellerSignup = async (req, res) => {
       100000 + Math.random() * 900000
     ).toString();
     const verificationCodeExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
-    console.log("Generated verification code:", verificationCode);
 
     const newSeller = await Seller.create(
       {
@@ -168,7 +167,6 @@ const resendSellerVerificationOtp = async (req, res) => {
     seller.verificationCode = verificationCode;
     seller.verificationCodeExpiresAt = verificationCodeExpiresAt;
     await seller.save();
-    console.log("Resent verification code:", verificationCode);
     await sendVerificationEmail(
       seller.email,
       seller.sellerName,

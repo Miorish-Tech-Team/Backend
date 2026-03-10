@@ -12,7 +12,7 @@ const { createUserNotification } = require("../notifications/userNotification");
 
 const handleAdminGetAllOrders = async (req, res) => {
   try {
-    console.log("Admin fetching all orders - User role:", req.user?.role);
+   
     const { orderStatus, uniqueOrderId, orderDate } = req.query;
 
     const whereClause = {};
@@ -35,7 +35,7 @@ const handleAdminGetAllOrders = async (req, res) => {
       };
     }
 
-    console.log("Fetching orders with where clause:", whereClause);
+  
 
     const orders = await Order.findAll({
       where: whereClause,
@@ -108,7 +108,7 @@ const handleAdminGetAllOrders = async (req, res) => {
       ],
     });
 
-    console.log(`Found ${orders.length} orders`);
+   
 
     res.status(200).json({
       message: "Orders retrieved successfully",
